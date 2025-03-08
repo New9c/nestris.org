@@ -41,7 +41,8 @@ export class CalibrateOcrModalComponent implements OnDestroy, OnInit {
   readonly ALL_CALIBRATION_STEPS: CalibrationStep[] = CONFIG.requireOCRVerifier ? 
   [
     CalibrationStep.SELECT_VIDEO_SOURCE,
-    CalibrationStep.LOCATE_TETRIS_BOARD
+    CalibrationStep.LOCATE_TETRIS_BOARD,
+    CalibrationStep.VERIFY_OCR
   ] :
   [
     CalibrationStep.SELECT_VIDEO_SOURCE,

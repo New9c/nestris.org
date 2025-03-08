@@ -1,14 +1,11 @@
-import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
-import { GlobalState } from "../../global-state";
+import { GlobalState, RolloverState } from "../../global-state";
 import { OCRFrame } from "../../ocr-frame";
 import { OCRState, StateEvent } from "../../ocr-state";
-import { ConsecutivePersistenceStrategy, SingleFramePersistenceStrategy, TimedPersistenceStrategy } from "../../persistence-strategy";
+import { ConsecutivePersistenceStrategy, TimedPersistenceStrategy } from "../../persistence-strategy";
 import { TextLogger } from "../../state-machine-logger";
 import { NOISE_THRESHOLD } from "./before-game-state";
 import { OCRStateID } from "../ocr-state-id";
 import { RestartGameEvent } from "../events/restart-game-event";
-import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
-import { GameRecoverySchema } from "src/app/shared/network/stream-packets/packet";
 import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
 import { Counter } from "src/app/shared/scripts/counter";
 import { RecoveryEvent } from "../events/recovery-event";
@@ -17,7 +14,7 @@ import { SmartGameStatus } from "src/app/shared/tetris/smart-game-status";
 export class GameLimboState extends OCRState {
     public override readonly id = OCRStateID.GAME_LIMBO;
 
-    private ocrCounter = new Counter(20);
+    private ocrCounter = new Counter(10);
     private next: TetrominoType = this.globalState.game!.getNextType();
     public predictedLevel = this.globalState.game!.getStatus().level;
     public predictedLines = this.globalState.game!.getStatus().lines;
@@ -27,8 +24,8 @@ export class GameLimboState extends OCRState {
 
         this.registerEvent(new RestartGameEvent(this.config, this.globalState, this.textLogger));
         this.registerEvent(new RecoveryEvent(this.globalState, this));
+        this.registerEvent(new TimeoutEvent(this.globalState));
         this.registerEvent(new ExitEvent());
-        this.registerEvent(new TimeoutEvent());
     }
 
     /**
@@ -44,7 +41,7 @@ export class GameLimboState extends OCRState {
             if (next !== TetrominoType.ERROR_TYPE) this.next = next;
 
             // Only attempt calc if not capped
-            if (!this.globalState.game!.profile.isMaxoutCapped) {
+            if (this.globalState.game!.profile.isMaxoutCapped !== true) {
                 await this.updateCounters(ocrFrame);                
             }
         }
@@ -62,18 +59,21 @@ export class GameLimboState extends OCRState {
     /**
      * Try to derive score, level and lines. Because each of these rollover/cap, try to derive if needed
      */
-    private async updateCounters(ocrFrame: OCRFrame) {
+    public async updateCounters(ocrFrame: OCRFrame) {
 
         const previousLevel = this.predictedLevel;
         const previousLines = this.predictedLines;
-        const previousScore = this.predictedScore;
+
+        console.log("updating counters");
 
         // Derive new lines
-        if (this.predictedLines < 996) {
-            // If before lines rollover, read all 3 digits. Can only skip up to 4 lines, or OCR will break
+        if (this.predictedLines < 992) {
+            // If before lines rollover, read all 3 digits. Can only skip up to 8 lines, or OCR will break
             let ocrLines = (await ocrFrame.getLines(false))!
-            if (ocrLines !== -1 && ocrLines > this.predictedLines && ocrLines <= this.predictedLines + 4) {
+            console.log("ocrLines", ocrLines, "predicted", this.predictedLines);
+            if (ocrLines !== -1 && ocrLines > this.predictedLines && ocrLines <= this.predictedLines + 8) {
                 this.predictedLines = ocrLines;
+                console.log("new lines", this.predictedLines, "full read");
             }
         } else {
             // Already at lines rollover. Read only the last two digits
@@ -85,27 +85,58 @@ export class GameLimboState extends OCRState {
                 if (ocrLines < this.predictedLines) ocrLines += 100;
 
                 // Can only advance a maximum of 4 lines, or OCR will break
-                if (ocrLines > this.predictedLines && ocrLines - this.predictedLines <= 4) this.predictedLines = ocrLines;
+                if (ocrLines > this.predictedLines && ocrLines - this.predictedLines <= 4) {
+                    this.predictedLines = ocrLines;
+                    console.log("new lines", this.predictedLines, "mod read, rollover");
+                }
             }
         }
 
         // New level if lines overflow in ones digit
         if (this.predictedLines % 10 < previousLines % 10) this.predictedLevel++;
 
+        const scoreFromLineClears = (linesCleared: number) => {
+            const status = new SmartGameStatus(this.globalState.game!.startLevel, previousLines, this.predictedScore, previousLevel);
+            status.onLineClear(linesCleared);
+            return status.score;
+        }
+
         // Derive new score
         if (this.predictedScore < 960000) {
             // If before maxout, read all 6 digits. Can only skip up to 100,000 points, or OCR will break
-            let ocrScore = (await ocrFrame.getScore(false))!
+            let ocrScore = (await ocrFrame.getScore(false))!;
             if (ocrScore !== -1 && ocrScore > this.predictedScore && ocrScore < this.predictedScore + 100000) {
                 this.predictedScore = ocrScore;
+                console.log("new score", this.predictedScore, "full read");
             }
-        } else if (this.predictedLines > previousLines) {
+        } else if (scoreFromLineClears(4) % 1600000 < 1000000) {
+            // Can read full 6 digits, plus rollover
+            let rolloverScore = (await ocrFrame.getScore(false))!;
+            if (rolloverScore !== -1) {
+                let ocrScore = rolloverScore + 1600000 * this.globalState.game!.profile.numRollovers;
+                if (ocrScore > this.predictedScore  && ocrScore < this.predictedScore + 100000) {
+                    this.predictedScore = ocrScore;
+                    console.log("new score", this.predictedScore, "full read with rollover");
+                }
+            }
+        } else if (this.predictedLevel < 80) {
+            // Use mod calculations to figure out new score from the last 5 digits of score ocr
+            let modScore = (await ocrFrame.getScore(true))!;
+            if (modScore !== -1) {
+                let ocrScore = Math.floor(this.predictedScore / 100000) * 100000 + modScore;
+                if (ocrScore < this.predictedScore) ocrScore += 100000; // for wraparounds like 1,390,000 -> 1,410,000
+                this.predictedScore = ocrScore;
+                console.log("new score", this.predictedScore, "last five digits", modScore);
+            }
+        } else if (this.predictedLines > previousLines && this.predictedLines <= previousLines + 4) {
             // Calculate score purely from lines increase
-            const status = new SmartGameStatus(this.globalState.game!.startLevel, previousLines, previousScore, previousLevel);
-            status.onLineClear(this.predictedLines - previousLines);
-            this.predictedScore = status.score;
+            const linesCleared = this.predictedLines - previousLines;
+            this.predictedScore = scoreFromLineClears(linesCleared);
+            console.log("new score", this.predictedScore, "from line clears", linesCleared);
         }
 
+        // Calculate rollovers
+        this.globalState.game!.profile.calculateRolloverOnScore(this.predictedScore);
     }
 }
 
@@ -114,7 +145,7 @@ export class GameLimboState extends OCRState {
  */
 export class ExitEvent extends StateEvent {
     public override readonly name = "ExitEvent";
-    public override readonly persistence = new ConsecutivePersistenceStrategy(5);
+    public override readonly persistence = new ConsecutivePersistenceStrategy(10);
 
     /**
      * If noisy levels are high, that the board is showing is unlikely
@@ -137,15 +168,21 @@ export class ExitEvent extends StateEvent {
 /**
  * If been in limbo state for too long, game is unrecoverable. End game.
  */
+const COLORS_LEVEL = 138;
 export class TimeoutEvent extends StateEvent {
     public override readonly name = "TimeoutEvent";
     public override readonly persistence = new TimedPersistenceStrategy(10000);
 
+    constructor(
+        private readonly globalState: GlobalState
+    ) { super() }
+
     /**
      * No preconditions besides the persistence threshold of the limbo state reached
+     * EXCEPT in colors, indefinitely in limbo
      */
     protected override async precondition(ocrFrame: OCRFrame): Promise<boolean> {
-        return true;
+        return this.globalState.game!.getStatus().level < COLORS_LEVEL;
     };
 
     /**

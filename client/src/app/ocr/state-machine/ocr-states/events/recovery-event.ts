@@ -81,12 +81,8 @@ export class RecoveryEvent extends StateEvent {
             return false;
         }
 
-        // Score, level, and lines must be valid and at least the current values
-        let score: number;
-        if (status.score < 950000) {
-            score = (await ocrFrame.getScore(false))!;
-            if (score === -1 || score < status.score) return false;
-        }
+        // Check the counters one last time to ensure they are updated
+        this.limboState?.updateCounters(ocrFrame);
         
         this.recovery = {
             startLevel: status.startLevel,

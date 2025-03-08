@@ -19,6 +19,18 @@ class OCRProfile {
     public isMaxoutCapped: boolean | undefined = undefined;
     public numRollovers: number = 0;
     public rolloverState: RolloverState = RolloverState.BELOW_800K;
+
+    calculateRolloverOnScore(score: number) {
+        const rolloverScore = score % 1600000;
+        if (this.rolloverState === RolloverState.BELOW_800K && rolloverScore > 800000) {
+            this.rolloverState = RolloverState.ABOVE_800K;
+        } else if (this.rolloverState === RolloverState.ABOVE_800K && rolloverScore < 800000) {
+            this.rolloverState = RolloverState.BELOW_800K;
+            this.numRollovers += 1;
+            console.log("Rollover count:", this.numRollovers, "score", score);
+        }
+    }
+
 }
 
 /**

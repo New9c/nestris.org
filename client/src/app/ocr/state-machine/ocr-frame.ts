@@ -231,7 +231,7 @@ export class OCRFrame {
     async getScore(ignoreFirstDigit: boolean, loadIfNotLoaded: boolean = true): Promise<number | undefined> {
         if (loadIfNotLoaded && !this._score.has(ignoreFirstDigit)) {
             // Predict the digits of the score from the frame, or return -1 if OCR fails
-            this._score.set(ignoreFirstDigit, await this.predictDigits(this.scoreOCRBox));
+            this._score.set(ignoreFirstDigit, await this.predictDigits(this.scoreOCRBox, ignoreFirstDigit));
         }
         return this._score.get(ignoreFirstDigit);
     }
@@ -246,7 +246,7 @@ export class OCRFrame {
     async getLines(ignoreFirstDigit: boolean, loadIfNotLoaded: boolean = true): Promise<number | undefined> {
         if (loadIfNotLoaded && !this._lines.has(ignoreFirstDigit)) {
             // Predict the digits of the score from the frame, or return -1 if OCR fails
-            this._lines.set(ignoreFirstDigit, await this.predictDigits(this.linesOCRBox));
+            this._lines.set(ignoreFirstDigit, await this.predictDigits(this.linesOCRBox, ignoreFirstDigit));
         }
         return this._lines.get(ignoreFirstDigit);
     }

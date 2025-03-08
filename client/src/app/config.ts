@@ -13,4 +13,4 @@ const OCRMidGameTestConfig: BrowserConfig = {
     allowOCRMidGameStart: true
 }
 
-export const CONFIG = OCRMidGameTestConfig;
+export const CONFIG = ProductionConfig;

@@ -65,14 +65,14 @@ export class OCRStateMachine {
         const packets = this.packetSender?.sendBufferedPackets();
 
         // Log the current state of the OCR machine
-        const logs = this.textLogger.popLogs();
-        await this.logger?.log(this.stateCount, ocrFrame, currentState, eventStatuses, packets ?? [], this.globalState, logs);
+        //const logs = this.textLogger.popLogs();
+        //await this.logger?.log(this.stateCount, ocrFrame, currentState, eventStatuses, packets ?? [], this.globalState, logs);
 
         // Transition to the new state if needed
         if (newStateID !== undefined) {
             this.stateCount++;
             this.currentState$.next(ocrStateFactory(newStateID, this.config, this.globalState, this.textLogger));
-            console.log("Transition to", newStateID);
+            //console.log("Transition to", newStateID);
         }
         
         this.profiler.stop();

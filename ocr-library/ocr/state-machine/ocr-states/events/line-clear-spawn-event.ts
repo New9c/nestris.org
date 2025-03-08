@@ -150,14 +150,7 @@ export class LineClearSpawnEvent extends StateEvent {
         const pushdown = await calculatePushdown(this.globalState, ocrFrame, scoreAfterLineClear);
 
         // Calculate rollovers
-        const profile = this.globalState.game!.profile;
-        const rolloverScore = scoreAfterLineClear % 1600000;
-        if (profile.rolloverState === RolloverState.BELOW_800K && rolloverScore > 800000) {
-            profile.rolloverState = RolloverState.ABOVE_800K;
-        } else if (profile.rolloverState === RolloverState.ABOVE_800K && rolloverScore < 800000) {
-            profile.rolloverState = RolloverState.BELOW_800K;
-            profile.numRollovers += 1;
-        }
+        this.globalState.game!.profile.calculateRolloverOnScore(scoreAfterLineClear);
 
         // Update the stable board to reflect the new piece placement and report the placement of the previous piece
         this.myState.textLogger.log(LogType.INFO, `RegularSpawnEvent: Placed ${TETROMINO_CHAR[this.validPlacement!.tetrominoType]} at ${this.validPlacement!.getTetrisNotation()}`);

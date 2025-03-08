@@ -59,8 +59,8 @@ export abstract class OCRState {
      * @returns The new state to transition to, or undefined if no transition is needed
      */
     async advanceState(ocrFrame: OCRFrame): Promise<OCRStateID | undefined> {    
-        this.relativeFrameCount++;    
-
+        this.relativeFrameCount++;
+        
         // Update this state before checking for events
         await this.onAdvanceFrame(ocrFrame);
 
@@ -73,7 +73,7 @@ export abstract class OCRState {
             this.eventStatuses.push(eventStatus);
 
             if (eventStatus.persistenceMet) {
-                console.log(`Conditions for event ${event.name} met`);
+                //console.log(`Conditions for event ${event.name} met`);
                 return await event.triggerEvent(ocrFrame);
             }
         }
