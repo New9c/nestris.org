@@ -1,4 +1,4 @@
-<button class="fab" *ngIf="!(showChat$ | async)" (click)="showChat$.next(true)">
+<button class="fab" *ngIf="!(showChat$ | async)" (click)="makeChatVisible()">
     <img src="./assets/img/button-icons/chat.svg" width="25px">
 </button>
 
@@ -9,7 +9,9 @@
         <h1>Global chat</h1>
         <div class="online">
             <app-online-indicator [isOnline]="!!(numUsers$ | async)" />
-            <h2>{{(numUsers$ | async)}} players online</h2>
+            <h2>{{numUsersMessage(numUsers$ | async)}}</h2>
         </div>
+
+        <app-chat-text-entry />
     </div>
 </div>

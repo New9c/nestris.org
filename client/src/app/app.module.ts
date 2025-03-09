@@ -109,6 +109,7 @@ import { OcrButtonComponent } from './components/ui/ocr-button/ocr-button.compon
 import { OcrLayoutComponent } from './components/modals/calibrate-ocr-modal-components/ocr-layout/ocr-layout.component';
 import { CorrectnessIconComponent } from './components/ui/correctness-icon/correctness-icon.component';
 import { MainChatComponent } from './components/main-chat/main-chat.component';
+import { ChatTextEntryComponent } from './components/ui/chat-text-entry/chat-text-entry.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -254,6 +255,7 @@ const customNotifierOptions: NotifierOptions = {
     OcrLayoutComponent,
     CorrectnessIconComponent,
     MainChatComponent,
+    ChatTextEntryComponent,
   ],
   imports: [
     BrowserModule,

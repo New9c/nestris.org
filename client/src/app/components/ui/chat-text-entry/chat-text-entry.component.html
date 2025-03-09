@@ -1,0 +1,8 @@
+<div class="text-entry">
+    <textarea #textarea *ngIf="!disabledMessage"
+        [placeholder]="placeholderText"
+        [rows]="rows$ | async" (input)="onChange($event)"></textarea>
+    <p class="disabled-message" *ngIf="disabledMessage">{{disabledMessage}}</p>
+    <img class="submit-button" src="assets/img/button-icons/submit-chat.svg" (click)="clickSubmitButton()"
+        width="11px" [ngClass]="{disabled: !!disabledMessage}">
+</div>

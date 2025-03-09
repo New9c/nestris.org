@@ -20,14 +20,28 @@ export class MainChatComponent implements OnDestroy {
     private readonly fetchService: FetchService
   ) {
 
-    this.numUsersInterval = setInterval(async () => {
-      this.numUsers$.next(await this.numUsersPromise());
-    }, 2000);
-    this.numUsersPromise().then((numUsers) => this.numUsers$.next(numUsers));
   }
 
   get showChat$() {
     return MainChatComponent.showChat;
+  }
+
+  makeChatVisible() {
+    this.numUsersInterval = setInterval(async () => {
+      this.numUsers$.next(await this.numUsersPromise());
+    }, 2000);
+    this.numUsersPromise().then((numUsers) => this.numUsers$.next(numUsers));
+    this.showChat$.next(true);
+  }
+
+  makeChatInvisible() {
+    clearInterval(this.numUsersInterval);
+    this.showChat$.next(false);
+  }
+
+  numUsersMessage(numUsers: number | null): string {
+    if (numUsers === null) numUsers = 0;
+    return `${numUsers} ${numUsers === 1 ? 'player' : 'players'} online!`;
   }
 
   ngOnDestroy(): void {
