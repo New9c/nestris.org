@@ -1,3 +1,15 @@
 <button class="fab" *ngIf="!(showChat$ | async)" (click)="showChat$.next(true)">
-    <img src="./assets/img/button-icons/chat.svg">
+    <img src="./assets/img/button-icons/chat.svg" width="25px">
 </button>
+
+<div class="chat" *ngIf="showChat$ | async">
+    <app-x (clickX)="showChat$.next(false)" />
+
+    <div class="chat-content">
+        <h1>Global chat</h1>
+        <div class="online">
+            <app-online-indicator [isOnline]="!!(numUsers$ | async)" />
+            <h2>{{(numUsers$ | async)}} players online</h2>
+        </div>
+    </div>
+</div>

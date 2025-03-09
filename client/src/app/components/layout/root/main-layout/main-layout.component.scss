@@ -5,12 +5,7 @@
   flex-direction: column;
 }
 
-@media (max-width: 800px) {
-  :host {
-    zoom: 0.7;
-    height: 142.86vh;
-  }
-}
+
 
 // @media (max-width: 600px) {
 //   :host {
@@ -38,6 +33,13 @@
   box-sizing: border-box;
 
   position: relative
+}
+
+@media (max-width: 800px) {
+  .root {
+    zoom: 0.7;
+    height: 142.86vh;
+  }
 }
 
 // make page content scroll but not sidebar

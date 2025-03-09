@@ -5,8 +5,8 @@
     right: 28px;
     bottom: 28px;
 
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background-color: $button-active-color;
 
@@ -34,4 +34,66 @@ img {
     margin: 0;
     padding: 0;
     display: block;
+}
+
+.chat {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+
+    background-color: $dark-color;
+    border-radius: 10px;
+
+    width: 70dvw;
+    max-width: 300px;
+    height: 400px;
+    max-height: 50dvh;
+
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25), 
+              0px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+app-x {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+}
+
+.chat-content {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+}
+
+.online {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+    margin-top: 1px;
+}
+
+app-online-indicator {
+    margin-inline: -10px;
+    zoom: 0.6;
+}
+
+h1 {
+    font-family: $main-font;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 0;
+    margin: 0;
+}
+
+h2 {
+    font-family: $main-font;
+    font-weight: 500;
+    font-size: 9px;
+    padding: 0;
+    margin: 0;
 }
