@@ -12,7 +12,7 @@ const SCORE_RATIO: { [numLines: number]: number } = {
 export class SmartGameStatus implements IGameStatus {
 
     private gameStatus: GameStatus;
-    private transitionLines: number;
+    public readonly transitionLines: number;
 
     constructor(public readonly startLevel: number,
         initialLines: number = 0,

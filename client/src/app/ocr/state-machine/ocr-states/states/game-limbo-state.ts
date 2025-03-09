@@ -93,7 +93,10 @@ export class GameLimboState extends OCRState {
         }
 
         // New level if lines overflow in ones digit
-        if (this.predictedLines % 10 < previousLines % 10) this.predictedLevel++;
+        const transitionLines = this.globalState.game!.getMemoryStatus().transitionLines;
+        if (this.predictedLines >= transitionLines && this.predictedLines % 10 < previousLines % 10) {
+            this.predictedLevel++;
+        }
 
         const scoreFromLineClears = (linesCleared: number) => {
             const status = new SmartGameStatus(this.globalState.game!.startLevel, previousLines, this.predictedScore, previousLevel);
