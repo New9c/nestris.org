@@ -1,4 +1,5 @@
-<div class="button prevent-select" (click)="onClick($event)"
+<button (click)="onClick($event)">
+<div class="button prevent-select" 
     [ngStyle]="{backgroundColor: color, paddingInline: !label ? 0 : paddingHorizontal + 'px',
     borderRadius: borderRadius + 'px', gap : gap + 'px'}"
     [ngClass]="{
@@ -15,6 +16,7 @@
         fontSize: fontSize + 'px', fontWeight: fontWeight, marginBlock: paddingVertical + 'px'
     }">{{ label }}</h1>
 </div>
+</button>
 
 <app-loading-animation *ngIf="enableLoadingAnimation && (loading || (actionLoading$ | async))" class="loading-animation"
 [size]="loadingSize" />

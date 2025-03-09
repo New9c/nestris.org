@@ -1,0 +1,3 @@
+<button class="fab" *ngIf="!(showChat$ | async)" (click)="showChat$.next(true)">
+    <img src="./assets/img/button-icons/chat.svg">
+</button>
