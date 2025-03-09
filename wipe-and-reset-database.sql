@@ -193,6 +193,7 @@ CREATE TABLE "public"."activities" (
 );
 CREATE INDEX activities_userid_index ON activities (userid DESC);
 
+
 -- LOG table that logs message with timestamp
 DROP TABLE IF EXISTS "public"."logs" CASCADE;
 CREATE TABLE "public"."logs" (

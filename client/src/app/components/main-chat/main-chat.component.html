@@ -3,7 +3,7 @@
 </button>
 
 <div class="chat" *ngIf="showChat$ | async">
-    <app-x (clickX)="showChat$.next(false)" />
+    <app-x (clickX)="makeChatInvisible()" />
 
     <div class="chat-content">
         <h1>Global chat</h1>
@@ -12,6 +12,6 @@
             <h2>{{numUsersMessage(numUsers$ | async)}}</h2>
         </div>
 
-        <app-chat-text-entry />
+        <app-chat-text-entry [disabledMessage]="(disabledMessage$ | async) ?? undefined" (sendMessage)="sendMessage($event)" />
     </div>
 </div>

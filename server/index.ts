@@ -70,6 +70,8 @@ import { GetRatedPuzzleRoute } from './src/routes/puzzles/get-rated-puzzle-route
 import { ActivityConsumer } from './src/online-users/event-consumers/activity-consumer';
 import { GetAllActivitiesRoute } from './src/routes/user/get-all-activities-route';
 import { GetErrorsRoute } from './src/routes/misc/get-errors-route';
+import { GetGlobalChatRoute } from './src/routes/misc/get-global-chat-route';
+import { GlobalChatConsumer } from './src/online-users/event-consumers/global-chat-consumer';
 
 // Load environment variables
 require('dotenv').config();
@@ -142,6 +144,7 @@ async function main() {
   consumers.registerConsumer(InvitationConsumer, {});
   consumers.registerConsumer(RatedPuzzleConsumer, {batchSize: NODE_ENV === DeploymentEnvironment.DEV ? 3 : 97});
   consumers.registerConsumer(ActivityConsumer, {});
+  consumers.registerConsumer(GlobalChatConsumer, {});
   consumers.registerConsumer(ServerRestartWarningConsumer, {});
   consumers.registerConsumer(GlobalStatConsumer, {});
   await consumers.init();
@@ -199,6 +202,7 @@ async function main() {
   routes.registerRoute(GetRatedPuzzleRoute);
   routes.registerRoute(GetGlobalStatRoute);
   routes.registerRoute(GetScoreHistogramRoute);
+  routes.registerRoute(GetGlobalChatRoute);
   routes.registerRoute(GetErrorsRoute);
 
   const bots = new BotManager();
