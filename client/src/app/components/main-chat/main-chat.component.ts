@@ -1,5 +1,5 @@
 import { ThisReceiver } from '@angular/compiler';
-import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
 import { BehaviorSubject, map, Subscription } from 'rxjs';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { GlobalChatService } from 'src/app/services/state/global-chat.service';
@@ -29,6 +29,9 @@ export class MainChatComponent implements OnDestroy {
     map(me => me.login_method === LoginMethod.GUEST ? 'Login to send messages!' : undefined)
   );
 
+  hasUnread$ = this.globalChatService.hasUnread$;
+  chatImage$ = this.hasUnread$.pipe(map(hasUnread => `./assets/img/button-icons/${hasUnread ? 'chat-unread' : 'chat'}.svg`));
+
   messages$ = this.globalChatService.get$();
   messagesSubscription: Subscription;
 
@@ -41,9 +44,18 @@ export class MainChatComponent implements OnDestroy {
 
     // Scroll to bottom if just logged in user just sent a message
     this.messagesSubscription = this.messages$.subscribe((messages) => {
-      if (messages[messages.length-1].userid === this.meService.getSync()!.userid) this.scrollToBottom();
+      const scrollElement = this.scrollContainer.nativeElement;
+      const atChatBottom = scrollElement.scrollHeight - scrollElement.scrollTop < 500;
+      console.log(scrollElement.scrollHeight - scrollElement.scrollTop);
+      const containsMyMessage = messages[messages.length-1].userid === this.meService.getSync()!.userid;
+      if (atChatBottom || containsMyMessage) setTimeout(() => this.scrollToBottom(), 50);
     });
 
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    setTimeout(() => this.scrollToBottom(), 50);
   }
 
   get showChat$() {
@@ -56,6 +68,8 @@ export class MainChatComponent implements OnDestroy {
     }, 2000);
     this.numUsersPromise().then((numUsers) => this.numUsers$.next(numUsers));
     this.showChat$.next(true);
+
+    setTimeout(() => this.scrollToBottom(), 50);
   }
 
   makeChatInvisible() {

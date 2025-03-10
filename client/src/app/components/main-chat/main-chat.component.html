@@ -1,5 +1,5 @@
 <button class="fab" *ngIf="!(showChat$ | async)" (click)="makeChatVisible()">
-    <img src="./assets/img/button-icons/chat.svg" width="25px">
+    <img [src]="chatImage$ | async" width="25px">
 </button>
 
 <div class="chat" *ngIf="showChat$ | async">

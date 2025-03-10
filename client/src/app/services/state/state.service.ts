@@ -105,7 +105,7 @@ export function StateService<T extends {}>() {
                         // get copy of state before update
                         const before = Object.assign({}, this.state$.getValue()!);
                         const newState = this.onEvent(message, this.state$.getValue()!);
-                        console.log(`${this.debugName}: event ${message.type} before`, before, "after", newState);
+                        if (this.debugName) console.log(`${this.debugName}: event ${message.type} before`, before, "after", newState);
                         this.state$.next(newState);
                         
 
