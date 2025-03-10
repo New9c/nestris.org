@@ -21,9 +21,18 @@ export enum RoomModal {
 export class RoomComponent implements OnInit, OnDestroy {
 
   readonly RoomModal = RoomModal;
+  readonly RoomType = RoomType;
 
   private gameDataSubscription?: Subscription;
   public roomType$ = new BehaviorSubject<RoomType | null>(null);
+
+  public roomChatTypes: RoomType[] = [
+    RoomType.MULTIPLAYER
+  ];
+
+  public globalChatTypes: RoomType[] = [
+    RoomType.SOLO
+  ];
 
   constructor(
     public readonly roomService: RoomService,
@@ -33,8 +42,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     private readonly cdr: ChangeDetectorRef,
   ) {}
 
-  // The type of the room
-  readonly RoomType = RoomType;
+  
 
   async ngOnInit() {
 

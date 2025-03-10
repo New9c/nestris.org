@@ -30,7 +30,7 @@ export class MainChatComponent implements OnDestroy {
   chatImage$ = this.hasUnread$.pipe(map(hasUnread => `./assets/img/button-icons/${hasUnread ? 'chat-unread' : 'chat'}.svg`));
 
   messages$ = this.globalChatService.get$();
-  messagesSubscription: Subscription;
+  messagesSubscription?: Subscription;
 
   constructor(
     private readonly fetchService: FetchService,
@@ -39,15 +39,6 @@ export class MainChatComponent implements OnDestroy {
     private readonly globalChatService: GlobalChatService,
     private readonly modalManagerService: ModalManagerService,
   ) {
-
-    // Scroll to bottom if just logged in user just sent a message
-    this.messagesSubscription = this.messages$.subscribe((messages) => {
-      const scrollElement = this.scrollContainer.nativeElement;
-      const atChatBottom = scrollElement.scrollHeight - scrollElement.scrollTop < 500;
-      console.log(scrollElement.scrollHeight - scrollElement.scrollTop);
-      const containsMyMessage = messages[messages.length-1].userid === this.meService.getSync()!.userid;
-      if (atChatBottom || containsMyMessage) setTimeout(() => this.scrollToBottom(), 50);
-    });
 
   }
 
@@ -63,12 +54,24 @@ export class MainChatComponent implements OnDestroy {
   makeChatVisible() {
     this.showChat$.next(true);
 
+    setTimeout(() => {
+      // Scroll to bottom if just logged in user just sent a message
+      this.messagesSubscription = this.messages$.subscribe((messages) => {
+        if (messages.length === 0) return;
+        const scrollElement = this.scrollContainer.nativeElement;
+        const atChatBottom = scrollElement.scrollHeight - scrollElement.scrollTop < 500;
+        const containsMyMessage = messages[messages.length-1].userid === this.meService.getSync()!.userid;
+        if (atChatBottom || containsMyMessage) setTimeout(() => this.scrollToBottom(), 50);
+      });
+    }), 50;
+
     setTimeout(() => this.scrollToBottom(), 50);
   }
 
   makeChatInvisible() {
     this.globalChatService.hasUnread$.next(false);
     this.showChat$.next(false);
+    this.messagesSubscription?.unsubscribe();
   }
 
   sendMessage(message: string) {
@@ -108,6 +111,6 @@ export class MainChatComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.messagesSubscription.unsubscribe();
+    this.messagesSubscription?.unsubscribe();
   }
 }
