@@ -34,8 +34,7 @@ export enum JsonMessageType {
     INVITATION = 'invitation',
     QUEST_COMPLETE = 'quest_complete',
     TROPHY_CHANGE = 'trophy_change',
-    GLOBAL_CHAT_CONNECT = 'global_chat_connect',
-    GLOBAL_CHAT_MESSAGE = 'global_chat_message'
+    ON_GLOBAL_CHAT_MESSAGE = 'on_global_chat_message'
 }
 
 export abstract class JsonMessage {
@@ -128,23 +127,21 @@ export class ChatMessage extends JsonMessage {
     }
 }
 
-export class GlobalChatConnectMessage extends JsonMessage {
-    constructor(
-        public readonly connected: boolean
-    ) {
-        super(JsonMessageType.GLOBAL_CHAT_CONNECT)
-    }
+
+export interface GlobalChatMessage {
+    userid: string,
+    username: string,
+    league: League,
+    timeMs: number, // Date.now()
+    message: string,
 }
 
-export class GlobalChatMessage extends JsonMessage {
+// When one or more chat messages is sent
+export class OnGlobalChatMessage extends JsonMessage {
     constructor(
-        public readonly userid: string,
-        public readonly username: string,
-        public readonly league: League,
-        public readonly timeMs: number, // Date.now()
-        public readonly message: string,
+        public readonly messages: GlobalChatMessage[]
     ) {
-        super(JsonMessageType.GLOBAL_CHAT_MESSAGE)
+        super(JsonMessageType.ON_GLOBAL_CHAT_MESSAGE)
     }
 }
 
