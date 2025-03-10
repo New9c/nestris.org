@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { StateService } from './state.service';
 import { GlobalChatMessage, JsonMessage, JsonMessageType, OnGlobalChatMessage } from 'src/app/shared/network/json-message';
+import { BehaviorSubject } from 'rxjs';
 
 // The maximum number of messages to keep in the chat history
 const MAX_MESSAGES = 50;
@@ -9,6 +10,8 @@ const MAX_MESSAGES = 50;
   providedIn: 'root'
 })
 export class GlobalChatService extends StateService<GlobalChatMessage[]>() {
+
+  public hasUnread$ = new BehaviorSubject<boolean>(false);
 
   constructor() {
     super([JsonMessageType.ON_GLOBAL_CHAT_MESSAGE], "GlobalChat");
@@ -29,6 +32,9 @@ export class GlobalChatService extends StateService<GlobalChatMessage[]>() {
    */
   protected override onEvent(event: JsonMessage, oldState: GlobalChatMessage[]): GlobalChatMessage[] {
     const message = event as OnGlobalChatMessage;
+
+    // Mark that there are unread messages
+    this.hasUnread$.next(true);
     
     // Add the new messages to the chat history
     const newMessages = [...oldState, ...message.messages];

@@ -12,6 +12,12 @@
             <h2>{{numUsersMessage(numUsers$ | async)}}</h2>
         </div>
 
+        <div class="messages" #scrollContainer>
+            <div class="message" *ngFor="let message of messages$ | async">
+                <p>{{message.message}}</p>
+            </div>
+        </div>
+
         <app-chat-text-entry [disabledMessage]="(disabledMessage$ | async) ?? undefined" (sendMessage)="sendMessage($event)" />
     </div>
 </div>

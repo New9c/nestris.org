@@ -1,8 +1,8 @@
 import { ThisReceiver } from '@angular/compiler';
-import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { BehaviorSubject, map, Subscription } from 'rxjs';
 import { FetchService, Method } from 'src/app/services/fetch.service';
-import { GlobalChatService } from 'src/app/services/global-chat.service';
+import { GlobalChatService } from 'src/app/services/state/global-chat.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { LoginMethod } from 'src/app/shared/models/db-user';
@@ -17,6 +17,7 @@ const MAX_MESSAGES = 20;
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MainChatComponent implements OnDestroy {
+  @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
   static showChat = new BehaviorSubject<boolean>(false);
 
@@ -28,6 +29,9 @@ export class MainChatComponent implements OnDestroy {
     map(me => me.login_method === LoginMethod.GUEST ? 'Login to send messages!' : undefined)
   );
 
+  messages$ = this.globalChatService.get$();
+  messagesSubscription: Subscription;
+
   constructor(
     private readonly fetchService: FetchService,
     private readonly websocketService: WebsocketService,
@@ -35,6 +39,10 @@ export class MainChatComponent implements OnDestroy {
     private readonly globalChatService: GlobalChatService,
   ) {
 
+    // Scroll to bottom if just logged in user just sent a message
+    this.messagesSubscription = this.messages$.subscribe((messages) => {
+      if (messages[messages.length-1].userid === this.meService.getSync()!.userid) this.scrollToBottom();
+    });
 
   }
 
@@ -51,6 +59,7 @@ export class MainChatComponent implements OnDestroy {
   }
 
   makeChatInvisible() {
+    this.globalChatService.hasUnread$.next(false);
     clearInterval(this.numUsersInterval);
     this.showChat$.next(false);
   }
@@ -71,7 +80,14 @@ export class MainChatComponent implements OnDestroy {
     return `${numUsers} ${numUsers === 1 ? 'player' : 'players'} online!`;
   }
 
+  private scrollToBottom(): void {
+    try {
+      this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
+    } catch (err) {}
+  }
+
   ngOnDestroy(): void {
     this.makeChatInvisible();
+    this.messagesSubscription.unsubscribe();
   }
 }
