@@ -18,6 +18,7 @@ import { TrophyAlertComponent } from './components/alerts/trophy-alert/trophy-al
 import { QuestAlertComponent } from './components/alerts/quest-alert/quest-alert.component';
 import { QuestID } from './shared/nestris-org/quest-system';
 import { sleep } from './util/misc';
+import { GlobalChatService } from './services/state/global-chat.service';
 @Component({
   selector: 'app-root',
   styleUrls: ['./app.component.scss'],
@@ -40,6 +41,7 @@ export class AppComponent implements OnInit {
     private invitationsService: InvitationsService,
     private stackrabbitService: StackrabbitService,
     private gamepadService: GamepadService,
+    private globalChatService: GlobalChatService,
     private router: Router,
   ) {
 

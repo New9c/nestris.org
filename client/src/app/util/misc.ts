@@ -25,12 +25,13 @@ export function capitalize(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export function timeAgo(date: Date): string {
+export function timeAgo(date: Date, showSeconds: boolean = true, short: boolean = false): string {
   const now = new Date();
   const diff = now.getTime() - date.getTime(); // diff in milliseconds
   
   // If the date is in the future
   if (diff < 0) {
+    if (short) return "future";
     return "In the future";
   }
 
@@ -44,21 +45,25 @@ export function timeAgo(date: Date): string {
   const seconds = totalSeconds % 60;
 
   if (days > 0) {
+    if (short) return `${days}d ago`;
     return days === 1 ? "1 day ago" : `${days} days ago`;
   }
 
   if (hours > 0) {
+    if (short) return `${hours}h ago`;
     return hours === 1 ? "1 hour ago" : `${hours} hours ago`;
   }
 
   if (minutes > 0) {
+    if (short) return `${minutes}m ago`;
     return minutes === 1 ? "1 minute ago" : `${minutes} minutes ago`;
   }
 
   // Less than a minute
-  if (seconds <= 5) {
-    return "A moment ago";
+  if (seconds <= 5 || !showSeconds) {
+    return "Just now";
   } else {
+    if (short) return `${seconds}s ago`;
     return `${seconds} seconds ago`;
   }
 }

@@ -1,4 +1,3 @@
-import { ThisReceiver } from '@angular/compiler';
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
 import { BehaviorSubject, map, Subscription } from 'rxjs';
 import { FetchService, Method } from 'src/app/services/fetch.service';
@@ -7,8 +6,9 @@ import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { LoginMethod } from 'src/app/shared/models/db-user';
 import { OnGlobalChatMessage } from 'src/app/shared/network/json-message';
-
-const MAX_MESSAGES = 20;
+import { ProfileModalConfig } from '../modals/profile-modal/profile-modal.component';
+import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
+import { timeAgo } from 'src/app/util/misc';
 
 @Component({
   selector: 'app-main-chat',
@@ -21,14 +21,11 @@ export class MainChatComponent implements OnDestroy {
 
   static showChat = new BehaviorSubject<boolean>(false);
 
-  numUsers$ = new BehaviorSubject<number>(0);
-  numUsersPromise = () => this.fetchService.fetch<any[]>(Method.GET, "api/v2/online-users").then(users => users.length);
-  numUsersInterval: any;
-
   disabledMessage$ = this.meService.get$().pipe(
     map(me => me.login_method === LoginMethod.GUEST ? 'Login to send messages!' : undefined)
   );
 
+  numUsers$ = this.globalChatService.numUsers$;
   hasUnread$ = this.globalChatService.hasUnread$;
   chatImage$ = this.hasUnread$.pipe(map(hasUnread => `./assets/img/button-icons/${hasUnread ? 'chat-unread' : 'chat'}.svg`));
 
@@ -40,6 +37,7 @@ export class MainChatComponent implements OnDestroy {
     private readonly websocketService: WebsocketService,
     private readonly meService: MeService,
     private readonly globalChatService: GlobalChatService,
+    private readonly modalManagerService: ModalManagerService,
   ) {
 
     // Scroll to bottom if just logged in user just sent a message
@@ -63,10 +61,6 @@ export class MainChatComponent implements OnDestroy {
   }
 
   makeChatVisible() {
-    this.numUsersInterval = setInterval(async () => {
-      this.numUsers$.next(await this.numUsersPromise());
-    }, 2000);
-    this.numUsersPromise().then((numUsers) => this.numUsers$.next(numUsers));
     this.showChat$.next(true);
 
     setTimeout(() => this.scrollToBottom(), 50);
@@ -74,7 +68,6 @@ export class MainChatComponent implements OnDestroy {
 
   makeChatInvisible() {
     this.globalChatService.hasUnread$.next(false);
-    clearInterval(this.numUsersInterval);
     this.showChat$.next(false);
   }
 
@@ -94,6 +87,20 @@ export class MainChatComponent implements OnDestroy {
     return `${numUsers} ${numUsers === 1 ? 'player' : 'players'} online!`;
   }
 
+  getPlayerTooltip(username: string): string {
+    return `View ${username}'s profile`;
+  }
+
+  viewProfile(userid: string) {
+    const config: ProfileModalConfig = { userid };
+    this.modalManagerService.showModal(ModalType.PROFILE, config);
+  }
+
+  timeAgo(timeMs: number): string {
+    const date = new Date(timeMs);
+    return timeAgo(date, false, true);
+  }
+
   private scrollToBottom(): void {
     try {
       this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
@@ -101,7 +108,6 @@ export class MainChatComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.makeChatInvisible();
     this.messagesSubscription.unsubscribe();
   }
 }

@@ -14,6 +14,13 @@
 
         <div class="messages" #scrollContainer>
             <div class="message" *ngFor="let message of messages$ | async">
+                <div class="header">
+                    <div class="player" (click)="viewProfile(message.userid)" [tooltip]="getPlayerTooltip(message.username)">
+                        <app-league-icon [league]="message.league" [height]="13" />
+                        <h3>{{message.username}}</h3>
+                    </div>
+                    <p class="time-ago">{{timeAgo(message.timeMs)}}</p>
+                </div>
                 <p>{{message.message}}</p>
             </div>
         </div>

@@ -3,6 +3,7 @@ import { StateService } from './state.service';
 import { GlobalChatMessage, JsonMessage, JsonMessageType, OnGlobalChatMessage } from 'src/app/shared/network/json-message';
 import { BehaviorSubject } from 'rxjs';
 import { MeService } from './me.service';
+import { Method } from '../fetch.service';
 
 // The maximum number of messages to keep in the chat history
 const MAX_MESSAGES = 50;
@@ -15,10 +16,18 @@ export class GlobalChatService extends StateService<GlobalChatMessage[]>() {
   public hasUnread$ = new BehaviorSubject<boolean>(false);
   private initialHistory: boolean = true;
 
+  private numUsersPromise = () => this.fetchService.fetch<any[]>(Method.GET, "api/v2/online-users").then(users => users.length);
+  private numUsers = new BehaviorSubject<number>(0);
+  public numUsers$ = this.numUsers.asObservable();
+
   constructor(
     private readonly meService: MeService,
   ) {
     super([JsonMessageType.ON_GLOBAL_CHAT_MESSAGE]);
+
+    // Periodically update the number of online users
+    setTimeout(() => this.numUsersPromise().then(num => this.numUsers.next(num)), 1000);
+    setInterval(() => this.numUsersPromise().then(num => this.numUsers.next(num)), 10000);
   }
 
   /**
