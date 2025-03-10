@@ -1,6 +1,18 @@
 @import "../../../styles.scss";
 
+:host {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    pointer-events: none;
+}
+
 .fab {
+    pointer-events: auto;
+
     position: absolute;
     right: 28px;
     bottom: 28px;
@@ -37,6 +49,8 @@ img {
 }
 
 .chat {
+    pointer-events: auto;
+    
     position: absolute;
     right: 20px;
     bottom: 20px;
