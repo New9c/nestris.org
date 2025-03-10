@@ -139,7 +139,8 @@ export interface GlobalChatMessage {
 // When one or more chat messages is sent
 export class OnGlobalChatMessage extends JsonMessage {
     constructor(
-        public readonly messages: GlobalChatMessage[]
+        public readonly messages: GlobalChatMessage[],
+        public readonly isFirst: boolean = false,
     ) {
         super(JsonMessageType.ON_GLOBAL_CHAT_MESSAGE)
     }

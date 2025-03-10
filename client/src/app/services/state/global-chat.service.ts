@@ -14,7 +14,6 @@ const MAX_MESSAGES = 50;
 export class GlobalChatService extends StateService<GlobalChatMessage[]>() {
 
   public hasUnread$ = new BehaviorSubject<boolean>(false);
-  private initialHistory: boolean = true;
 
   private numUsersPromise = () => this.fetchService.fetch<any[]>(Method.GET, "api/v2/online-users").then(users => users.length);
   private numUsers = new BehaviorSubject<number>(0);
@@ -48,8 +47,8 @@ export class GlobalChatService extends StateService<GlobalChatMessage[]>() {
 
     // Mark that there are unread messages if not from initial chat history
     const myid = this.meService.getUserIDSync()!;
-    if (this.initialHistory) {
-      this.initialHistory = false;
+    if (message.isFirst) {
+      return message.messages.slice(-MAX_MESSAGES);
     } else if (message.messages.some(msg => msg.userid !== myid)) {
       // Show unread if at least one message not from same user
       this.hasUnread$.next(true);

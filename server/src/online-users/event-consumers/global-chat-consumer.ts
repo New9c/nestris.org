@@ -33,7 +33,7 @@ export class GlobalChatConsumer extends EventConsumer {
     protected override async onSessionConnect(event: OnSessionConnectEvent): Promise<void> {
         this.users.sendToUserSession(
             event.sessionID,
-            new OnGlobalChatMessage(this.chatHistory.toArray().slice(-MAX_MESSAGE_HISTORY_TO_SEND))
+            new OnGlobalChatMessage(this.chatHistory.toArray().slice(-MAX_MESSAGE_HISTORY_TO_SEND), true)
         );
     }
 
