@@ -47,7 +47,7 @@ export class MainChatComponent implements AfterViewInit, OnDestroy {
       if (MainChatComponent.lastScrollTop !== null) {
         this.scrollContainer.nativeElement.scrollTop = MainChatComponent.lastScrollTop;
       }
-      
+
       this.messagesSubscription = this.messages$.subscribe((messages) => {
         if (messages.length === 0) return;
         const scrollElement = this.scrollContainer.nativeElement;
@@ -128,6 +128,6 @@ export class MainChatComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.messagesSubscription?.unsubscribe();
-    MainChatComponent.lastScrollTop = this.scrollContainer.nativeElement.scrollTop;
+    MainChatComponent.lastScrollTop = this.showChat$.getValue() ? this.scrollContainer.nativeElement.scrollTop : null;
   }
 }
