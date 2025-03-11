@@ -128,6 +128,10 @@ app-quest:hover {
     animation-iteration-count: 1;
 }
 
+.mode.ranked:hover {
+    filter: brightness(1.15) contrast(1.025);
+}
+
 .mode:active {
     transform: scale(1.04);
     filter: brightness(1.4) contrast(1.2);
@@ -235,13 +239,13 @@ app-quest:hover {
     border-color: $puzzle-color;
 }
 .background-color.solo {
-    background-color: rgba(76, 126, 255, 0.2);
+    background-color: adjust-color($color: $highest-score-color, $alpha: -0.8);
 }
 .background-color.ranked {
-    background-color: rgba(255, 76, 76, 0.2);
+    background-color: adjust-color($color: $ranked-color, $alpha: -0.8);
 }
 .background-color.puzzles {
-    background-color: rgba(186, 76, 255, 0.2);
+    background-color: adjust-color($color: $puzzle-color, $alpha: -0.8);
 }
 .color.solo {
     color: $highest-score-color;

@@ -151,11 +151,69 @@ app-quest {
 }
 
 .other {
-    width: 100%;
+    margin: auto;
     box-sizing: border-box;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.stats-panels {
+    width: 300px;
+    box-sizing: border-box;
+    align-self: stretch;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.big-stat {
+    width: 100%;
+    box-sizing: border-box;
+    height: 50px;
+    border-radius: 10px;
+    border: solid 1px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-inline: 10px;
+}
+
+.big-stat h1 {
+    font-family: $main-font;
+    font-weight: 700;
+    font-size: 25px;
+}
+
+.big-stat.solo {
+    color: $highest-score-color;
+    border-color: $highest-score-color;
+    background-color: adjust-color($color: $highest-score-color, $alpha: -0.97);
+}
+
+.big-stat.ranked {
+    color: $ranked-color;
+    border-color: $ranked-color;
+    background-color: adjust-color($color: $ranked-color, $alpha: -0.97);
+}
+
+.big-stat.puzzle {
+    color: $puzzle-color;
+    border-color: $puzzle-color;
+    background-color: adjust-color($color: $puzzle-color, $alpha: -0.97);
+}
+
+.other-stats {
+    margin-top: 3px;
+    flex-grow: 1;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.02);
 }
 
 .activity-panel {

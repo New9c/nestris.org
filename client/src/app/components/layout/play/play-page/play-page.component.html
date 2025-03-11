@@ -35,7 +35,7 @@
                                 <p class="username color" [ngClass]="mode">{{player.username}}</p>
                             </div>
                             <app-highest-score *ngIf="mode === Mode.SOLO" [highestScore]="player.score" [size]="13"  />
-                            <app-trophies *ngIf="mode === Mode.RANKED" [trophies]="player.score" [size]="13" color="#FF4C4C" />
+                            <app-trophies *ngIf="mode === Mode.RANKED" [trophies]="player.score" [size]="13" />
                             <app-puzzle-elo *ngIf="mode === Mode.PUZZLES" [puzzleElo]="player.score" [size]="13" />
                         </div>
                     </div>

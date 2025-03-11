@@ -68,16 +68,16 @@ app-leaderboard-table {
 }
 
 .tab.solo {
-    border: 2px solid rgba(76, 126, 255, 1);
-    background-color: rgba(76, 126, 255, 0.2);
+    border: 2px solid $highest-score-color;
+    background-color: adjust-color($color: $highest-score-color, $alpha: -0.8);
 }
 .tab.ranked {
-    border: 2px solid rgba(255, 76, 76, 1);
-    background-color: rgba(255, 76, 76, 0.2);
+    border: 2px solid $ranked-color;
+    background-color: adjust-color($color: $ranked-color, $alpha: -0.8);
 }
 .tab.puzzles {
-    border: 2px solid rgba(186, 76, 255, 1);
-    background-color: rgba(186, 76, 255, 0.2);
+    border: 2px solid $puzzle-color;
+    background-color: adjust-color($color: $puzzle-color, $alpha: -0.8);
 }
 
 .tab:hover {
