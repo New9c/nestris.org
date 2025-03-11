@@ -90,6 +90,14 @@ export class MainChatComponent implements AfterViewInit, OnDestroy {
     this.messagesSubscription?.unsubscribe();
   }
 
+  // If escape key is pressed, hide chat
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.key === 'Escape' && this.showChat$.getValue() && !this.modalManagerService.isModal()) {
+      this.makeChatInvisible();
+    }
+  }
+
   sendMessage(message: string) {
     const me = this.meService.getSync()!;
     this.websocketService.sendJsonMessage(new OnGlobalChatMessage([{
