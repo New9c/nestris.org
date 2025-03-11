@@ -43,11 +43,11 @@ export class MainChatComponent implements AfterViewInit, OnDestroy {
   }
   
   ngAfterViewInit(): void {
-    if (MainChatComponent.lastScrollTop !== null) {
-      this.scrollContainer.nativeElement.scrollTop = MainChatComponent.lastScrollTop;
-    }
-
     if (this.showChat$.getValue()) {
+      if (MainChatComponent.lastScrollTop !== null) {
+        this.scrollContainer.nativeElement.scrollTop = MainChatComponent.lastScrollTop;
+      }
+      
       this.messagesSubscription = this.messages$.subscribe((messages) => {
         if (messages.length === 0) return;
         const scrollElement = this.scrollContainer.nativeElement;

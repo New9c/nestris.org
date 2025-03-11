@@ -35,7 +35,7 @@ export class ServerStatsService {
           id: BannerType.STAGING_WARNING,
           priority: BannerPriority.HIGH,
           color: "#B73C3C",
-          message: "You are on the staging branch. The website, server, and database are isolated from production."
+          message: "You are on the beta. Learn more at our <a href='https://discord.gg/4xkBHvGtzp' target='_blank'><u>Discord</u></a> server."
         });
       } else if (stats.environment === DeploymentEnvironment.DEV) {
         this.bannerManager.addBanner({
