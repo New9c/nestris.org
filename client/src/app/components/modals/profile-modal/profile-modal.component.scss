@@ -150,12 +150,26 @@ app-quest {
     margin: 0;
 }
 
-.other {
-    margin: auto;
+.about-me-panel {
+    flex-grow: 1;
     box-sizing: border-box;
+    padding: 15px;
+
+    background-color: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+}
+
+.about-me-panel h1 {
+    font-family: $main-font;
+    font-size: 12px;
+    font-weight: 400;
+    font-style: italic;
+    margin: 0;
+    padding: 0;
 }
 
 .stats-panels {
