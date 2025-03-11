@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Router } from '@angular/router';
 import { BehaviorSubject, map } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { TabID } from 'src/app/models/tabs';
@@ -40,6 +41,7 @@ export class SidebarComponent {
     public serverStatsService: ServerStatsService,
     public platform: PlatformInterfaceService,
     public meService: MeService,
+    private readonly router: Router,
   ) {
     window.addEventListener('resize', this.onResize.bind(this));
   }
@@ -53,6 +55,10 @@ export class SidebarComponent {
   showControlPanel(user: DBUser | undefined | null): boolean {
     if (!user) return false;
     return (user.authentication !== Authentication.USER);
+  }
+
+  goHome(): void {
+    this.router.navigate(['/']);
   }
 
   private onResize() {

@@ -1,6 +1,6 @@
 <div class="sidebar" *ngIf="(serverStatsService.getServerStats$() | async)?.environment as env">
     <div class="sidebar-top">
-        <img class="logo" src="./assets/img/branding/tetrisfish_logo.svg" width="110px" />
+        <img class="logo" src="./assets/img/branding/tetrisfish_logo.svg" width="110px" (click)="goHome()" />
         <img class="logo-small" src="./assets/img/branding/tetrisfish_logo.svg" width="50px" />
         <!-- <h1 class="brand-name">nestris.org</h1> -->
 
