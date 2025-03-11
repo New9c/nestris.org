@@ -214,6 +214,38 @@ app-quest {
     box-sizing: border-box;
     border-radius: 10px;
     background-color: rgba(255, 255, 255, 0.02);
+    padding-inline: 15px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
+}
+
+.other-stat {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.other-stat p {
+    font-family: $main-font;
+    font-weight: 300;
+    font-size: 13px;
+    margin: 0;
+    padding: 0;
+}
+
+.other-stat h1 {
+    font-family: $main-font;
+    font-weight: 700;
+    font-size: 13px;
+    margin: 0;
+    padding: 0;
 }
 
 .activity-panel {

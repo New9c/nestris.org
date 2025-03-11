@@ -72,6 +72,7 @@ import { GetAllActivitiesRoute } from './src/routes/user/get-all-activities-rout
 import { GetErrorsRoute } from './src/routes/misc/get-errors-route';
 import { GetGlobalChatRoute } from './src/routes/misc/get-global-chat-route';
 import { GlobalChatConsumer } from './src/online-users/event-consumers/global-chat-consumer';
+import { GetRelativeRanksRoute } from './src/routes/leaderboard/get-relative-ranks';
 
 // Load environment variables
 require('dotenv').config();
@@ -181,6 +182,7 @@ async function main() {
   routes.registerRoute(GetAllActivitiesRoute);
   routes.registerRoute(GetAllUsernamesRoute);
   routes.registerRoute(GetRelativeLeaderboardsRoute);
+  routes.registerRoute(GetRelativeRanksRoute);
   routes.registerRoute(GetT200LeaderboardRoute);
   routes.registerRoute(GetRoomsRoute);
   routes.registerRoute(CreateSoloRoomRoute);

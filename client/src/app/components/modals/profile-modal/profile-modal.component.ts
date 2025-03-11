@@ -11,9 +11,11 @@ import { QuestListModalConfig } from '../quest-list-modal/quest-list-modal.compo
 import { ApiService } from 'src/app/services/api.service';
 import { Activity, ActivityType, TimestampedActivity } from 'src/app/shared/models/activity';
 import { numberWithCommas } from 'src/app/util/misc';
+import { RelativeRanks } from 'src/app/shared/models/leaderboard';
 
 export interface ModalData {
   dbUser: DBUser;
+  ranks: RelativeRanks;
   online: boolean;
 }
 
@@ -57,6 +59,8 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
   public data$ = new BehaviorSubject<ModalData | null>(null);
   public activities$ = new BehaviorSubject<ActivityGroup[] | null>(null);
 
+  public readonly allQuestCount = ALL_QUEST_IDS.length;
+
   private originalUrl!: string;
 
   constructor(
@@ -86,9 +90,12 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
 
   private async getData(): Promise<ModalData> {
 
-    const dbUser: DBUser | DBUserWithOnlineStatus = this.config?.userid ? (await this.apiService.getUserByID(this.config.userid)) : (await this.meService.get());
+    const dbUserPromise: Promise<DBUser | DBUserWithOnlineStatus> = this.config?.userid ? this.apiService.getUserByID(this.config.userid) : this.meService.get();
+    const ranksPromise = this.fetchService.fetch<RelativeRanks>(Method.GET, `/api/v2/leaderboard/ranks/${this.userid}`);
+    const [dbUser, ranks] = await Promise.all([dbUserPromise, ranksPromise]);
+
     const online = this.config?.userid ? (dbUser as DBUserWithOnlineStatus).online : true;
-    return { dbUser, online };
+    return { dbUser, ranks, online };
   }
 
   private async fetchActivities(): Promise<ActivityGroup[]> {
@@ -116,6 +123,10 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
     return activityGroups;
   
 }
+
+  completedQuestCount(user: DBUser): number {
+    return ALL_QUEST_IDS.filter(questID => getQuestStatus(user.quest_progress, questID).completed).length;
+  }
 
   // Show the 6 best completed quests by the user
   getCompletedQuests(user: DBUser): QuestID[] {

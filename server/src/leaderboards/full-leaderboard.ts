@@ -127,6 +127,16 @@ export abstract class FullLeaderboard {
     }
 
     /**
+     * Get the rank of a user, adjusted for 1-indexing and ties.
+     * @param userid The user to get the rank for
+     */
+    public getRankForUser(userid: string): number {
+        const index = this.leaderboard.findIndex((user) => user.userid === userid);
+        if (index === -1) throw new Error(`User ${userid} not found in leaderboard`);
+        return this.leaderboard[index].rank;
+    }
+
+    /**
      * Get all the usernames in the leaderboard matching a search pattern, in alphabetical order.
      * @param pattern The search pattern to match usernames against
      * @param limit The maximum number of usernames to return

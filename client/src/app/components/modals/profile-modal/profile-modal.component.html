@@ -21,19 +21,34 @@
 
         <div class="stats-panels">
             <div class="big-stat solo">
-                <h1>#3</h1>
-                <app-highest-score [highestScore]="162460" [size]="20" />
+                <h1>#{{data.ranks.solo}}</h1>
+                <app-highest-score [highestScore]="data.dbUser.highest_score" [size]="25" />
             </div>
             <div class="big-stat ranked">
-                <h1>#24</h1>
-                <app-trophies [trophies]="2568" [size]="20" />
+                <h1>#{{data.ranks.ranked}}</h1>
+                <app-trophies [trophies]="data.dbUser.trophies" [size]="25" />
             </div>
             <div class="big-stat puzzle">
-                <h1>#356</h1>
-                <app-puzzle-elo [puzzleElo]="1980" [size]="20" />
+                <h1>#{{data.ranks.puzzles}}</h1>
+                <app-puzzle-elo [puzzleElo]="data.dbUser.puzzle_elo" [size]="25" />
             </div>
             <div class="other-stats">
-
+                <div class="other-stat">
+                    <p>Ranked win-loss</p>
+                    <h1>{{data.dbUser.wins}}-{{data.dbUser.losses}}</h1>
+                </div>
+                <div class="other-stat">
+                    <p>Games played</p>
+                    <h1>{{data.dbUser.games_played}}</h1>
+                </div>
+                <div class="other-stat">
+                    <p>Puzzles solved</p>
+                    <h1>{{data.dbUser.puzzles_solved}}</h1>
+                </div>
+                <div class="other-stat">
+                    <p>Quests completed</p>
+                    <h1>{{completedQuestCount(data.dbUser)}}/{{allQuestCount}}</h1>
+                </div>
             </div>
         </div>
 

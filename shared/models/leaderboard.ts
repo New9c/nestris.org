@@ -23,6 +23,12 @@ export interface RelativeLeaderboards {
     puzzles: RelativeLeaderboardInfo;
 }
 
+export interface RelativeRanks {
+    solo: number;
+    ranked: number;
+    puzzles: number;
+}
+
 export enum T200LeaderboardType {
     SOLO_XP = 'solo',
     SOLO_HIGHSCORE = 'highscore',
