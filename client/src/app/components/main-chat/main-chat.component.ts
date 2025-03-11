@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { BehaviorSubject, map, Subscription } from 'rxjs';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { GlobalChatService } from 'src/app/services/state/global-chat.service';
@@ -16,10 +16,11 @@ import { timeAgo } from 'src/app/util/misc';
   styleUrls: ['./main-chat.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MainChatComponent implements OnDestroy {
+export class MainChatComponent implements AfterViewInit, OnDestroy {
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
   static showChat = new BehaviorSubject<boolean>(false);
+  static lastScrollTop: number | null = null;
 
   disabledMessage$ = this.meService.get$().pipe(
     map(me => me.login_method === LoginMethod.GUEST ? 'Login to send messages!' : undefined)
@@ -33,13 +34,28 @@ export class MainChatComponent implements OnDestroy {
   messagesSubscription?: Subscription;
 
   constructor(
-    private readonly fetchService: FetchService,
     private readonly websocketService: WebsocketService,
     private readonly meService: MeService,
     private readonly globalChatService: GlobalChatService,
     private readonly modalManagerService: ModalManagerService,
   ) {
 
+  }
+  
+  ngAfterViewInit(): void {
+    if (MainChatComponent.lastScrollTop !== null) {
+      this.scrollContainer.nativeElement.scrollTop = MainChatComponent.lastScrollTop;
+    }
+
+    if (this.showChat$.getValue()) {
+      this.messagesSubscription = this.messages$.subscribe((messages) => {
+        if (messages.length === 0) return;
+        const scrollElement = this.scrollContainer.nativeElement;
+        const atChatBottom = scrollElement.scrollHeight - scrollElement.scrollTop < 500;
+        const containsMyMessage = messages[messages.length-1].userid === this.meService.getSync()!.userid;
+        if (atChatBottom || containsMyMessage) setTimeout(() => this.scrollToBottom(), 50);
+      });
+    }
   }
 
   @HostListener('window:resize', ['$event'])
@@ -112,5 +128,6 @@ export class MainChatComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.messagesSubscription?.unsubscribe();
+    MainChatComponent.lastScrollTop = this.scrollContainer.nativeElement.scrollTop;
   }
 }

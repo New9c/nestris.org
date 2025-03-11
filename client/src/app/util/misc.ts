@@ -30,10 +30,7 @@ export function timeAgo(date: Date, showSeconds: boolean = true, short: boolean 
   const diff = now.getTime() - date.getTime(); // diff in milliseconds
   
   // If the date is in the future
-  if (diff < 0) {
-    if (short) return "future";
-    return "In the future";
-  }
+  if (diff < 0) return "Just now";
 
   // Convert milliseconds into total seconds
   const totalSeconds = Math.floor(diff / 1000);
