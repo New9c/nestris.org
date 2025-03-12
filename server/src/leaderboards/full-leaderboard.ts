@@ -200,7 +200,7 @@ export class FullTrophiesLeaderboard extends FullLeaderboard {
         return await Database.query(GetAllUsersScoreQuery, 'trophies');
     }
     protected getScoreFromUser(user: DBUser): number {
-        return user.trophies;
+        return user.matches_played > 0 ? user.trophies : 0;
     }
 }
 

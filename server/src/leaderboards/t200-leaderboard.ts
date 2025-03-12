@@ -187,6 +187,8 @@ export class T200RankedLeaderboard extends T200Leaderboard {
                     userid, username, league, trophies, highest_trophies, matches_played, CONCAT(wins, '-', losses) as win_loss
                 FROM
                     users
+                WHERE
+                    matches_played > 0
                 ORDER BY
                     trophies DESC
                 LIMIT 200
