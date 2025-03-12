@@ -71,8 +71,27 @@ export class FetchService {
       await this.injector.get(WebsocketService).logout();
     }
 
+    console.log("response", response);
     if (!response.ok) {
-        throw new HTTPError(response.status, response.statusText);
+      
+      let errorMessage = response.statusText; // Default to status text
+  
+      try {
+        const contentType = response.headers.get("content-type");
+        
+        if (contentType && contentType.includes("application/json")) {
+          const errorBody = await response.json();
+          if (errorBody && errorBody.message) {
+            errorMessage = errorBody.message;
+          }
+        } else {
+          errorMessage = await response.text(); // Handle plain text errors
+        }
+      } catch (e) {
+        console.warn("Failed to parse error response", e);
+      }
+
+      throw new HTTPError(response.status, errorMessage);
     }
     
     const result = await response.json();

@@ -127,7 +127,7 @@ export class AuthModalComponent {
       if (!(e instanceof HTTPError) || e.status === 500) return 'Server error occurred';
       else if (e.status === 409) return 'If this is you, log in through Discord instead';
       else if (e.status === 403) return 'Invalid username or password';
-      else return e.message;
+      else return e.statusText;
     }
     
   }

@@ -136,8 +136,7 @@ export async function passwordLogin(req: express.Request, res: express.Response)
     try {
         user = await Database.query(GetUserByUsername, username);
     } catch (error) {
-        console.error('Error getting user by username:', error);
-        return res.status(404).send(`User with username ${username} not found`);
+        return res.status(404).send(`User not found. Did you mean to register?`);
     }
 
     // Get the hashed password from the database
