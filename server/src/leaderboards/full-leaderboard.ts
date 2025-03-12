@@ -192,17 +192,7 @@ export class FullHighscoreLeaderboard extends FullLeaderboard {
     }
 }
 
-export class FullTrophiesLeaderboard extends FullLeaderboard {
 
-    protected override readonly name = "trophies";
-
-    protected async populateLeaderboard(): Promise<LeaderboardUser[]> {
-        return await Database.query(GetAllUsersScoreQuery, 'trophies');
-    }
-    protected getScoreFromUser(user: DBUser): number {
-        return user.matches_played > 0 ? user.trophies : 0;
-    }
-}
 
 export class FullPuzzlesLeaderboard extends FullLeaderboard {
 
@@ -213,5 +203,31 @@ export class FullPuzzlesLeaderboard extends FullLeaderboard {
     }
     protected getScoreFromUser(user: DBUser): number {
         return user.puzzle_elo;
+    }
+}
+
+// Special case: trophies are only awarded to users who have played at least one match
+class GetAllUsersTrophiesQuery extends DBQuery<LeaderboardUser[]> {
+    public override readonly query = `SELECT userid, username, trophies, matches_played FROM users`;
+    public override readonly warningMs = null;
+
+    public override parseResult(resultRows: any[]): LeaderboardUser[] {
+        return resultRows.map((row) => ({
+            rank: -1,
+            userid: row.userid,
+            username: row.username,
+            score: row.matches_played > 0 ? row.trophies : 0,
+        }));
+    }
+}
+export class FullTrophiesLeaderboard extends FullLeaderboard {
+
+    protected override readonly name = "trophies";
+
+    protected async populateLeaderboard(): Promise<LeaderboardUser[]> {
+        return await Database.query(GetAllUsersTrophiesQuery);
+    }
+    protected getScoreFromUser(user: DBUser): number {
+        return user.matches_played > 0 ? user.trophies : 0;
     }
 }
