@@ -6,7 +6,7 @@ import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.s
 import { MeService } from 'src/app/services/state/me.service';
 import { DBUser, DBUserWithOnlineStatus } from 'src/app/shared/models/db-user';
 import { League, LEAGUE_NAMES, leagueColor, previousLeague } from 'src/app/shared/nestris-org/league-system';
-import { ALL_QUEST_IDS, getQuest, getQuestStatus, QUEST_COLORS, QuestID } from 'src/app/shared/nestris-org/quest-system';
+import { ALL_QUEST_IDS, getQuest, getQuestStatus, QUEST_COLORS, QUEST_DIFFICULTY_ORDER, QuestCategory, QuestID } from 'src/app/shared/nestris-org/quest-system';
 import { QuestListModalConfig } from '../quest-list-modal/quest-list-modal.component';
 import { ApiService } from 'src/app/services/api.service';
 import { Activity, ActivityType, TimestampedActivity } from 'src/app/shared/models/activity';
@@ -137,11 +137,31 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
   getCompletedQuests(user: DBUser): QuestID[] {
 
     // Filter to only completed quests
-    const questIDs = ALL_QUEST_IDS.filter(questID => getQuestStatus(user.quest_progress, questID).completed);
-  
-    const getXP = (questID: QuestID) => getQuest(questID).xp;
+    const completedquestIDs = ALL_QUEST_IDS.filter(questID => getQuestStatus(user.quest_progress, questID).completed);
+
+    const compareQuestDifficulty = (questIDA: QuestID, questIDB: QuestID) => {
+      return QUEST_DIFFICULTY_ORDER.indexOf(getQuest(questIDB).difficulty) - QUEST_DIFFICULTY_ORDER.indexOf(getQuest(questIDA).difficulty);
+    };
+
+    // Filter by the best quest in each category, and non-categorized quests
+    const bestQuestCategoryIDs = new Map<QuestCategory, QuestID>();
+    const questIDs: QuestID[] = [];
+    for (const questID of completedquestIDs) {
+      const quest = getQuest(questID);
+      const category = quest.category;
+      if (!category) questIDs.push(questID);
+
+      // If this quest is harder than the current best quest in this category, replace it
+      if (!bestQuestCategoryIDs.has(category) || compareQuestDifficulty(bestQuestCategoryIDs.get(category)!, questID) > 0) {
+        bestQuestCategoryIDs.set(category, questID);
+      }
+    }
+
+    // Add the best quest in each category to the list
+    questIDs.push(...Array.from(bestQuestCategoryIDs.values()));
 
     // Sort by XP from hardest to easiest
+    const getXP = (questID: QuestID) => getQuest(questID).xp;
     questIDs.sort((questIDA, questIDB) => getXP(questIDB) - getXP(questIDA));
 
     // Get the 6 hardest completed quests
