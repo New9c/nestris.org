@@ -71,7 +71,6 @@ export class FetchService {
       await this.injector.get(WebsocketService).logout();
     }
 
-    console.log("response", response);
     if (!response.ok) {
       
       let errorMessage = response.statusText; // Default to status text
@@ -81,8 +80,8 @@ export class FetchService {
         
         if (contentType && contentType.includes("application/json")) {
           const errorBody = await response.json();
-          if (errorBody && errorBody.message) {
-            errorMessage = errorBody.message;
+          if (errorBody && errorBody.error) {
+            errorMessage = errorBody.error;
           }
         } else {
           errorMessage = await response.text(); // Handle plain text errors

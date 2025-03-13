@@ -86,7 +86,7 @@ export class RankedQueueService {
       // If there was an error joining the queue, notify the user
       if (error instanceof HTTPError) {
         console.error(error);
-        this.notifier.notify(NotificationType.ERROR, "You are already in an activity!");
+        this.notifier.notify(NotificationType.ERROR, error.statusText);
       }
 
       return false;

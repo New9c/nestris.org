@@ -21,9 +21,16 @@ export class EnterRankedQueueRoute extends PostRoute {
         const platform = pathParams.platform as Platform;
 
         // Make sure sessionID corresponds to the user
+        const users = EventConsumerManager.getInstance().getUsers();
         if (!sessionID) throw new RouteError(400, "Session ID is required");
-        if (EventConsumerManager.getInstance().getUsers().getUserIDBySessionID(sessionID) !== userInfo!.userid) {
+        if (users.getUserIDBySessionID(sessionID) !== userInfo!.userid) {
             throw new RouteError(400, `Session ID ${sessionID} does not correspond to user ${userInfo!.username}`);
+        }
+
+        // Make sure user has played at least 3 games
+        const dbUser = await DBUserObject.get(userInfo!.userid);
+        if (dbUser.games_played < 3) {
+            throw new RouteError(400, `You must play at least 3 games before joining the ranked queue`);
         }
 
         // Make sure platform is valid
@@ -33,7 +40,7 @@ export class EnterRankedQueueRoute extends PostRoute {
         
         // Make sure user is not already in an activity
         if (EventConsumerManager.getInstance().getUsers().isUserInActivity(userInfo!.userid)) {
-            throw new RouteError(400, `User ${userInfo!.username} is already in an activity`);
+            throw new RouteError(400, `You are already in an activity!`);
         }
 
         try {

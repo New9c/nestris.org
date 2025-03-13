@@ -74,7 +74,7 @@ export async function passwordRegister(req: express.Request, res: express.Respon
     let password = req.body.password;
 
     // Assert that the username and password are not empty
-    if (!username || !password) return res.status(400).send('Username and password are required');
+    if (!username || !password) return res.status(400).send({error: 'Username and password are required'});
 
     // Convert username and password to strings
     username = username.toString();
@@ -82,7 +82,7 @@ export async function passwordRegister(req: express.Request, res: express.Respon
 
     // Assert that the username is unique
     const usernameExists = await Database.query(UsernameExistsQuery, username);
-    if (usernameExists) return res.status(403).send('Username already exists');
+    if (usernameExists) return res.status(403).send({error: 'Username already exists'});
 
     // Hash the password
     const hashedPassword = await hashPassword(password);
@@ -101,7 +101,7 @@ export async function passwordRegister(req: express.Request, res: express.Respon
         });
     } catch (error) {
         console.error('Error creating new user:', error);
-        return res.status(500).send(`Error creating new user: ${error}`);
+        return res.status(500).send({error: `Error creating new user: ${error}`});
     }
 
     // Store the hashed password in the database
@@ -109,7 +109,7 @@ export async function passwordRegister(req: express.Request, res: express.Respon
         await Database.query(SetHashedPasswordQuery, userID, hashedPassword);
     } catch (error) {
         console.error('Error setting hashed password:', error);
-        return res.status(500).send(`Error setting hashed password: ${error}`);
+        return res.status(500).send({error: `Error setting hashed password: ${error}`});
     }
 
     // Log the user in by setting user session
@@ -124,7 +124,7 @@ export async function passwordLogin(req: express.Request, res: express.Response)
     let password = req.body.password;
 
     // Assert that the username and password are not empty
-    if (!username || !password) return res.status(400).send('Username and password are required');
+    if (!username || !password) return res.status(400).send({error: 'Username and password are required'});
 
     // Convert username and password to strings
     username = username.toString();
@@ -136,7 +136,7 @@ export async function passwordLogin(req: express.Request, res: express.Response)
     try {
         user = await Database.query(GetUserByUsername, username);
     } catch (error) {
-        return res.status(404).send(`User not found. Did you mean to register?`);
+        return res.status(404).send({error: `User not found. Did you mean to register?`});
     }
 
     // Get the hashed password from the database
@@ -145,12 +145,12 @@ export async function passwordLogin(req: express.Request, res: express.Response)
         hashedPassword = await Database.query(GetHashedPasswordQuery, user.userid);
     } catch (error) {
         console.error('Not a password user:', error);
-        return res.status(409).send('Not a password user');
+        return res.status(409).send({error: 'Not a password user'});
     }
 
     // Check if the password is correct
     const passwordCorrect = await checkPassword(password, hashedPassword);
-    if (!passwordCorrect) return res.status(403).send('Incorrect password');
+    if (!passwordCorrect) return res.status(403).send({error: 'Incorrect password'});
 
     // Log the user in by setting user session
     createUserSession(req, user.userid, user.username, user.authentication);
