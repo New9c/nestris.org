@@ -105,11 +105,16 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
     const activityMap = new Map<string, Activity[]>();
     
     for (const { timestamp, activity } of activities) {
-        const localDate = new Date(timestamp).toLocaleDateString();
-        if (!activityMap.has(localDate)) {
-            activityMap.set(localDate, []);
-        }
-        activityMap.get(localDate)!.push(activity);
+      const dateObj = new Date(timestamp); // Parse the timestamp
+
+      // Extract local date components (ensures local timezone grouping)
+      const localDate = `${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/` + 
+                        `${dateObj.getDate().toString().padStart(2, '0')}/` + 
+                        `${dateObj.getFullYear().toString().slice(-2)}`;
+      if (!activityMap.has(localDate)) {
+          activityMap.set(localDate, []);
+      }
+      activityMap.get(localDate)!.push(activity);
     }
     
     // Convert map to array and ensure ordering from most recent to least recent
