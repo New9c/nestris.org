@@ -27,10 +27,10 @@ export class EnterRankedQueueRoute extends PostRoute {
             throw new RouteError(400, `Session ID ${sessionID} does not correspond to user ${userInfo!.username}`);
         }
 
-        // Make sure user has played at least 3 games
+        // Make sure user has played game with 100,000 score
         const dbUser = await DBUserObject.get(userInfo!.userid);
-        if (dbUser.games_played < 3) {
-            throw new RouteError(400, `You must play at least 3 games before joining the ranked queue`);
+        if (dbUser.highest_score < 100000) {
+            throw new RouteError(400, `You must score at least 100,000 points in a game to join the ranked queue`);
         }
 
         // Make sure platform is valid

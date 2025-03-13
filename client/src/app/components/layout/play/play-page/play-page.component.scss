@@ -138,6 +138,35 @@ app-quest:hover {
     box-shadow: 0px 0px 6px 0px rgba(255,255,255,0.3);
 }
 
+.mode.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.mode-disabled {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+
+.mode-disabled p {
+    font-family: $main-font;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+
+    width: 180px;
+    text-align: center;
+    text-wrap: pretty;
+}
+
+app-locked-icon {
+    zoom: 0.8;
+    margin-right: 25px;
+}
+
 @keyframes shake {
     0% { transform: rotate(0deg) scale(1.02); }
     25% { transform: rotate(0.3deg) scale(1.02); }
@@ -247,13 +276,13 @@ app-quest:hover {
 .background-color.puzzles {
     background-color: adjust-color($color: $puzzle-color, $alpha: -0.8);
 }
-.color.solo {
+.color.solo, .mode-disabled.solo {
     color: $highest-score-color;
 }
-.color.ranked {
+.color.ranked, .mode-disabled.ranked {
     color: $ranked-color;
 }
-.color.puzzles {
+.color.puzzles, .mode-disabled.puzzles {
     color: $puzzle-color;
 }
 
@@ -267,6 +296,10 @@ app-quest:hover {
     .leaderboard {
         display: none;
     }
+
+    app-locked-icon {
+        display: none;
+    }
 }
 
 @media screen and (max-width: 520px) {
@@ -278,5 +311,11 @@ app-quest:hover {
 @media screen and (max-width: 410px) {
     .profile {
         zoom: 0.7;
+    }
+}
+
+@media screen and (max-width: 450px) {
+    .mode-disabled p {
+        display: none;
     }
 }

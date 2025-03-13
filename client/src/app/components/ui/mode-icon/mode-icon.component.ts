@@ -6,6 +6,15 @@ export enum Mode {
   PUZZLES = 'puzzles',
 }
 
+export function getModeColor(mode: Mode) {
+  switch (mode) {
+    case Mode.SOLO: return '#4C7EFF';
+    case Mode.RANKED: return '#FFA520';
+    case Mode.PUZZLES: return '#BA4CFF';
+    default: return 'white';
+  }
+}
+
 @Component({
   selector: 'app-mode-icon',
   templateUrl: './mode-icon.component.html',

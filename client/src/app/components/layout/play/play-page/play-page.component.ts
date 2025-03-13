@@ -20,7 +20,7 @@ import { NotificationType } from 'src/app/shared/models/notifications';
 import { Platform } from 'src/app/shared/models/platform';
 import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
 import { ALL_QUEST_IDS, getQuest, getQuestIdByCategoryAndDifficulty, getQuestStatus, QUEST_COLORS, QUEST_DIFFICULTY_ORDER, QuestID } from 'src/app/shared/nestris-org/quest-system';
-import { capitalize, hexWithAlpha } from 'src/app/util/misc';
+import { capitalize, hexWithAlpha, numberWithCommas } from 'src/app/util/misc';
 
 interface OngoingQuest {
   questID: QuestID,
@@ -43,6 +43,7 @@ export class PlayPageComponent implements OnInit, OnDestroy {
   readonly hexWithAlpha = hexWithAlpha;
   readonly capitalize = capitalize;
   readonly QUEST_COLORS = QUEST_COLORS;
+  readonly numberWithCommas = numberWithCommas;
 
   public me$ = this.meService.get$();
   public leaderboards$ = new BehaviorSubject<RelativeLeaderboards>({
@@ -76,6 +77,11 @@ export class PlayPageComponent implements OnInit, OnDestroy {
     // Update leaderboards every 5 seconds
     this.leaderboardInterval = setInterval(updateLeaderboards, 5000);
     updateLeaderboards();
+  }
+
+  modeEnabled(mode: Mode, me: DBUser) {
+    if (mode === Mode.RANKED && me.games_played < 3) return false;
+    return true;
   }
 
   /**

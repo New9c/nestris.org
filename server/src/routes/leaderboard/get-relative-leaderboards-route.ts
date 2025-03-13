@@ -1,5 +1,6 @@
 import { Authentication } from "../../../shared/models/db-user";
 import { RelativeLeaderboards } from "../../../shared/models/leaderboard";
+import { DBUserObject } from "../../database/db-objects/db-user";
 import { FullHighscoreLeaderboard, FullPuzzlesLeaderboard, FullTrophiesLeaderboard } from "../../leaderboards/full-leaderboard";
 import { LeaderboardManager } from "../../leaderboards/leaderboard-manager";
 import { EventConsumerManager } from "../../online-users/event-consumer";
