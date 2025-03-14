@@ -76,11 +76,14 @@ h1.title {
 
 .levels {
     display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.level-row {
+    display: flex;
     flex-direction: row;
     gap: 10px;
-
-    flex-wrap: wrap;
-    width: 250px;
 }
 
 .level {

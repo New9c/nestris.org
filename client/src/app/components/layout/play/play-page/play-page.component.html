@@ -42,7 +42,7 @@
                 </div>
                 <ng-template #disabled>
                     <div class="mode-disabled" [ngClass]="mode">
-                        <p>Score <strong>{{numberWithCommas(me.highest_score)}}/100,000</strong> in solo to unlock</p>
+                        <p class="prevent-select">Score <strong>{{numberWithCommas(me.highest_score)}}/100,000</strong> in solo to unlock</p>
                         <app-locked-icon [mode]="mode" />
                     </div>
                 </ng-template>

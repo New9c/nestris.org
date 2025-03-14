@@ -80,7 +80,7 @@ export class PlayPageComponent implements OnInit, OnDestroy {
   }
 
   modeEnabled(mode: Mode, me: DBUser) {
-    if (mode === Mode.RANKED && me.games_played < 3) return false;
+    if (mode === Mode.RANKED && me.highest_score < 100000) return false;
     return true;
   }
 

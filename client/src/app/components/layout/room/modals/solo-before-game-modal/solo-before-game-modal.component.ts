@@ -21,7 +21,10 @@ export class SoloBeforeGameModalComponent implements OnDestroy {
   readonly ButtonColor = ButtonColor;
   readonly Platform = Platform;
 
-  readonly VALID_START_LEVELS = [0, 5, 9, 12, 15, 18, 19, 29];
+  readonly VALID_START_LEVELS = [
+    [0, 5, 7, 8, 9],
+    [12, 15, 18, 19, 29]
+  ];
 
   private gamepadSubscription: any;
 
@@ -46,14 +49,6 @@ export class SoloBeforeGameModalComponent implements OnDestroy {
     map(state => state.lastGameSummary)
   );
 
-  public get startLevel(): number {
-    return this.startLevel$.getValue();
-  }
-
-  public set startLevel(value: number) {
-    this.startLevel$.next(value);
-  }
-
   public startGame() {
     this.soloClientRoom.startGame();
   }
@@ -68,48 +63,48 @@ export class SoloBeforeGameModalComponent implements OnDestroy {
     this.onKeyDown(event.key);
   }
 
+  private translate(dx: number, dy: number) {
+
+    // Find existing x and y based on VALID_START_LEVELS
+    let x = -1;
+    let y = -1;
+    for (let i = 0; i < this.VALID_START_LEVELS.length; i++) {
+      for (let j = 0; j < this.VALID_START_LEVELS[i].length; j++) {
+        if (this.VALID_START_LEVELS[i][j] === this.startLevel$.getValue()) {
+          x = i;
+          y = j;
+        }
+      }
+    }
+
+    // Translate
+    x += dx;
+    y += dy;
+
+    // Clamp
+    x = Math.max(0, Math.min(this.VALID_START_LEVELS.length - 1, x));
+    y = Math.max(0, Math.min(this.VALID_START_LEVELS[x].length - 1, y));
+
+    // Set
+    this.startLevel$.next(this.VALID_START_LEVELS[x][y]);
+  }
+
+
   private onKeyDown(key: string) {
 
     const me = this.meService.getSync();
     if (!me) return;
-
-    console.log('key', key);
 
     if (key === me.keybind_emu_start) {
       this.startGame();
     }
 
     // Left/right/up/down arrow keys to change level
-    if (key === me.keybind_emu_move_left) {
-      if (this.startLevel == 5) this.startLevel = 0;
-      else if (this.startLevel == 9) this.startLevel = 5;
-      else if (this.startLevel == 12) this.startLevel = 9;
-      else if (this.startLevel == 18) this.startLevel = 15;
-      else if (this.startLevel == 19) this.startLevel = 18;
-      else if (this.startLevel == 29) this.startLevel = 19;
-    }
-    if (key === me.keybind_emu_move_right) {
-      if (this.startLevel == 0) this.startLevel = 5;
-      else if (this.startLevel == 5) this.startLevel = 9;
-      else if (this.startLevel == 9) this.startLevel = 12;
-      else if (this.startLevel == 15) this.startLevel = 18;
-      else if (this.startLevel == 18) this.startLevel = 19;
-      else if (this.startLevel == 19) this.startLevel = 29;
-    }
-    if (key === me.keybind_emu_up) {
-      if (this.startLevel == 15) this.startLevel = 0;
-      else if (this.startLevel == 18) this.startLevel = 5;
-      else if (this.startLevel == 19) this.startLevel = 9;
-      else if (this.startLevel == 29) this.startLevel = 12;
-    }
-    if (key === me.keybind_emu_down) {
-      if (this.startLevel == 0) this.startLevel = 15;
-      else if (this.startLevel == 5) this.startLevel = 18;
-      else if (this.startLevel == 9) this.startLevel = 19;
-      else if (this.startLevel == 12) this.startLevel = 29;
-    }
+    if (key === me.keybind_emu_move_left) this.translate(0, -1);
+    else if (key === me.keybind_emu_move_right) this.translate(0, 1);
+    else if (key === me.keybind_emu_up) this.translate(-1, 0);
+    else if (key === me.keybind_emu_down) this.translate(1, 0);
   }
-
 
   exit() {
     this.router.navigate(['/']);
