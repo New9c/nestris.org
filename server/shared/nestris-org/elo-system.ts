@@ -52,4 +52,4 @@ export const START_TROPHIES_OPTIONS: StartTrophiesOption[] = [
     { label: 'Intermediate', trophies: 1200, unlockScore: 200000 },
     { label: 'Advanced', trophies: 2000, unlockScore: 500000 },
 ];
-export const RANKED_UNLOCK_SCORE = START_TROPHIES_OPTIONS[0].trophies;
+export const RANKED_UNLOCK_SCORE = START_TROPHIES_OPTIONS[0].unlockScore;
