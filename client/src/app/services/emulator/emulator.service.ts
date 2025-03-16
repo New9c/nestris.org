@@ -177,7 +177,7 @@ export class EmulatorService {
     this.fps = new FpsTracker(500, true);
 
     // Play sound
-    if (this.clientRoom instanceof SoloClientRoom) this.sound.play(SoundEffect.NOTE_HIGH);
+    if (this.clientRoom !== undefined) this.sound.play(SoundEffect.NOTE_HIGH);
 
     // start game loop
     // this.zone.runOutsideAngular(() => {
