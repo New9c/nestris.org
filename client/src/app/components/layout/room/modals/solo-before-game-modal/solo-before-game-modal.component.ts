@@ -22,7 +22,7 @@ export class SoloBeforeGameModalComponent implements OnDestroy {
   readonly Platform = Platform;
 
   readonly VALID_START_LEVELS = [
-    [0, 5, 7, 8, 9],
+    [0, 6, 7, 8, 9],
     [12, 15, 18, 19, 29]
   ];
 
