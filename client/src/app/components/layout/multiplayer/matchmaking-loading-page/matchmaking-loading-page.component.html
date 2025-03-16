@@ -31,7 +31,7 @@
                 <img src="./assets/img/misc-icons/vs.svg" />
                 <div class="versus-trophies">
                     <app-trophies [trophies]="'+' + foundOpponent.trophyDelta.trophyGain" [size]="30" [reverse]="true" color="#58D774" />
-                    <app-trophies [trophies]="foundOpponent.trophyDelta.trophyLoss" [size]="30" [reverse]="true" color="#F15757" />
+                    <app-trophies [trophies]="foundOpponent.trophyDelta.trophyLoss" [nonnegative]="false" [size]="30" [reverse]="true" color="#F15757" />
                 </div>
             </div>
             <div class="player right">

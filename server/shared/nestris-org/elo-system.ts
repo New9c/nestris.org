@@ -49,7 +49,7 @@ export interface StartTrophiesOption {
   
 export const START_TROPHIES_OPTIONS: StartTrophiesOption[] = [
     { label: 'Beginner', trophies: 400, unlockScore: 50000 },
-    { label: 'Intermediate', trophies: 1200, unlockScore: 200000 },
-    { label: 'Advanced', trophies: 2000, unlockScore: 500000 },
+    { label: 'Intermediate', trophies: 1200, unlockScore: 300000 },
+    { label: 'Advanced', trophies: 2000, unlockScore: 600000 },
 ];
 export const RANKED_UNLOCK_SCORE = START_TROPHIES_OPTIONS[0].unlockScore;

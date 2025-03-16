@@ -14,11 +14,12 @@ export class TrophiesComponent {
   @Input() scaleIcon: number = 1; // Scale the trophy icon
   @Input() scaleGap: number = 1; // Gap between icon and text
   @Input() textWidth: number | string = 'auto'; // Width of the text container
+  @Input() nonnegative: boolean = true;
 
 
   // if trophies is negative, return 0
   formattedTrophies(): number | string {
-    if (typeof this.trophies === 'number') {
+    if (typeof this.trophies === 'number' && this.nonnegative) {
       return Math.max(0, this.trophies);
     }
     
