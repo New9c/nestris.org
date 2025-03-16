@@ -15,4 +15,14 @@ export class TrophiesComponent {
   @Input() scaleGap: number = 1; // Gap between icon and text
   @Input() textWidth: number | string = 'auto'; // Width of the text container
 
+
+  // if trophies is negative, return 0
+  formattedTrophies(): number | string {
+    if (typeof this.trophies === 'number') {
+      return Math.max(0, this.trophies);
+    }
+    
+    return this.trophies; // Keep it as a string if it's a string
+  }
+
 }

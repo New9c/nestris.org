@@ -95,7 +95,7 @@ export class T200XPLeaderboard extends T200Leaderboard {
                     league: row.league,
                     xp: row.xp,
                     highest_score: row.highest_score,
-                    trophies: Math.max(row.trophies, 0),
+                    trophies: row.trophies,
                     puzzle_elo: row.puzzle_elo,
 
                     resourceID: null,
