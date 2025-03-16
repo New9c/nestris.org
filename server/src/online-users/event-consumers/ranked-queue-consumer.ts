@@ -276,6 +276,9 @@ export class RankedQueueConsumer extends EventConsumer {
         // Check if the users are not the same
         if (user1.userid === user2.userid) return false;
 
+        // Bots cannot match each other
+        if (user1.platform === null && user2.platform === null) return false;
+
         // If either player has not been in the queue for at least one second, they cannot be matched
         if (user1.queueElapsedSeconds() < 1) return false;
         if (user2.queueElapsedSeconds() < 1) return false;

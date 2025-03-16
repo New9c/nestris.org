@@ -6,24 +6,14 @@ import { getTopMovesHybrid } from "../scripts/stackrabbit";
 import { AIPlacement, PlacementAI } from "./placement-ai";
 import { TopMovesHybridResponse } from "../../shared/scripts/stackrabbit-decoder";
 import { randomChoice, randomInt, weightedRandomChoice } from "../../shared/scripts/math";
+import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from "../../shared/models/input-speed";
+
 
 export class SRPlacementAI extends PlacementAI {
 
     protected override generateInputFrameTimeline(): string {
 
-        return "X..";
-
-        let timeline = "";
-
-        // 5 maximum inputs
-        for (let i = 0; i < 5; i++) {
-
-            const numDots = randomInt(3, 5);
-            timeline += ".".repeat(numDots);
-            timeline += "X";
-        }
-
-        return timeline;
+        return INPUT_SPEED_TO_TIMELINE[this.config.inputSpeed];
 
     }
 
@@ -48,7 +38,7 @@ export class SRPlacementAI extends PlacementAI {
         let stackrabbit: TopMovesHybridResponse;
         try {
             // Disable tucks: tucks not supported with shift map yet
-            stackrabbit = await getTopMovesHybrid(board, current, next, level, lines, inputFrameTimeline, 1, true);
+            stackrabbit = await getTopMovesHybrid(board, current, next, Math.max(level, 18), lines, inputFrameTimeline, 1, true);
         } catch (e) {
             // No placement found
             return noPlacement;

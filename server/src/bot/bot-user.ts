@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { DBUserObject } from '../database/db-objects/db-user';
+import { DBSetInitialTrophiesEvent, DBUserObject } from '../database/db-objects/db-user';
 import { Authentication, DBUser, LoginMethod } from '../../shared/models/db-user';
 import { generateRandomUsername } from '../authentication/username-generation';
 import { JsonMessage } from '../../shared/network/json-message';
@@ -13,23 +13,27 @@ import { EventConsumerManager } from '../online-users/event-consumer';
  * @param userid The ID of the bot user. Precondition: The user does not already exist in the database.
  * @returns The newly created bot user.
  */
-export async function createBotUser(userid: string): Promise<DBUser> {
+export async function createBotUser(userid: string, initialTrophies: number): Promise<DBUser> {
 
     const username = await generateRandomUsername();
     
     // Create new user
     console.log(`Creating new user ${username} with ID ${userid} (BOT USER)`);
-    const user = await DBUserObject.create(userid, {
+    await DBUserObject.create(userid, {
         username: username,
         login_method: LoginMethod.BOT,
         authentication: Authentication.USER
     });
 
+    // Set the initial trophies of the bot user
+    const user = await DBUserObject.alter(userid, new DBSetInitialTrophiesEvent({trophies: initialTrophies}), false);
+
     return user;
 }
 
+export interface BotConfig {}
 
-export class BotUser {
+export class BotUser<Config extends BotConfig = {}> {
     protected eventManager: EventConsumerManager;
     protected users: OnlineUserManager;
     
@@ -42,7 +46,9 @@ export class BotUser {
     public get session() { return this._session; }
 
     constructor(
-        public readonly userid: string
+        public readonly userid: string,
+        public readonly initialTrophies: number,
+        public readonly config: Config,
     ) {
         this.eventManager = EventConsumerManager.getInstance();
         this.users = this.eventManager.getUsers();
@@ -56,7 +62,7 @@ export class BotUser {
         
         // Get the bot user from the database, or create it if it does not exist
         let botUser = await DBUserObject.getOrNull(this.userid);
-        if (!botUser) botUser = await createBotUser(this.userid);
+        if (!botUser) botUser = await createBotUser(this.userid, this.initialTrophies);
         else console.log(`Loaded existing bot user ${botUser.username} with ID ${this.userid}`);
         
         // Assert that the user is a bot user

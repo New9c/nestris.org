@@ -18,7 +18,7 @@ import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import { SRPlacementAI } from "./sr-placement-ai";
-import { AIPlacement, PlacementAI } from "./placement-ai";
+import { AIConfig, AIPlacement, PlacementAI } from "./placement-ai";
 
 const BEFORE_GAME_MESSAGE = [
     "glhf",
@@ -37,7 +37,11 @@ class MatchAbortedError extends Error {
     constructor() { super('Match aborted'); }
 }
 
-export class RankedBotUser extends BotUser {
+export interface RankedBotConfig {
+    aiConfig: AIConfig,
+}
+
+export class RankedBotUser extends BotUser<RankedBotConfig> {
     readonly queueConsumer = this.eventManager.getConsumer(RankedQueueConsumer);
     readonly roomConsumer = this.eventManager.getConsumer(RoomConsumer);
 
@@ -160,7 +164,7 @@ export class RankedBotUser extends BotUser {
                 bestEval: placement.bestEval,
                 playerEval: placement.playerEval,
             }));
-        const placementAI = new SRPlacementAI(onPlacementComputed);
+        const placementAI = new SRPlacementAI(this.config.aiConfig, onPlacementComputed);
         placementAI.registerPlacementPosition(0, state.getIsolatedBoard(), state.getCurrentPieceType(), state.getNextPieceType(), state.getStatus().level, state.getStatus().lines);
 
         // Send initial game start packet

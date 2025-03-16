@@ -1,4 +1,5 @@
 import { Keybind } from "../../shared/emulator/keybinds";
+import { InputSpeed } from "../../shared/models/input-speed";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
@@ -16,6 +17,11 @@ export interface AIPlacement {
     playerEval: number,
 }
 
+export interface AIConfig {
+    inputSpeed: InputSpeed;
+}
+
+
 /**
  * Handles generating the placements for each position in the game, and the move sequence for each placement.
  */
@@ -25,6 +31,7 @@ export abstract class PlacementAI {
     readonly placements = new Map<number, Placement>();
 
     constructor(
+        protected readonly config: AIConfig,
         private onPlacementComputed: (placement: AIPlacement) => void = () => { }
     ) {}
 
