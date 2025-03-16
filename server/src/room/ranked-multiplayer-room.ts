@@ -22,6 +22,7 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
     private readonly startTime = Date.now();
 
     constructor(
+        startLevel: number,
         player1SessionID: UserSessionID,
         player2SessionID: UserSessionID,
         player1TrophyDelta: TrophyDelta, // How much player 1 will gain/lose
@@ -33,7 +34,7 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
             player1SessionID, player2SessionID, player1TrophyDelta, player2TrophyDelta,
             player1Platform, player2Platform,
             true, // Ranked
-            18, // Start level
+            startLevel, // Start level
             0.5, // Winning score: single game decides winner
         );
     }

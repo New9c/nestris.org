@@ -2,7 +2,7 @@
 
     <app-fullscreen-exit-button />
 
-    <app-loading-screen (score)="setScore($event)" [resolution]="2" [blockSize]="50" [blockSpeed]="3"
+    <app-loading-screen (score)="setScore($event)" [resolution]="2" [blockSize]="50" [blockSpeed]="4"
         [explodeEverything]="!!(foundOpponent$ | async)"
     />
 
@@ -17,25 +17,36 @@
 
     </div>
 
-    <div class="found-opponent center-div" *ngIf="(foundOpponent$ | async) as foundOpponent">
-        <div class="player left" *ngIf="(me$ | async) as me">
-            <app-league-icon [league]="me.league" [height]="250" />
-            <p class="username">{{me.username}}</p>
-            <app-trophies [trophies]="me.trophies" [size]="30" />
-        </div>
-        <div class="versus">
-            <img src="./assets/img/misc-icons/vs.svg" />
-            <div class="versus-trophies">
-                <app-trophies [trophies]="'+' + foundOpponent.trophyDelta.trophyGain" [size]="30" [reverse]="true" color="#58D774" />
-                <app-trophies [trophies]="foundOpponent.trophyDelta.trophyLoss" [size]="30" [reverse]="true" color="#F15757" />
+    <div class="found-container" *ngIf="(foundOpponent$ | async) as foundOpponent">
+
+        <div class="upper-container"></div>
+
+        <div class="found-opponent" >
+            <div class="player left" *ngIf="(me$ | async) as me">
+                <app-league-icon [league]="me.league" [height]="250" />
+                <p class="username">{{me.username}}</p>
+                <app-trophies [trophies]="me.trophies" [size]="30" />
+            </div>
+            <div class="versus">
+                <img src="./assets/img/misc-icons/vs.svg" />
+                <div class="versus-trophies">
+                    <app-trophies [trophies]="'+' + foundOpponent.trophyDelta.trophyGain" [size]="30" [reverse]="true" color="#58D774" />
+                    <app-trophies [trophies]="foundOpponent.trophyDelta.trophyLoss" [size]="30" [reverse]="true" color="#F15757" />
+                </div>
+            </div>
+            <div class="player right">
+                <app-league-icon [league]="foundOpponent.opponentLeague" [height]="250" [flipped]="true" />
+                <p class="username">{{foundOpponent.opponentName}}</p>
+                <app-trophies [trophies]="foundOpponent.opponentTrophies" [size]="30" />
             </div>
         </div>
-        <div class="player right">
-            <app-league-icon [league]="foundOpponent.opponentLeague" [height]="250" [flipped]="true" />
-            <p class="username">{{foundOpponent.opponentName}}</p>
-            <app-trophies [trophies]="foundOpponent.opponentTrophies" [size]="30" />
+
+        <div class="lower-container">
+            <p>Level {{foundOpponent.startLevel}} start</p>
         </div>
+
     </div>
+    
     
 
 </div>

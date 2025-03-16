@@ -209,6 +209,7 @@ export class FoundOpponentMessage extends JsonMessage {
         public readonly opponentTrophies: number,
         public readonly opponentLeague: League,
         public readonly trophyDelta: TrophyDelta,
+        public readonly startLevel: number,
     ) {
         super(JsonMessageType.FOUND_OPPONENT)
     }
