@@ -22,7 +22,7 @@ export class LeaderboardManager {
     /**
      * Initialize all leaderboards and trigger periodic update of T200 leaderboards
      */
-    public static async init(users: OnlineUserManager) {
+    public static async init(users: OnlineUserManager, startInterval: boolean = true) {
 
         // Initialize full leaderboards
         for (const fullLeaderboard of LeaderboardManager.fullLeaderboards.values()) {
@@ -38,7 +38,7 @@ export class LeaderboardManager {
         }
 
         // Periodically update t200 leaderboards
-        setInterval(async () => {
+        if (startInterval) setInterval(async () => {
             try {
                 const start = Date.now();
                 for (const t200Leaderboard of LeaderboardManager.t200Leaderboards.values()) {

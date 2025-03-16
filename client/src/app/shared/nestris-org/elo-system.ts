@@ -32,3 +32,11 @@ export function getEloChange(playerElo: number, opponentElo: number, playerScore
     const K = getKFactor(numMatches);
     return Math.round(K * (playerScore - expectedScore(playerElo, opponentElo)));
 }
+
+export function getStartLevelForElo(elo: number) {
+    if (elo < 600) return 6;
+    if (elo < 1000) return 9;
+    if (elo < 1400) return 12;
+    if (elo < 1800) return 15;
+    return 18;
+}

@@ -29,8 +29,8 @@ export class EnterRankedQueueRoute extends PostRoute {
 
         // Make sure user has played game with 100,000 score
         const dbUser = await DBUserObject.get(userInfo!.userid);
-        if (dbUser.highest_score < 100000) {
-            throw new RouteError(400, `You must score at least 100,000 points in a game to join the ranked queue`);
+        if (dbUser.highest_score < 50000) {
+            throw new RouteError(400, `You must score at least 50,000 points in a game to join the ranked queue`);
         }
 
         // Make sure trophies not -1

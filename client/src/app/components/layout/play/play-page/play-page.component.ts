@@ -35,6 +35,8 @@ interface OngoingQuest {
 })
 export class PlayPageComponent implements OnInit, OnDestroy {
 
+  readonly UNLOCK_RANKED_SCORE = 50000;
+
   readonly ButtonColor = ButtonColor;
   readonly Platform = Platform;
 
@@ -80,7 +82,7 @@ export class PlayPageComponent implements OnInit, OnDestroy {
   }
 
   modeEnabled(mode: Mode, me: DBUser) {
-    if (mode === Mode.RANKED && me.highest_score < 100000) return false;
+    if (mode === Mode.RANKED && me.highest_score < this.UNLOCK_RANKED_SCORE) return false;
     return true;
   }
 

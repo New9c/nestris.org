@@ -1,0 +1,156 @@
+@import "../../../../styles.scss";
+
+.modal {
+    width: 600px;
+    height: 400px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+}
+
+h1 {
+    font-family: Montserrat;
+    font-size: 30px;
+    font-style: normal;
+    font-weight: 600;
+    text-align: center;
+    text-wrap: nowrap;
+    padding: 0;
+    margin: 0;
+    margin-top: 10px;
+}
+
+h2 {
+    font-family: Montserrat;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: center;
+    text-wrap: pretty;
+    width: 80%;
+    padding: 0;
+    margin: 0;
+}
+
+.options {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    margin: 10px;
+}
+
+.option {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 12px 20px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+    width: 170px;
+    box-sizing: border-box;
+
+    border: 2px solid transparent;
+}
+
+.option:hover:not(.locked) {
+    background-color: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+}
+
+.option.locked:hover {
+    cursor: not-allowed;
+}
+
+.option:active:not(.locked) {
+    background-color: rgba(255, 255, 255, 0.07);
+}
+
+.option.selected {
+    border: 2px solid white;
+}
+
+.option .title {
+    font-family: Montserrat;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    text-align: center;
+    text-wrap: nowrap;
+    padding: 0;
+    margin: 0;
+}
+
+.option .level {
+    font-family: Montserrat;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    text-align: center;
+    text-wrap: nowrap;
+    padding: 0;
+    margin: 0;
+}
+
+app-trophies {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.option .description {
+    font-family: Montserrat;
+    font-size: 10px;
+    font-weight: 400;
+    text-align: center;
+    text-wrap: nowrap;
+    font-style: italic;
+    padding: 0;
+    margin: 0;
+}
+
+strong {
+    font-weight: 600;
+}
+
+.explain {
+    margin-block: auto;
+}
+
+.buttons {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+@media screen and (max-width: 700px) {
+    .modal {
+        zoom: 80%;
+    }   
+}
+
+@media screen and (max-width: 600px) {
+    .modal {
+        zoom: 70%;
+        width: 550px;
+    }   
+}
+
+@media screen and (max-width: 470px) {
+    .modal {
+        zoom: 65%;
+    }   
+}
+
+@media screen and (max-width: 430px) {
+    .modal {
+        zoom: 60%;
+        width: 520px;
+    }   
+}
