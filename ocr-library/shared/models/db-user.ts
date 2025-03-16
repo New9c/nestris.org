@@ -49,6 +49,7 @@ export interface DBUser {
   highest_transition_into_19: number,
   highest_transition_into_29: number,
 
+  enable_sound: boolean,
   enable_receive_friend_requests: boolean,
   notify_on_friend_online: boolean,
   enable_runahead: boolean,
@@ -104,6 +105,7 @@ export const DBUserAttributes = [
   'highest_transition_into_19',
   'highest_transition_into_29',
 
+  'enable_sound',
   'enable_receive_friend_requests',
   'notify_on_friend_online',
   'enable_runahead',

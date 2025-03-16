@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { sleep } from '../util/misc';
+import { MeService } from './state/me.service';
 
 export enum SoundEffect {
   CLICK = 'click',
@@ -36,7 +37,9 @@ export class SoundService {
     [SoundEffect.POP]: { file: 'pop.wav', gain: 0.8 },
   };
 
-  constructor() {
+  constructor(
+    private meService: MeService,
+  ) {
     this.audioContext = new AudioContext();
     this.preloadSounds();
 
@@ -88,6 +91,7 @@ export class SoundService {
 
   play(sound: SoundEffect) {
     if (!this.isTabVisible) return;
+    if (!this.meService.getSync()?.enable_sound) return;
 
     const buffer = this.audioBuffers.get(sound);
     const gainNode = this.gainNodes.get(sound);

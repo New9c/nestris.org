@@ -85,6 +85,9 @@ export class SettingsPageComponent implements OnDestroy {
           'Runahead reduces latency but requires more CPU power. It is recommended to disable runahead if you are experiencing performance issues.'
         ),
       ]),
+      new Category('Sound', [
+        new BooleanSetting('enable_sound', 'Play sound effects'),
+      ]),
       new Category('Emulator Keybinds', [
         new KeybindSetting('keybind_emu_start', 'Start'),
         new KeybindSetting('keybind_emu_up', 'Up'),

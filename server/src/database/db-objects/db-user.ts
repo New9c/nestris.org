@@ -141,6 +141,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             highest_transition_into_29: 0,
             enable_receive_friend_requests: true,
             notify_on_friend_online: true,
+            enable_sound: true,
             enable_runahead: false,
             show_live_analysis: true,
             disable_midgame_quests: false,

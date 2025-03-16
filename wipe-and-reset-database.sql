@@ -35,6 +35,7 @@ CREATE TABLE "public"."users" (
     "highest_transition_into_19" int4 NOT NULL,
     "highest_transition_into_29" int4 NOT NULL,
 
+    "enable_sound" boolean NOT NULL,
     "enable_receive_friend_requests" boolean NOT NULL,
     "notify_on_friend_online" boolean NOT NULL,
     "enable_runahead" boolean NOT NULL,
