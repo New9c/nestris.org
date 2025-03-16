@@ -188,7 +188,7 @@ export class T200RankedLeaderboard extends T200Leaderboard {
                 FROM
                     users
                 WHERE
-                    matches_played > 0
+                    trophies >= 0
                 ORDER BY
                     trophies DESC
                 LIMIT 200

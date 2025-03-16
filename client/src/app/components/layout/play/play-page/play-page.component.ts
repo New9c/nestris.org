@@ -70,6 +70,8 @@ export class PlayPageComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
   ) {
 
+
+    console.log("ranked unlock score: ", this.RANKED_UNLOCK_SCORE);
     const updateLeaderboards = async () => {
       const leaderboards = await this.fetchService.fetch<RelativeLeaderboards>(Method.GET, '/api/v2/leaderboard/relative');
       this.leaderboards$.next(leaderboards);
