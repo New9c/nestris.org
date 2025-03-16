@@ -73,7 +73,7 @@ export class MainLeaderboardPageComponent implements OnDestroy {
 
 
   // The current leaderboard type
-  currentType$ = new BehaviorSubject<T200LeaderboardType>(T200LeaderboardType.SOLO_XP);
+  currentType$ = new BehaviorSubject<T200LeaderboardType>(T200LeaderboardType.SOLO_HIGHSCORE);
 
   // The current mode based on the current type
   currentMode$ = this.currentType$.pipe(
