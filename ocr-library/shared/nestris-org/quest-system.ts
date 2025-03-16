@@ -285,7 +285,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         description: "Reach 1500 trophies in ranked mode",
         difficulty: QuestDifficulty.INTERMEDIATE,
         xp: 1500,
-        targetScore: 2000
+        targetScore: 1500
     },
     [QuestID.CHAMPION_III]: {
         id: QuestID.CHAMPION_III,
@@ -294,7 +294,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         description: "Reach 1800 trophies in ranked mode",
         difficulty: QuestDifficulty.ADVANCED,
         xp: 3000,
-        targetScore: 2500
+        targetScore: 1800
     },
     [QuestID.CHAMPION_IV]: {
         id: QuestID.CHAMPION_IV,
@@ -303,7 +303,7 @@ export const QUESTS: Record<QuestID, Quest> = {
         description: "Reach 2100 trophies in ranked mode",
         difficulty: QuestDifficulty.EXPERT,
         xp: 10000,
-        targetScore: 3000
+        targetScore: 2100
     },
     [QuestID.EFFICIENCY_I]: {
         id: QuestID.EFFICIENCY_I,
