@@ -42,7 +42,7 @@
                 </div>
                 <ng-template #disabled>
                     <div *ngIf="!mustPickStartingTrophies(mode, me)" class="mode-disabled" [ngClass]="mode">
-                        <p class="prevent-select">Score <strong>{{numberWithCommas(me.highest_score)}}/{{numberWithCommas(UNLOCK_RANKED_SCORE)}}</strong> in solo to unlock</p>
+                        <p class="prevent-select">Score <strong>{{numberWithCommas(me.highest_score)}}/{{numberWithCommas(RANKED_UNLOCK_SCORE)}}</strong> in solo to unlock</p>
                         <app-locked-icon [mode]="mode" [locked]="true" />
                     </div>
                     <div *ngIf="mustPickStartingTrophies(mode, me)" class="mode-disabled" [ngClass]="mode">

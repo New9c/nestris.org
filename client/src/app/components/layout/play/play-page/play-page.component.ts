@@ -10,15 +10,14 @@ import { NotificationService } from 'src/app/services/notification.service';
 import { VideoCaptureService } from 'src/app/services/ocr/video-capture.service';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { PlayService } from 'src/app/services/play.service';
-import { RankedQueueService } from 'src/app/services/room/ranked-queue.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
 import { MeService } from 'src/app/services/state/me.service';
-import { WebsocketService } from 'src/app/services/websocket.service';
 import { DBUser } from 'src/app/shared/models/db-user';
 import { RelativeLeaderboards } from 'src/app/shared/models/leaderboard';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { Platform } from 'src/app/shared/models/platform';
 import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
+import { RANKED_UNLOCK_SCORE } from 'src/app/shared/nestris-org/elo-system';
 import { ALL_QUEST_IDS, getQuest, getQuestIdByCategoryAndDifficulty, getQuestStatus, QUEST_COLORS, QUEST_DIFFICULTY_ORDER, QuestID } from 'src/app/shared/nestris-org/quest-system';
 import { capitalize, hexWithAlpha, numberWithCommas } from 'src/app/util/misc';
 
@@ -35,7 +34,7 @@ interface OngoingQuest {
 })
 export class PlayPageComponent implements OnInit, OnDestroy {
 
-  readonly UNLOCK_RANKED_SCORE = 50000;
+  readonly RANKED_UNLOCK_SCORE = RANKED_UNLOCK_SCORE;
 
   readonly ButtonColor = ButtonColor;
   readonly Platform = Platform;
@@ -82,7 +81,7 @@ export class PlayPageComponent implements OnInit, OnDestroy {
   }
 
   modeEnabled(mode: Mode, me: DBUser) {
-    if (mode === Mode.RANKED && me.highest_score < this.UNLOCK_RANKED_SCORE) return false;
+    if (mode === Mode.RANKED && me.highest_score < this.RANKED_UNLOCK_SCORE) return false;
     return true;
   }
 

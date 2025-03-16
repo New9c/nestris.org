@@ -6,7 +6,7 @@
     </h2>
 
     <div class="options">
-        <button class="option" *ngFor="let option of options" (click)="onClickOption(option)"
+        <button class="option" *ngFor="let option of START_TROPHIES_OPTIONS" (click)="onClickOption(option)"
             [ngClass]="{'selected': option === (selectedOption$ | async), 'locked': !isUnlocked(option)}">
                 <p class="title">{{option.label}}</p>
                 <app-trophies [trophies]="option.trophies" [size]="35" />
@@ -40,7 +40,7 @@
 
     <div class="buttons">
         <app-solid-button label="Not yet" [color]="ButtonColor.GREY" (smartClick)="close()" />
-        <app-solid-button label="Play ranked" [color]="ButtonColor.BLUE" (smartClick)="play()" [disabled]="!(selectedOption$ | async)" />
+        <app-solid-button label="Play ranked" [color]="ButtonColor.BLUE" [action]="play.bind(this)" [disabled]="!(selectedOption$ | async)" />
       </div>
 
 </div>

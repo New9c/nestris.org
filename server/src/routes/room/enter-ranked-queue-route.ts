@@ -1,5 +1,6 @@
 import { Authentication, DBUser } from "../../../shared/models/db-user";
 import { Platform } from "../../../shared/models/platform";
+import { RANKED_UNLOCK_SCORE } from "../../../shared/nestris-org/elo-system";
 import { DBObjectNotFoundError } from "../../database/db-object-error";
 import { DBUserObject } from "../../database/db-objects/db-user";
 import { EventConsumerManager } from "../../online-users/event-consumer";
@@ -29,8 +30,8 @@ export class EnterRankedQueueRoute extends PostRoute {
 
         // Make sure user has played game with 100,000 score
         const dbUser = await DBUserObject.get(userInfo!.userid);
-        if (dbUser.highest_score < 50000) {
-            throw new RouteError(400, `You must score at least 50,000 points in a game to join the ranked queue`);
+        if (dbUser.highest_score < RANKED_UNLOCK_SCORE) {
+            throw new RouteError(400, `You must score at least ${RANKED_UNLOCK_SCORE} points in a game to join the ranked queue`);
         }
 
         // Make sure trophies not -1

@@ -40,6 +40,10 @@ export class DBUserOnlineEvent extends DBUserEvent {}
 interface UpdateAttributeArgs { attribute: string, value: any }
 export class DBUpdateAttributeEvent extends GenericEvent<UpdateAttributeArgs> {}
 
+// Set the initial trophies of the user, provided they have not already been set
+interface SetInitialTrophiesArgs { trophies: number }
+export class DBSetInitialTrophiesEvent extends GenericEvent<SetInitialTrophiesArgs> {}
+
 // An XP event advances the user's XP and possibly their league. In addition, DBUser will check for quest update
 // changes and trigger additional XP increases if necessary.
 interface XPArgs { xpGained: number }
@@ -70,6 +74,7 @@ export class DBQuestProgressEvent extends XPEvent<QuestProgressArgs> {}
 // Update user's trophies by trophyDelta amount
 interface RankedMatchEndArgs extends XPArgs { win: boolean, lose: boolean, trophyChange: number }
 export class DBRankedMatchEndEvent extends XPEvent<RankedMatchEndArgs> {}
+
 
 
 export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("DBUser") {
@@ -256,6 +261,15 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                     console.log(`Updating highscore game for user ${this.id} with gameID ${gameEndArgs.gameID} and score ${gameEndArgs.score}`);
                     Database.query(SetHighscoreGameQuery, this.inMemoryObject.userid, gameEndArgs.gameID);
                 }
+                break;
+
+            case DBSetInitialTrophiesEvent:
+                const initialTrophiesArgs = (event as DBSetInitialTrophiesEvent).args;
+                if (this.inMemoryObject.trophies !== INITIAL_RANKED_TROPHIES) {
+                    throw new DBObjectAlterError('Initial trophies already set');
+                }
+                this.inMemoryObject.trophies = initialTrophiesArgs.trophies;
+                this.inMemoryObject.highest_trophies = initialTrophiesArgs.trophies;
                 break;
 
             // Update a single attribute
