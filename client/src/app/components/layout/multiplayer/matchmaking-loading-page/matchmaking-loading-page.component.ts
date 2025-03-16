@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { BehaviorSubject, interval, map, Subscription } from "rxjs";
 import { RankedQueueService } from "src/app/services/room/ranked-queue.service";
+import { SoundEffect, SoundService } from "src/app/services/sound.service";
 import { MeService } from "src/app/services/state/me.service";
 
 
@@ -17,18 +18,22 @@ export class MatchmakingLoadingPageComponent implements OnInit, OnDestroy {
 
     numPeriods$: BehaviorSubject<number> = new BehaviorSubject(0);
     intervalSubscription!: Subscription;
+    foundSubscription: Subscription;
 
+    readonly playersInQueue$ = this.rankedQueueService.getNumQueuingPlayers$();
+    readonly foundOpponent$ = this.rankedQueueService.getFoundOpponent$();
+    readonly me$ = this.meService.get$();
 
     constructor(
         private meService: MeService,
         private rankedQueueService: RankedQueueService,
+        private sound: SoundService,
         private router: Router,
-    ) {}
-
-    readonly playersInQueue$ = this.rankedQueueService.getNumQueuingPlayers$();
-    readonly foundOpponent$ = this.rankedQueueService.getFoundOpponent$();
-
-    readonly me$ = this.meService.get$();
+    ) {
+        this.foundSubscription = this.foundOpponent$.subscribe(() => {
+            setTimeout(() => this.sound.play(SoundEffect.SWORD, true), 2100);
+        });
+    }
     
     async ngOnInit() {
 
@@ -50,6 +55,7 @@ export class MatchmakingLoadingPageComponent implements OnInit, OnDestroy {
         await this.rankedQueueService.leaveQueue();
 
         this.intervalSubscription.unsubscribe();
+        this.foundSubscription?.unsubscribe();
     }
 
     getMessage(periods: number) {

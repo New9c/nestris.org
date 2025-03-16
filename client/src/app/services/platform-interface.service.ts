@@ -128,6 +128,10 @@ export class PlatformInterfaceService extends PacketSender {
     if (boardChanged || nonBoardChanged) this.polledGameData$.next(data);
   }
 
+  resetGameData() {
+    this.updateGameData(DEFAULT_POLLED_GAME_DATA);
+  }
+
   setOverallAccuracy(accuracy: number | null) {
     this.overallAccuracy$.next(accuracy);
   }

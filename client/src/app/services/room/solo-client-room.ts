@@ -113,7 +113,7 @@ export class SoloClientRoom extends ClientRoom {
     }
 
 
-    public startGame(countdown = 3) {
+    public startGame(countdown = 3, delay: boolean = false) {
 
         if (this.platformInterface.getPlatform() === Platform.OCR) throw new Error(`Cannot start emulator game on OCR`);
 
@@ -124,7 +124,11 @@ export class SoloClientRoom extends ClientRoom {
         this.setSoloState(SoloClientState.IN_GAME);
 
         // Start the game
-        setTimeout(() => this.emulator.startGame(startLevel, true, undefined, this, countdown), 500);
+        if (delay) {
+            this.platformInterface.resetGameData();
+            setTimeout(() => this.emulator.startGame(startLevel, true, undefined, this, countdown), 1000);
+        }
+        else this.emulator.startGame(startLevel, true, undefined, this, countdown);
     }
 
     public getSoloState$(): Observable<SoloClientState> {
