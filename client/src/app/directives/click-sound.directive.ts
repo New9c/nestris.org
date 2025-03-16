@@ -6,6 +6,7 @@ import { SoundEffect, SoundService } from '../services/sound.service';
 })
 export class ClickSoundDirective {
   @Input() clickSoundDisabled: boolean = false;
+  @Input() sound: SoundEffect = SoundEffect.CLICK;
 
   constructor(
     private readonly soundService: SoundService
@@ -13,7 +14,7 @@ export class ClickSoundDirective {
 
   @HostListener('mousedown')
   onMouseDown() {
-    if (!this.clickSoundDisabled) this.soundService.play(SoundEffect.CLICK);
+    if (!this.clickSoundDisabled) this.soundService.play(this.sound);
   }
 
 }

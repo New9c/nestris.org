@@ -9,6 +9,7 @@ import { OnGlobalChatMessage } from 'src/app/shared/network/json-message';
 import { ProfileModalConfig } from '../modals/profile-modal/profile-modal.component';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { timeAgo } from 'src/app/util/misc';
+import { SoundEffect, SoundService } from 'src/app/services/sound.service';
 
 @Component({
   selector: 'app-main-chat',
@@ -38,6 +39,7 @@ export class MainChatComponent implements AfterViewInit, OnDestroy {
     private readonly meService: MeService,
     private readonly globalChatService: GlobalChatService,
     private readonly modalManagerService: ModalManagerService,
+    private readonly sound: SoundService,
   ) {
 
   }
@@ -107,6 +109,8 @@ export class MainChatComponent implements AfterViewInit, OnDestroy {
       timeMs: Date.now(),
       message
     }]));
+
+    this.sound.play(SoundEffect.POP);
   }
 
   numUsersMessage(numUsers: number | null): string {

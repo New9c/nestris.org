@@ -11,6 +11,7 @@ import { VideoCaptureService } from 'src/app/services/ocr/video-capture.service'
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { PlayService } from 'src/app/services/play.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
+import { SoundEffect } from 'src/app/services/sound.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { DBUser } from 'src/app/shared/models/db-user';
 import { RelativeLeaderboards } from 'src/app/shared/models/leaderboard';
@@ -38,6 +39,7 @@ export class PlayPageComponent implements OnInit, OnDestroy {
 
   readonly ButtonColor = ButtonColor;
   readonly Platform = Platform;
+  readonly SoundEffect = SoundEffect;
 
   readonly Mode = Mode;
   readonly modes = Object.values(Mode);

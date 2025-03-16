@@ -36,10 +36,12 @@
     align-items: center;
 }
 
-.logo {
+.logo-big {
     margin-top: 20px;
     align-self: center;
+}
 
+.logo {
     transition: all 0.3s;
 }
 
@@ -120,7 +122,7 @@ app-ocr-button {
         margin-top: 18px;
     }
 
-    .logo, .brand-name {
+    .logo-big, .brand-name {
         display: none;
     }
 

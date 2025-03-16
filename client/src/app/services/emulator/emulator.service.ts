@@ -22,6 +22,7 @@ import { ClientRoom } from '../room/client-room';
 import { SoloClientRoom, SoloClientState } from '../room/solo-client-room';
 import { QuestService } from '../quest.service';
 import { FpsTracker } from 'src/app/shared/scripts/fps-tracker';
+import { SoundEffect, SoundService } from '../sound.service';
 
 
 /*
@@ -68,6 +69,7 @@ export class EmulatorService {
     private gamepadService: GamepadService,
     private wakeLockService: WakeLockService,
     private questService: QuestService,
+    private sound: SoundService,
 ) {}
 
   // tick function that advances the emulator state during the game loop
@@ -174,6 +176,9 @@ export class EmulatorService {
 
     this.fps = new FpsTracker(500, true);
 
+    // Play sound
+    if (this.clientRoom instanceof SoloClientRoom) this.sound.play(SoundEffect.NOTE_HIGH);
+
     // start game loop
     // this.zone.runOutsideAngular(() => {
     //   this.loop = setInterval(() => this.tick(), 0);
@@ -253,6 +258,7 @@ export class EmulatorService {
         delta: this.timeDelta.getDelta(),
         countdown: currentCountdown ?? 0,
       }));
+      if (this.clientRoom !== undefined && currentCountdown !== undefined) this.sound.play(SoundEffect.NOTE_HIGH);
     }
 
     // send placement packet if piece has been placed
@@ -301,6 +307,8 @@ export class EmulatorService {
     if (this.currentState.isToppedOut()) {
       this.stopGame();
       this.onTopout$.next();
+
+      if (this.clientRoom !== undefined) this.sound.play(SoundEffect.NOTES_DOWN);
 
       if (this.clientRoom instanceof SoloClientRoom) this.clientRoom.setSoloState(SoloClientState.TOPOUT);
     }

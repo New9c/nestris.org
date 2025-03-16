@@ -23,6 +23,7 @@ import { RatedPuzzleStrategy } from './puzzle-states/rated-puzzle-strategy';
 import { SinglePuzzleStrategy } from './puzzle-states/single-puzzle-strategy';
 import { PUZZLE_THEME_TEXT } from 'src/app/shared/puzzles/puzzle-theme';
 import { getDisplayKeybind } from 'src/app/components/ui/editable-keybind/editable-keybind.component';
+import { SoundEffect, SoundService } from 'src/app/services/sound.service';
 
 const RIGHT_ANSWER_COMMENTS = [
   "You got it!",
@@ -121,6 +122,7 @@ export class PlayPuzzlePageComponent implements OnInit {
     public router: Router,
     private notifier: NotificationService,
     private injector: Injector,
+    private sound: SoundService,
     private me: MeService,
   ) {}
 
@@ -251,12 +253,17 @@ export class PlayPuzzlePageComponent implements OnInit {
         }
       }
     }
+    const isCorrect = submissionIndex === 0;
 
     const comment = (
-      submissionIndex === 0 ?
+      isCorrect ?
       RIGHT_ANSWER_COMMENTS[Math.floor(Math.random() * RIGHT_ANSWER_COMMENTS.length)] :
       WRONG_ANSWER_COMMENTS[Math.floor(Math.random() * WRONG_ANSWER_COMMENTS.length)]
     );
+
+    // Play corresponding sound on correct/incorrect submissions
+    if (isCorrect) this.sound.play(SoundEffect.NOTES_UP_HIGH);
+    else this.sound.play(SoundEffect.INCORRECT);
 
     this.state$.next({ id: PuzzleStateID.SOLUTION, isRetry: currentState.isRetry, data: currentState.data, solution, submission, submissionIndex, comment });
   }

@@ -124,7 +124,7 @@ export class SoloClientRoom extends ClientRoom {
         this.setSoloState(SoloClientState.IN_GAME);
 
         // Start the game
-        this.emulator.startGame(startLevel, true, undefined, this, countdown);
+        setTimeout(() => this.emulator.startGame(startLevel, true, undefined, this, countdown), 500);
     }
 
     public getSoloState$(): Observable<SoloClientState> {

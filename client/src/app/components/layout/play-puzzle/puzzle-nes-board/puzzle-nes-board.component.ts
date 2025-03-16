@@ -8,7 +8,6 @@ import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { PuzzleData } from '../play-puzzle-page/play-puzzle-page.component';
 
-
 /*
 Smart component that handles the logic for the puzzle board.
 Takes in a puzzle definition, and emits a puzzle submission when the puzzle is completed.
@@ -46,6 +45,7 @@ export class PuzzleNesBoardComponent implements OnInit, OnDestroy {
   rotation: number = 0;
 
   undoSubscription?: any;
+
 
 
   ngOnInit(): void {

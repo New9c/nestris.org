@@ -15,7 +15,7 @@ export class ModalContainerComponent {
   readonly ModalType = ModalType;
 
   constructor(
-    public modalManager: ModalManagerService
+    public modalManager: ModalManagerService,
   ) {
 
     // show modal when modal type is not null

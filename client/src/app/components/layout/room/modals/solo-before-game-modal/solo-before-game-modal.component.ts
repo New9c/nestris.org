@@ -6,6 +6,7 @@ import { GamepadService } from 'src/app/services/gamepad.service';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { RoomService } from 'src/app/services/room/room.service';
 import { SoloClientRoom, SoloClientState } from 'src/app/services/room/solo-client-room';
+import { SoundEffect, SoundService } from 'src/app/services/sound.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { Platform } from 'src/app/shared/models/platform';
 import { SoloRoomState } from 'src/app/shared/room/solo-room-models';
@@ -34,6 +35,7 @@ export class SoloBeforeGameModalComponent implements OnDestroy {
     public readonly platform: PlatformInterfaceService,
     private readonly meService: MeService,
     private readonly gamepadService: GamepadService,
+    private readonly sound: SoundService,
   ) {
     this.gamepadSubscription = this.gamepadService.onPress().subscribe(key => this.onKeyDown(key));
   }
@@ -86,7 +88,12 @@ export class SoloBeforeGameModalComponent implements OnDestroy {
     y = Math.max(0, Math.min(this.VALID_START_LEVELS[x].length - 1, y));
 
     // Set
-    this.startLevel$.next(this.VALID_START_LEVELS[x][y]);
+    this.setStartLevel(this.VALID_START_LEVELS[x][y]);
+  }
+
+  public setStartLevel(level: number) {
+    this.startLevel$.next(level);
+    this.sound.play(SoundEffect.CLICK);
   }
 
 
@@ -96,6 +103,7 @@ export class SoloBeforeGameModalComponent implements OnDestroy {
     if (!me) return;
 
     if (key === me.keybind_emu_start) {
+      this.sound.play(SoundEffect.CLICK);
       this.startGame();
     }
 

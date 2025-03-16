@@ -12,6 +12,7 @@ import { ApiService } from 'src/app/services/api.service';
 import { Activity, ActivityType, TimestampedActivity } from 'src/app/shared/models/activity';
 import { numberWithCommas } from 'src/app/util/misc';
 import { RelativeRanks } from 'src/app/shared/models/leaderboard';
+import { SoundEffect, SoundService } from 'src/app/services/sound.service';
 
 export interface ModalData {
   dbUser: DBUser;
@@ -68,6 +69,7 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
     public readonly modalManagerService: ModalManagerService,
     public readonly apiService: ApiService,
     private readonly fetchService: FetchService,
+    private readonly sound: SoundService,
     private location: Location
   ) {}
 
@@ -81,6 +83,8 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
     // Temporarily change to profile url
     this.originalUrl = this.config?.originalUrl ?? this.location.path();
     this.location.replaceState(`user/${this.userid}`);
+
+    this.sound.play(SoundEffect.NOTES_UP_LOW);
   }
 
   ngOnDestroy(): void {

@@ -8,7 +8,7 @@
                 <div class="levels prevent-select">
                     <div class="level-row prevent-select" *ngFor="let levelRow of VALID_START_LEVELS">
                         <div class="level prevent-select" *ngFor="let level of levelRow"
-                        [ngClass]="{'selected' : (startLevel$ | async) == level}" (click)="startLevel$.next(level)">
+                        [ngClass]="{'selected' : (startLevel$ | async) == level}" (click)="setStartLevel(level)">
                             <p>{{level}}</p>
                         </div>
                     </div>

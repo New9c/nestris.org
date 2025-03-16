@@ -8,6 +8,8 @@ export enum SoundEffect {
   NOTES_UP_LOW = 'note_up_low',
   NOTES_UP_HIGH = 'notes_up_high',
   NOTES_DOWN = 'notes_down',
+  INCORRECT = 'incorrect',
+  POP = 'pop',
 }
 
 @Injectable({
@@ -30,6 +32,8 @@ export class SoundService {
     [SoundEffect.NOTES_UP_LOW]: { file: 'notes-up-low.wav', gain: 0.8 },
     [SoundEffect.NOTES_UP_HIGH]: { file: 'notes-up-high.wav', gain: 0.8 },
     [SoundEffect.NOTES_DOWN]: { file: 'notes-down.wav', gain: 0.8 },
+    [SoundEffect.INCORRECT]: { file: 'incorrect.wav', gain: 0.4 },
+    [SoundEffect.POP]: { file: 'pop.wav', gain: 0.8 },
   };
 
   constructor() {
@@ -55,7 +59,7 @@ export class SoundService {
 
     console.log("All sounds loaded in", Date.now() - startTime, "ms");
 
-    this.testSounds();
+    //this.testSounds();
   }
 
   private async testSounds() {

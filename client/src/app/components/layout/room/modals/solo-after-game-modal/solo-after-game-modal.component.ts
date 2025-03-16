@@ -8,6 +8,7 @@ import { OcrGameService } from 'src/app/services/ocr/ocr-game.service';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { RoomService } from 'src/app/services/room/room.service';
 import { SoloClientRoom, SoloClientState } from 'src/app/services/room/solo-client-room';
+import { SoundEffect, SoundService } from 'src/app/services/sound.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { EVALUATION_TO_COLOR, overallAccuracyRating } from 'src/app/shared/evaluation/evaluation';
 import { Platform } from 'src/app/shared/models/platform';
@@ -47,6 +48,7 @@ export class SoloAfterGameModalComponent implements OnDestroy {
     private readonly platformService: PlatformInterfaceService,
     private readonly meService: MeService,
     private readonly gamepadService: GamepadService,
+    private readonly sound: SoundService,
     private readonly router: Router,
   ) {
 
@@ -90,6 +92,7 @@ export class SoloAfterGameModalComponent implements OnDestroy {
     if (!me) return;
 
     if (key === me.keybind_emu_start) {
+      this.sound.play(SoundEffect.CLICK);
       this.next();
     }
   }
