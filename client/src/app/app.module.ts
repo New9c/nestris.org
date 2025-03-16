@@ -112,6 +112,7 @@ import { MainChatComponent } from './components/main-chat/main-chat.component';
 import { ChatTextEntryComponent } from './components/ui/chat-text-entry/chat-text-entry.component';
 import { LockedIconComponent } from './components/ui/locked-icon/locked-icon.component';
 import { SelectStartingTrophiesModalComponent } from './components/modals/select-starting-trophies-modal/select-starting-trophies-modal.component';
+import { RangeComponent } from './components/modals/select-starting-trophies-modal/range/range.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -260,6 +261,7 @@ const customNotifierOptions: NotifierOptions = {
     ChatTextEntryComponent,
     LockedIconComponent,
     SelectStartingTrophiesModalComponent,
+    RangeComponent,
   ],
   imports: [
     BrowserModule,

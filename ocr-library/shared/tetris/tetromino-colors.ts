@@ -112,6 +112,10 @@ export class RGBColor {
         return `rgb(${this.r}, ${this.g}, ${this.b})`;
     }
 
+    public toStringWithAlpha(alpha: number): string {
+        return `rgba(${this.r}, ${this.g}, ${this.b}, ${alpha})`;
+    }
+
 }
 
 export const COLOR_FIRST_COLORS_RGB: {[key: number]: RGBColor } = {

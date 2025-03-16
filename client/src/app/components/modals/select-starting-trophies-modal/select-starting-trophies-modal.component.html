@@ -4,7 +4,7 @@
         Select a starting trophy count and start level, and match similarly-rated opponents! Your trophies will
         go up and down as you win and lose matches.
     </h2>
-    
+
     <div class="options">
         <button class="option" *ngFor="let option of options" (click)="onClickOption(option)"
             [ngClass]="{'selected': option === (selectedOption$ | async), 'locked': !isUnlocked(option)}">
@@ -17,6 +17,24 @@
     </div>
 
     <div class="explain">
+        <h3>
+            The starting speed in ranked matches is determined by your trophies!
+        </h3>
+        <div class="line-container">
+            <hr>
+            <div class="line-circles">
+                <div class="circle"><app-trophies [trophies]="0" [size]="10" /></div>
+                <div class="range"><app-range [level]="6" /></div>
+                <div class="circle"><app-trophies [trophies]="600" [size]="10" /></div>
+                <div class="range"><app-range [level]="9" /></div>
+                <div class="circle"><app-trophies [trophies]="1000" [size]="10" /></div>
+                <div class="range"><app-range [level]="12" /></div>
+                <div class="circle"><app-trophies [trophies]="1400" [size]="10" /></div>
+                <div class="range"><app-range [level]="15" /></div>
+                <div class="circle"><app-trophies trophies="1800+" [size]="10" /></div>
+                <div class="range"><app-range [level]="18" /></div>
+            </div>
+        </div>
         
     </div>
 
