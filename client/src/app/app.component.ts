@@ -19,6 +19,7 @@ import { QuestAlertComponent } from './components/alerts/quest-alert/quest-alert
 import { QuestID } from './shared/nestris-org/quest-system';
 import { sleep } from './util/misc';
 import { GlobalChatService } from './services/state/global-chat.service';
+import { SoundService } from './services/sound.service';
 @Component({
   selector: 'app-root',
   styleUrls: ['./app.component.scss'],
@@ -42,6 +43,7 @@ export class AppComponent implements OnInit {
     private stackrabbitService: StackrabbitService,
     private gamepadService: GamepadService,
     private globalChatService: GlobalChatService,
+    private soundService: SoundService,
     private router: Router,
   ) {
 

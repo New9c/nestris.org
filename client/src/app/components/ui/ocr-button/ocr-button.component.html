@@ -1,4 +1,4 @@
-<div class="button prevent-select" (click)="onClick()" [ngClass]="[state, expanded ? 'expanded' : '']">
+<div appClickSound class="button prevent-select" (click)="onClick()" [ngClass]="[state, expanded ? 'expanded' : '']">
     <img src="./assets/img/ocr-icons/nes.svg" [attr.height]="expanded ? '14px' : '12px'">
     <p *ngIf="state === OCRState.OFF && expanded">Connect console</p>
     <p *ngIf="state === OCRState.CONNECTED && expanded">Console connected</p>

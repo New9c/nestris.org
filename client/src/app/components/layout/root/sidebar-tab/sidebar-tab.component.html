@@ -1,4 +1,4 @@
-<a [routerLink]="'/' + tab" routerLinkActive="selected" (click)="onTabClick()">
+<a [routerLink]="'/' + tab" routerLinkActive="selected" (click)="onTabClick()" appClickSound>
     <div class="tab" [class.badge]="(badgeService.isBadgeActive$(tab) | async)">
 
         <div class="tab-left">
