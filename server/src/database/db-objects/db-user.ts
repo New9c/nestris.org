@@ -6,8 +6,8 @@ import { Database, DBQuery, WriteDBQuery } from "../db-query";
 import { SetHighscoreGameQuery } from "../db-queries/set-highscore-game-query";
 import { getQuest, getQuestStatus, QuestID } from "../../../shared/nestris-org/quest-system";
 
-// The initial number of trophies a user has
-const INITIAL_RANKED_TROPHIES = 1200;
+// The initial number of trophies a user has. -1 means the user has not played any ranked games yet
+const INITIAL_RANKED_TROPHIES = -1;
 
 
 // The parameters required to create a new user

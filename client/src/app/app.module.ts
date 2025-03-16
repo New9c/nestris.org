@@ -111,6 +111,7 @@ import { CorrectnessIconComponent } from './components/ui/correctness-icon/corre
 import { MainChatComponent } from './components/main-chat/main-chat.component';
 import { ChatTextEntryComponent } from './components/ui/chat-text-entry/chat-text-entry.component';
 import { LockedIconComponent } from './components/ui/locked-icon/locked-icon.component';
+import { SelectStartingTrophiesModalComponent } from './components/modals/select-starting-trophies-modal/select-starting-trophies-modal.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -258,6 +259,7 @@ const customNotifierOptions: NotifierOptions = {
     MainChatComponent,
     ChatTextEntryComponent,
     LockedIconComponent,
+    SelectStartingTrophiesModalComponent,
   ],
   imports: [
     BrowserModule,

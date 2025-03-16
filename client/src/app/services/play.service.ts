@@ -9,6 +9,7 @@ import { VideoCaptureService } from './ocr/video-capture.service';
 import { PlatformInterfaceService } from './platform-interface.service';
 import { RankedQueueService } from './room/ranked-queue.service';
 import { WebsocketService } from './websocket.service';
+import { MeService } from './state/me.service';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +24,7 @@ export class PlayService {
     private websocketService: WebsocketService,
     private notifier: NotificationService,
     private rankedQueueService: RankedQueueService,
+    private meService: MeService,
     private router: Router,
   ) { }
 
@@ -54,6 +56,22 @@ export class PlayService {
   async playRanked(checkVideoSource: boolean = true) {
 
     if (checkVideoSource && this.checkVideoSource(() => this.playRanked(false))) return;
+
+    // If user has not selected starting trophies
+    if (this.meService.getSync()!.trophies === -1) {
+      
+      // If not in play page and modal not showing, just go to play page and hide any modals
+      if (this.router.url !== '/play' || this.modalManager.isModal()) {
+        this.router.navigate(['/play']);
+        this.modalManager.hideModal();
+      } else {
+        // Open the select starting trophies modal
+        this.modalManager.showModal(ModalType.SELECT_STARTING_TROPHIES);
+      }
+
+      // In either case, do not attempt to join the queue
+      return;
+    }
 
     // Attempt to join the ranked queue
     await this.rankedQueueService.joinQueue();

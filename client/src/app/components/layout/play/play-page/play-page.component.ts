@@ -84,6 +84,11 @@ export class PlayPageComponent implements OnInit, OnDestroy {
     return true;
   }
 
+  mustPickStartingTrophies(mode: Mode, me: DBUser): boolean {
+    if (mode !== Mode.RANKED || !this.modeEnabled(mode, me)) return false;
+    return me.trophies === -1;
+  }
+
   /**
    * We want urls like '/user/450748389001265186' to open up the profile modal. The routing module redirects /user
    * urls to this page, so that when profile closes, it should go back to regular play page

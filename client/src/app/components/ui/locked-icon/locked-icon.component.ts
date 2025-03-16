@@ -9,6 +9,7 @@ import { getModeColor, Mode } from '../mode-icon/mode-icon.component';
 })
 export class LockedIconComponent implements OnChanges {
   @Input() mode?: Mode;
+  @Input() locked: boolean = true;
   color!: string;
 
   ngOnChanges(changes: SimpleChanges): void {

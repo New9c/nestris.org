@@ -26,7 +26,7 @@
                 </div>
             </div>
             <div class="right">
-                <div class="leaderboard" *ngIf="modeEnabled(mode, me); else disabled">
+                <div class="leaderboard" *ngIf="modeEnabled(mode, me) && !mustPickStartingTrophies(mode, me); else disabled">
                     <div class="row" *ngFor="let i of [0,1,2]">
                         <div class="row-content border-color background-color"
                             *ngIf="leaderboards[mode].leaderboard[i] as player" [ngClass]="[mode, isMe(player.userid) ? 'me' : '']">
@@ -41,9 +41,13 @@
                     </div>
                 </div>
                 <ng-template #disabled>
-                    <div class="mode-disabled" [ngClass]="mode">
+                    <div *ngIf="!mustPickStartingTrophies(mode, me)" class="mode-disabled" [ngClass]="mode">
                         <p class="prevent-select">Score <strong>{{numberWithCommas(me.highest_score)}}/100,000</strong> in solo to unlock</p>
-                        <app-locked-icon [mode]="mode" />
+                        <app-locked-icon [mode]="mode" [locked]="true" />
+                    </div>
+                    <div *ngIf="mustPickStartingTrophies(mode, me)" class="mode-disabled" [ngClass]="mode">
+                        <p class="prevent-select">Ranked mode unlocked!</p>
+                        <app-locked-icon [mode]="mode" [locked]="false" />
                     </div>
                 </ng-template>
 

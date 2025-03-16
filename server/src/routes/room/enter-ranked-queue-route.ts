@@ -33,6 +33,11 @@ export class EnterRankedQueueRoute extends PostRoute {
             throw new RouteError(400, `You must score at least 100,000 points in a game to join the ranked queue`);
         }
 
+        // Make sure trophies not -1
+        if (dbUser.trophies === -1) {
+            throw new RouteError(400, `You have not picked a starting trophy count`);
+        }
+
         // Make sure platform is valid
         if (!Object.values(Platform).includes(platform)) {
             throw new RouteError(400, `Platform ${platform} is not valid`);
