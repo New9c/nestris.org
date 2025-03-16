@@ -210,7 +210,7 @@ async function main() {
   routes.registerRoute(GetErrorsRoute);
 
   const bots = new BotManager();
-  bots.registerBot(new RankedBotUser('bot', 400, {aiConfig : { inputSpeed: InputSpeed.HZ_10 }}));
+  //bots.registerBot(new RankedBotUser('bot', 400, {aiConfig : { inputSpeed: InputSpeed.HZ_10 }}));
   await bots.init();
 
 
