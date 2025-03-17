@@ -460,6 +460,10 @@ export class RoomConsumer extends EventConsumer {
         return this.rooms.get(roomid);
     }
 
+    public getRoomByRoomID(roomID: string): Room | undefined {
+        return this.rooms.get(roomID);
+    }
+
     /**
      * Handles binary messages received from the client.
      * @param event The event containing the session id and the binary message.

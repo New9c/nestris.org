@@ -100,6 +100,8 @@ export class GamePlayer {
     private gameStart$ = new Subject<GameStartEvent>();
     private gameEnd$ = new Subject<GameEndEvent>();
 
+    private topoutScore: number | null = null;
+
     constructor(
         private readonly Users: OnlineUserManager,
         public readonly userid: string,
@@ -238,6 +240,9 @@ export class GamePlayer {
         // Get the final game state
         const state = gameState.getSnapshot();
 
+        // Set topout score
+        this.topoutScore = state.score;
+
         // Assign a unique game ID
         const gameID = uuid();
 
@@ -369,5 +374,12 @@ export class GamePlayer {
             average_eval_loss,
             ratingCount
         }
+    }
+
+    /**
+     * @returns the topout score of the player, or null if have yet to top out
+     */
+    getTopoutScore(): number | null {
+        return this.topoutScore;
     }
 }

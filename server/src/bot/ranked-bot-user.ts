@@ -1,4 +1,4 @@
-import { BehaviorSubject, filter, Observable, Subject } from "rxjs";
+import { BehaviorSubject, filter, map, Observable, Subject } from "rxjs";
 import { ChatMessage, ClientRoomEventMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, RoomStateUpdateMessage } from "../../shared/network/json-message";
 import { RankedQueueConsumer } from "../online-users/event-consumers/ranked-queue-consumer";
 import { BotUser } from "./bot-user";
@@ -10,7 +10,7 @@ import { EmulatorGameState } from "../../shared/emulator/emulator-game-state";
 import { GymRNG } from "../../shared/tetris/piece-sequence-generation/gym-rng";
 import { CurrentlyPressedKeys, KeyManager } from "../../shared/emulator/currently-pressed-keys";
 import { TimeDelta } from "../../shared/scripts/time-delta";
-import { GameAbbrBoardPacket, GameCountdownPacket, GameEndPacket, GameFullBoardPacket, GamePlacementPacket, GameStartPacket, StackRabbitPlacementPacket } from "../../shared/network/stream-packets/packet";
+import { GameAbbrBoardPacket, GameCountdownPacket, GameEndPacket, GameFullBoardPacket, GamePlacementPacket, GamePlacementSchema, GameStartPacket, PacketOpcode, StackRabbitPlacementPacket } from "../../shared/network/stream-packets/packet";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { BinaryEncoder } from "../../shared/network/binary-codec";
 import { RoomConsumer } from "../online-users/event-consumers/room-consumer";
@@ -20,15 +20,49 @@ import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import { SRPlacementAI } from "./sr-placement-ai";
 import { AIConfig, AIPlacement, PlacementAI } from "./placement-ai";
 import { time } from "console";
+import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
+import { SmartGameStatus } from "../../shared/tetris/smart-game-status";
+import { MultiplayerRoom } from "../room/multiplayer-room";
 
 const BEFORE_GAME_MESSAGE = [
     "glhf",
     "gl",
     "good luck",
-    "glhf!",
-    "gl!",
     "best of luck",
 ];
+
+const AFTER_GAME_MESSAGE = [
+    "gg",
+    "good game",
+    "thanks for the game",
+]
+
+function randomizeMessage(input: string): string {
+    if (input.length === 0) return input;
+
+    // Randomly decide whether to capitalize the first letter
+    const shouldCapitalize = Math.random() < 0.5;
+    const firstLetter = shouldCapitalize 
+        ? input.charAt(0).toUpperCase() 
+        : input.charAt(0).toLowerCase();
+    
+    const rest = input.slice(1);
+    
+    // Randomly decide whether to add an exclamation mark
+    const shouldAddExclamation = Math.random() < 0.5;
+    const exclamation = shouldAddExclamation ? '!' : '';
+    
+    return firstLetter + rest + exclamation;
+}
+
+function getRandomMessage(messageChoices: string[]) {
+    return randomizeMessage(randomChoice(messageChoices));
+}
+
+interface OpponentGame {
+    status: SmartGameStatus,
+    toppedOut: boolean;
+}
 
 class LeftRoomEarlyError extends Error {
     constructor() { super('Left room early'); }
@@ -46,8 +80,32 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
     readonly queueConsumer = this.eventManager.getConsumer(RankedQueueConsumer);
     readonly roomConsumer = this.eventManager.getConsumer(RoomConsumer);
 
-    private inRoomStatus$ = new BehaviorSubject<InRoomStatus>(InRoomStatus.NONE);
-    private roomState$ = new BehaviorSubject<MultiplayerRoomState | null>(null);
+    private inRoomStatus$ = new BehaviorSubject<InRoomStatusMessage>(
+        new InRoomStatusMessage(InRoomStatus.NONE, null, null)
+    );
+    private roomState$ = this.inRoomStatus$.pipe(
+        map(status => status.roomState as MultiplayerRoomState)
+    );
+
+    private roomStatus$ = this.inRoomStatus$.pipe(
+        map(status => status.status)
+    );
+
+    private roomInfo$ = this.inRoomStatus$.pipe(
+        map(status => status.roomInfo)
+    );
+
+    get roomState() {
+        return this.inRoomStatus$.getValue().roomState as MultiplayerRoomState | null;
+    }
+
+    get roomInfo() {
+        return this.inRoomStatus$.getValue().roomInfo;
+    }
+
+    get roomStatus() {
+        return this.inRoomStatus$.getValue().status;
+    }
 
     private placementIndex: number = 0;
 
@@ -76,7 +134,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
             try {
 
                 // If the bot is kicked from the room, end this function early
-                const leftRoom$ = this.inRoomStatus$.pipe(
+                const leftRoom$ = this.roomStatus$.pipe(
                     filter(status => status === InRoomStatus.NONE)
                 );
                 // This error is thrown when the bot leaves the room early
@@ -128,7 +186,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
 
         // Wait until the bot is in the ranked room
         try {
-            await waitUntilValue(this.inRoomStatus$, InRoomStatus.PLAYER, timeout$);
+            await waitUntilValue(this.roomStatus$, InRoomStatus.PLAYER, timeout$);
             console.log(`Bot ${this.username} is now in a room!`);
             return true;
         } catch {
@@ -154,7 +212,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
         await sleepWithTimeout(randomInt(1000, 2000), leftRoom$, error);
 
         // Randomly send a message before the game starts
-        const message = randomChoice(BEFORE_GAME_MESSAGE);
+        const message = getRandomMessage(BEFORE_GAME_MESSAGE);
         if (Math.random() < 0.5) this.sendJsonMessageToServer(new ChatMessage(this.username, message));
 
         // Wait a random amount of time before sending the 'READY' signal
@@ -164,8 +222,8 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
         this.sendJsonMessageToServer(new ClientRoomEventMessage({type: MultiplayerRoomEventType.READY }));
 
         // wait for the game to start (both players are ready)
-        await waitUntilCondition(this.roomState$, state => state?.status !== MultiplayerRoomStatus.BEFORE_GAME, leftRoom$, error);
-        if (this.roomState$.getValue()?.status === MultiplayerRoomStatus.ABORTED) throw new MatchAbortedError();
+        await waitUntilCondition(this.roomState$, state => state.status !== MultiplayerRoomStatus.BEFORE_GAME, leftRoom$, error);
+        if (this.roomState?.status === MultiplayerRoomStatus.ABORTED) throw new MatchAbortedError();
         console.log(`Bot ${this.username} is now in game!`);        
     }
 
@@ -174,13 +232,14 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
      */
     private async handlePlayingGame() {
 
-        const roomState = this.roomState$.getValue();
-        if (!roomState) throw new Error('Bot is not in a room');
+        const roomState = this.roomState;
+        if (!this.roomInfo || !roomState) throw new Error('Bot is not in a room');
 
-        
+        const room = this.roomConsumer.getRoomByRoomID(this.roomInfo.id);
+        if (!room || !(room instanceof MultiplayerRoom)) throw new Error("Room not found by bot, something went wrong");
 
         // Initialize the game state with the room's seed and start level
-        const rng = new GymRNG(roomState.currentSeed);
+        const rng = new GymRNG(this.roomState.currentSeed);
         const state = new EmulatorGameState(roomState.startLevel, rng, 3, false);
 
         // Initialize the key manager
@@ -223,6 +282,10 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
 
         // Loop until topout
         while (true) {
+
+            // If opponent already topout and bot has higher score, force early top
+            const opponentTopoutScore = room.getOpponentTopoutScore(this.sessionID);
+            const allowTopout = opponentTopoutScore !== null && state.getStatus().score > opponentTopoutScore;
         
             // calculate how many frames to advance based on time elapsed to maintain 60fps
             const diff = performance.now() - epoch;
@@ -232,7 +295,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
             // Advance as many frames as needed to catch up to current time
             let gameOver = false;
             for (let i = 0; i < frameAmount; i++) {
-                gameOver = this.advanceEmulatorState(state, keyManager, placementAI, timeDelta, packetBatcher);
+                gameOver = this.advanceEmulatorState(state, keyManager, placementAI, timeDelta, packetBatcher, allowTopout);
                 if (gameOver) break;
             }
             if (gameOver) break;
@@ -261,9 +324,10 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
      * @param state The current emulator game state to modify in-place
      * @param timeDelta The time delta object to use for calculating time differences
      * @param packetBatcher The packet batcher to use for sending packets
+     * @param allowTopout If topout allowed, do not send any more inputs
      * @returns True if the game is over, false otherwise
      */
-    private advanceEmulatorState(state: EmulatorGameState, keyManager: KeyManager, placementAI: PlacementAI, timeDelta: TimeDelta, packetBatcher: PacketBatcher): boolean {
+    private advanceEmulatorState(state: EmulatorGameState, keyManager: KeyManager, placementAI: PlacementAI, timeDelta: TimeDelta, packetBatcher: PacketBatcher, allowTopout: boolean): boolean {
 
         // Store previous state to compare with new state
         const previousBoard = state.getDisplayBoard();
@@ -272,7 +336,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
 
         // Get the inputs to make for this frame
         const inputs = placementAI.getInputForPlacementAndFrame(this.placementIndex, state.getPlacementFrameCount() - 1);
-        keyManager.setOnlyPressed(inputs);
+        keyManager.setOnlyPressed(allowTopout ? [] : inputs);
 
         // Advance the emulator state by one frame
         state.executeFrame(keyManager.generate());
@@ -342,8 +406,15 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
         // Wait until the match is over, or the bot leaves the room
         await waitUntilCondition(this.roomState$, state => state?.status === MultiplayerRoomStatus.AFTER_MATCH, leftRoom$, error);
 
+        // Randomly send a message after the game ends
+        const message = getRandomMessage(AFTER_GAME_MESSAGE);
+        if (Math.random() < 0.5) {
+            await sleep(randomInt(2000, 4000));
+            this.sendJsonMessageToServer(new ChatMessage(this.username, message));
+        }
+
         // Wait a random amount of time
-        await sleep(randomInt(1000, 3000));
+        await sleep(randomInt(500, 2000));
 
         // Leave the room
         await this.roomConsumer.freeSession(this.userid, this.sessionID);
@@ -354,14 +425,16 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
         // Update the bot's room status
         if (message.type === JsonMessageType.IN_ROOM_STATUS) {
             const roomStatus = message as InRoomStatusMessage;
-            if (roomStatus.status === InRoomStatus.NONE) this.roomState$.next(null);
-            this.inRoomStatus$.next(roomStatus.status);
+            this.inRoomStatus$.next(roomStatus);
         } else if (message.type === JsonMessageType.ROOM_STATE_UPDATE) {
             const roomState = message as RoomStateUpdateMessage;
             // This bot only plays in multiplayer rooms, so we can safely cast
-            this.roomState$.next(roomState.state as MultiplayerRoomState);
+            this.inRoomStatus$.next(new InRoomStatusMessage(
+                this.roomStatus,
+                this.roomInfo,
+                roomState.state
+            ))
         }
-
     }
 }
 

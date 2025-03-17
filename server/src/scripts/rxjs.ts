@@ -9,7 +9,7 @@ import { BehaviorSubject, filter, firstValueFrom, mergeMap, Observable, race, ta
  * @returns A promise that resolves when the condition is met or rejects if the timeout$ observable emits
  */
 export async function waitUntilCondition<T>(
-    source$: BehaviorSubject<T>,
+    source$: Observable<T>,
     condition: (val: T) => boolean,
     timeout$?: Observable<unknown>,   // <-- optional
     error = new Error('Condition was not met before timeout.')
@@ -48,7 +48,7 @@ export async function waitUntilCondition<T>(
  * @returns A promise that resolves when the expected value is emitted or rejects if the timeout$ observable emits
  */
 export async function waitUntilValue<T>(
-    source$: BehaviorSubject<T>,
+    source$: Observable<T>,
     expectedValue: T,
     timeout$?: Observable<unknown>,
     error = new Error('Value was not emitted before timeout.')

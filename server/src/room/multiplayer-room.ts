@@ -148,6 +148,11 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         }
     }
 
+    private getOtherPlayerIndex(playerIndex: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2): PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2 {
+        if (playerIndex === PlayerIndex.PLAYER_1) return PlayerIndex.PLAYER_2;
+        else return PlayerIndex.PLAYER_1;
+    }
+
     /**
      * Handle binary message from the player in the room
      * @param sessionID The sessionID of the player
@@ -309,4 +314,15 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
      * @param state The state of the room
      */
     protected async onMatchEnd(state: MultiplayerRoomState): Promise<void> {}
+
+    /**
+     * Given a player, return the topout score of the other player
+     * @param sessionid The session id of a player in the room
+     * @return the topout score, or null if not yet topped out
+     */
+    public getOpponentTopoutScore(sessionID: string): number | null {
+        const opponentIndex = this.getOtherPlayerIndex(this.getPlayerIndex(sessionID));
+        return this.gamePlayers[opponentIndex].getTopoutScore();
+    }
+
 }
