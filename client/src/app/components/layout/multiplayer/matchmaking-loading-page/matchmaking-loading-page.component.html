@@ -1,6 +1,6 @@
 <div class="root">
 
-    <app-fullscreen-exit-button />
+    <app-fullscreen-exit-button *ngIf="!(foundOpponent$ | async)" />
 
     <app-loading-screen (score)="setScore($event)" [resolution]="2" [blockSize]="50" [blockSpeed]="4"
         [explodeEverything]="!!(foundOpponent$ | async)"

@@ -103,23 +103,29 @@ class QueueUser {
     /**
      * Calculate opponent trophy range for user based on the user's trophies and queue time
      */
-    public getTrophyRange(): TrophyRange {
+    public getTrophyRange(queueSeconds: number, hasBot: boolean): TrophyRange | null {
 
-        // Time elapsed since user was added to the queue in seconds
-        const queueTime = this.queueElapsedSeconds();
+        // Bot users match with a narrower trophy range, and only if no players found
+        if (hasBot) {
+            if (queueSeconds < 10) return null; // cannot match with bots if under 10 seconds
+            if (queueSeconds < 15) return TrophyRange.fromDelta(this.trophies, 200);
+            if (queueSeconds < 20) return TrophyRange.fromDelta(this.trophies, 500);
+            if (queueSeconds < 30) return TrophyRange.fromDelta(this.trophies, 1000);
+            return new TrophyRange(null, null);
+        }
 
         // FOR BETA, MATCH QUICKLY
-        if (queueTime < 2) return TrophyRange.fromDelta(this.trophies, 200);
-        if (queueTime < 6) return TrophyRange.fromDelta(this.trophies, 400);
-        if (queueTime < 10) return TrophyRange.fromDelta(this.trophies, 600);
-        if (queueTime < 20) return TrophyRange.fromDelta(this.trophies, 1000);
+        if (queueSeconds < 2) return TrophyRange.fromDelta(this.trophies, 200);
+        if (queueSeconds < 6) return TrophyRange.fromDelta(this.trophies, 400);
+        if (queueSeconds < 10) return TrophyRange.fromDelta(this.trophies, 600);
+        if (queueSeconds < 20) return TrophyRange.fromDelta(this.trophies, 1000);
         return new TrophyRange(null, null);
 
         // Calculate trophy range based on queue time
-        if (queueTime < 3) return TrophyRange.fromDelta(this.trophies, 100);
-        if (queueTime < 5) return TrophyRange.fromDelta(this.trophies, 200);
-        if (queueTime < 10) return TrophyRange.fromDelta(this.trophies, 400);
-        if (queueTime < 20) return TrophyRange.fromDelta(this.trophies, 1000);
+        if (queueSeconds < 3) return TrophyRange.fromDelta(this.trophies, 100);
+        if (queueSeconds < 5) return TrophyRange.fromDelta(this.trophies, 200);
+        if (queueSeconds < 10) return TrophyRange.fromDelta(this.trophies, 400);
+        if (queueSeconds < 20) return TrophyRange.fromDelta(this.trophies, 1000);
         return new TrophyRange(null, null);
     }
 
@@ -149,6 +155,10 @@ export class RankedQueueConsumer extends EventConsumer {
      */
     public playersInQueue(): number {
         return this.queue.length;
+    }
+
+    public userMatched(userid: string): boolean {
+        return this.matches.some(match => match.contains(userid));
     }
 
     /**
@@ -284,8 +294,10 @@ export class RankedQueueConsumer extends EventConsumer {
         if (user2.queueElapsedSeconds() < 1) return false;
 
         // Check if the users have similar trophies
-        if (!user1.getTrophyRange().contains(user2.trophies)) return false;
-        if (!user2.getTrophyRange().contains(user1.trophies)) return false;
+        const queueSeconds = Math.min(user1.queueElapsedSeconds(), user2.queueElapsedSeconds());
+        const hasBot = user1.platform === null || user2.platform === null;
+        const trophyRange = user1.getTrophyRange(queueSeconds, hasBot);
+        if (trophyRange === null || !trophyRange.contains(user2.trophies)) return false;
 
         // Check if the users have not played each other before, unless both users have been waiting for a long time
         const MAX_WAIT_TIME = 2; // If both users have been waiting for more than MAX_WAIT_TIME seconds, they can rematch

@@ -3,7 +3,7 @@ import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { getTopMovesHybrid } from "../scripts/stackrabbit";
-import { AIPlacement, PlacementAI } from "./placement-ai";
+import { AIPlacement, PlacementAI, ShiftMap } from "./placement-ai";
 import { TopMovesHybridResponse } from "../../shared/scripts/stackrabbit-decoder";
 import { randomChoice, randomInt, weightedRandomChoice } from "../../shared/scripts/math";
 import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from "../../shared/models/input-speed";
@@ -61,7 +61,7 @@ export class SRPlacementAI extends PlacementAI {
         
     }
 
-    protected override computeShiftMap(inputFrameTimeline: string, lockPlacement: MoveableTetromino): Map<number, Keybind[]> {
+    protected override computeShiftMap(inputFrameTimeline: string, lockPlacement: MoveableTetromino): ShiftMap {
         
         // Calculate the number of frames to shift, where sign indicates direction
         const spawnPiece = MoveableTetromino.fromSpawnPose(lockPlacement.tetrominoType);
@@ -114,7 +114,24 @@ export class SRPlacementAI extends PlacementAI {
             frameIndex++;
         }
 
-        return shiftMap;
+        // If dice roll results in misdrop, add an extra shift or rotation somewhere within the inputs
+        if (Math.random() < this.config.misdrop) {
+            const misdropIndex = randomInt(0, frameIndex + randomInt(0, 50));
+
+            const keybind: Keybind = (
+                Math.random() < 0.5 ? 
+                (Math.random() < 0.5 ? Keybind.SHIFT_LEFT : Keybind.SHIFT_RIGHT) :
+                (Math.random() < 0.5) ? Keybind.ROTATE_LEFT : Keybind.ROTATE_RIGHT
+            );
+            const existingKeybinds = shiftMap.get(misdropIndex) ?? [];
+            existingKeybinds.push(keybind);
+            shiftMap.set(misdropIndex, existingKeybinds);
+        }
+
+        return {
+            map: shiftMap,
+            startPushdownFrame: frameIndex + randomInt(10, 200)
+        }
 
     }
 

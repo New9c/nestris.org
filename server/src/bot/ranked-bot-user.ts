@@ -23,19 +23,46 @@ import { time } from "console";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
 import { SmartGameStatus } from "../../shared/tetris/smart-game-status";
 import { MultiplayerRoom } from "../room/multiplayer-room";
+import { Keybind } from "../../shared/emulator/keybinds";
 
 const BEFORE_GAME_MESSAGE = [
     "glhf",
     "gl",
     "good luck",
-    "best of luck",
+    "hf",
+    "have fun",
+    "lets have a good game",
+    "hope its a good one",
+    "lets do this",
+    "ready up",
+    "lets run it",
+    "match time",
+    "all set",
+    "locked in",
+    "lets get it",
+    "lets go",
+    "queue up",
+    "may the best player win",
 ];
 
 const AFTER_GAME_MESSAGE = [
     "gg",
     "good game",
+    "ggs",
+    "wp",
+    "well played",
+    "close one",
     "thanks for the game",
-]
+    "nice match",
+    "good stuff",
+    "tough one",
+    "respect",
+    "solid game",
+    "we take those",
+    "next time",
+    "you got me",
+    "gg wp",
+];
 
 function randomizeMessage(input: string): string {
     if (input.length === 0) return input;
@@ -112,7 +139,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
     override async start() {
 
         // Wait some time before connecting
-        await sleep(randomInt(5000, 60000));
+        await sleep(randomInt(5000, 500000));
 
         // Connect the bot to the server
         this.connect();
@@ -121,14 +148,14 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
         while (true) {
 
             // Wait some time before joining the queue
-            await sleep(randomInt(1000, 60000));
+            await sleep(randomInt(5000, 30000));
 
             // Find a match in the ranked queue
-            const matchFound = await this.handleFindMatch(30);
+            const matchFound = await this.handleFindMatch(60);
 
             // If no match found, take a break before trying again
             if (!matchFound) {
-                await this.takeBreak(randomInt(10, 120));
+                await this.takeBreak(randomInt(100, 1000));
                 continue;
             }
             try {
@@ -143,6 +170,9 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
                 await this.handleMatchStart(leftRoom$, error);
                 await this.handlePlayingGame();
                 await this.handleMatchEnd(leftRoom$, error);
+
+                // After match, chance of disconnecting for a bit
+                if (Math.random() < 0.5) await this.takeBreak(randomInt(100, 1000));
 
             } catch (error) {
                 if (error instanceof LeftRoomEarlyError) {
@@ -190,6 +220,10 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
             console.log(`Bot ${this.username} is now in a room!`);
             return true;
         } catch {
+
+            // If timeout ran out but just now found match, still continue to match
+            if (this.roomStatus === InRoomStatus.PLAYER) return true;
+
             console.log("No opponent found, exiting queue");
             return false;
         } finally {
@@ -213,7 +247,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
 
         // Randomly send a message before the game starts
         const message = getRandomMessage(BEFORE_GAME_MESSAGE);
-        if (Math.random() < 0.5) this.sendJsonMessageToServer(new ChatMessage(this.username, message));
+        if (Math.random() < 0.2) this.sendJsonMessageToServer(new ChatMessage(this.username, message));
 
         // Wait a random amount of time before sending the 'READY' signal
         await sleepWithTimeout(randomInt(1000, 2000), leftRoom$, error);
@@ -336,7 +370,8 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
 
         // Get the inputs to make for this frame
         const inputs = placementAI.getInputForPlacementAndFrame(this.placementIndex, state.getPlacementFrameCount() - 1);
-        keyManager.setOnlyPressed(allowTopout ? [] : inputs);
+        const topoutKeybinds = state.getPlacementFrameCount() > 10 ? [Keybind.PUSHDOWN] : [];
+        keyManager.setOnlyPressed(allowTopout ? topoutKeybinds : inputs);
 
         // Advance the emulator state by one frame
         state.executeFrame(keyManager.generate());
@@ -408,7 +443,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
 
         // Randomly send a message after the game ends
         const message = getRandomMessage(AFTER_GAME_MESSAGE);
-        if (Math.random() < 0.5) {
+        if (Math.random() < 0.2) {
             await sleep(randomInt(2000, 4000));
             this.sendJsonMessageToServer(new ChatMessage(this.username, message));
         }

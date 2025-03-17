@@ -7,7 +7,7 @@ import { TETROMINO_CHAR } from "../../shared/tetris/tetrominos";
 
 export interface Placement {
     inputFrameTimeline: string; // i.e X..X., the timeline of inputs to make that is passed into SR, and should be used to determine inputs
-    shiftMap: Map<number, Keybind[]> | null; // a map of frame index to the keybinds to press at that frame
+    shiftMap: ShiftMap | null; // a map of frame index to the keybinds to press at that frame
     computed: boolean; // whether the placement was already computed, or still awaiting engine response
 }
 
@@ -19,6 +19,16 @@ export interface AIPlacement {
 
 export interface AIConfig {
     inputSpeed: InputSpeed;
+    misdrop: number; // misdrop chance per placement
+}
+
+export interface ShiftMap {
+    map: Map<number, Keybind[]>,
+    startPushdownFrame?: number
+}
+
+export const DEFAULT_SHIFT_MAP: ShiftMap = {
+    map: new Map()
 }
 
 
@@ -52,7 +62,7 @@ export abstract class PlacementAI {
      * @param inputFrameTimeline The input frame timeline to compute the shift map for
      * @param move The lock placement to compute the shift map for
      */
-    protected abstract computeShiftMap(inputFrameTimeline: string, lockPlacement: MoveableTetromino): Map<number, Keybind[]>;
+    protected abstract computeShiftMap(inputFrameTimeline: string, lockPlacement: MoveableTetromino): ShiftMap;
 
     /**
      * Register the board state and current and next pieces for a given placement index, to initiate
@@ -79,7 +89,7 @@ export abstract class PlacementAI {
             // Update the placement with the computed shifts
             const placement = this.placements.get(index);
             if (!placement) throw new Error(`Placement at index ${index} not found`);
-            placement.shiftMap = move.placement === null ? new Map() : this.computeShiftMap(inputFrameTimeline, move.placement);
+            placement.shiftMap = move.placement === null ? DEFAULT_SHIFT_MAP : this.computeShiftMap(inputFrameTimeline, move.placement);
             //console.log(`Computed shift map for placement at index ${index}: ${Array.from(placement.shiftMap.entries()).map(([frame, keybinds]) => `${frame}: ${keybinds.map(keybind => keybind).join(' ')}`).join(', ')}`);
 
             // Call the callback
@@ -95,7 +105,12 @@ export abstract class PlacementAI {
      */
     public getInputForPlacementAndFrame(placementIndex: number, frameIndex: number): Keybind[] {
         // Return the keybinds to press for the given frame index
-        return this.placements.get(placementIndex)?.shiftMap?.get(frameIndex) ?? [];
+        const shiftMap = this.placements.get(placementIndex)?.shiftMap;
+        const keybinds = shiftMap?.map.get(frameIndex) ?? [];
+
+        // Push down keybind
+        if (shiftMap?.startPushdownFrame && frameIndex > shiftMap.startPushdownFrame) keybinds.push(Keybind.PUSHDOWN);
+        return keybinds
     }
 
 }

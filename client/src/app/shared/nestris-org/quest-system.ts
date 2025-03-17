@@ -282,28 +282,28 @@ export const QUESTS: Record<QuestID, Quest> = {
         id: QuestID.CHAMPION_II,
         category: QuestCategory.CHAMPION,
         name: "Champion II",
-        description: "Reach 1800 trophies in ranked mode",
+        description: "Reach 1600 trophies in ranked mode",
         difficulty: QuestDifficulty.INTERMEDIATE,
-        xp: 1800,
-        targetScore: 1500
+        xp: 1600,
+        targetScore: 1600
     },
     [QuestID.CHAMPION_III]: {
         id: QuestID.CHAMPION_III,
         category: QuestCategory.CHAMPION,
         name: "Champion III",
-        description: "Reach 2100 trophies in ranked mode",
+        description: "Reach 2500 trophies in ranked mode",
         difficulty: QuestDifficulty.ADVANCED,
         xp: 3000,
-        targetScore: 2100
+        targetScore: 2500
     },
     [QuestID.CHAMPION_IV]: {
         id: QuestID.CHAMPION_IV,
         category: QuestCategory.CHAMPION,
         name: "Champion IV",
-        description: "Reach 2400 trophies in ranked mode",
+        description: "Reach 3000 trophies in ranked mode",
         difficulty: QuestDifficulty.EXPERT,
         xp: 10000,
-        targetScore: 2400
+        targetScore: 3000
     },
     [QuestID.EFFICIENCY_I]: {
         id: QuestID.EFFICIENCY_I,
