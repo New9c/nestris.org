@@ -41,6 +41,16 @@ const bots: BotType[] = [
         ]
     },
     {
+        trophies: 400,
+        speed: InputSpeed.HZ_10,
+        misdrop: 0.2,
+        botIDs: [
+            "a3f14e82-5191-4744-80f8-1739ead9df0c",
+            "bd45cd9f-4d57-4ff5-bb18-654f25fd5bc9",
+            "6daf6783-d326-4753-87ab-6cdf5d19c2a8",
+        ]
+    },
+    {
         trophies: 1200,
         speed: InputSpeed.HZ_8,
         misdrop: 0.05,
@@ -68,6 +78,16 @@ const bots: BotType[] = [
             "392792e5-3e26-492b-b69a-4d9316c5ff8d",
             "c11aa9f6-35b3-45ac-af9c-f19b2eff37d7",
             "f3b0e349-dc06-41f4-ae65-e8921dbf7676",
+        ]
+    },
+    {
+        trophies: 1200,
+        speed: InputSpeed.HZ_15,
+        misdrop: 0.15,
+        botIDs: [
+            "0b4b6a40-a082-43db-9c14-c764c3ff5aa6",
+            "5791277d-e0ca-4823-95b4-1b43ef91eb43",
+            "e3b3e8cd-2a58-41a7-ab7c-8c864f7a55a1",
         ]
     },
     {
@@ -118,6 +138,16 @@ const bots: BotType[] = [
             "3dbc1e2f-5210-4f40-86de-bed3c9562ac1",
             "27c515a0-e4ef-44e2-b776-45a3f08645d1",
             "56c62532-65d6-477a-8f59-643672503aeb",
+        ]
+    },
+    {
+        trophies: 2000,
+        speed: InputSpeed.HZ_25,
+        misdrop: 0.001,
+        botIDs: [
+            "a98fbce4-ada9-4095-888c-b4b362bd4d9a",
+            "88314584-5db8-450e-8182-5c24d929eb5d",
+            "76bed2a9-7e84-477e-ae19-7e651e25bd06",
         ]
     },
 ]
