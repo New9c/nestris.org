@@ -31,7 +31,7 @@ export class MatchmakingLoadingPageComponent implements OnInit, OnDestroy {
         private router: Router,
     ) {
         this.foundSubscription = this.foundOpponent$.subscribe(() => {
-            setTimeout(() => this.sound.play(SoundEffect.SWORD, true), 2100);
+            setTimeout(() => this.sound.play(SoundEffect.SWORD), 2100);
         });
     }
     

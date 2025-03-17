@@ -23,9 +23,6 @@ export class SoundService {
   private audioBuffers: Map<SoundEffect, AudioBuffer> = new Map();
   private gainNodes: Map<SoundEffect, GainNode> = new Map();
 
-  // Flag to track tab visibility
-  private isTabVisible: boolean = true;
-
   // Define sound files and corresponding volumes here
   private soundConfigs: Record<SoundEffect, { file: string, gain: number }> = {
     [SoundEffect.CLICK]: { file: 'click.wav', gain: 0.2 },
@@ -44,9 +41,6 @@ export class SoundService {
   ) {
     this.audioContext = new AudioContext();
     this.preloadSounds();
-
-    // Listen to visibility change events
-    document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
   }
 
   private async preloadSounds() {
@@ -86,13 +80,8 @@ export class SoundService {
     }
   }
 
-  // Handle visibility change event
-  private handleVisibilityChange() {
-    this.isTabVisible = !document.hidden;
-  }
 
-  play(sound: SoundEffect, playEvenIfInvisible: boolean = false) {
-    if (!this.isTabVisible && !playEvenIfInvisible) return;
+  play(sound: SoundEffect) {
     if (!this.meService.getSync()?.enable_sound) return;
 
     const buffer = this.audioBuffers.get(sound);
