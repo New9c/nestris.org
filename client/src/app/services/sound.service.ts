@@ -11,6 +11,7 @@ export enum SoundEffect {
   NOTES_DOWN = 'notes_down',
   INCORRECT = 'incorrect',
   POP = 'pop',
+  SWORD = 'sword',
 }
 
 @Injectable({
@@ -35,6 +36,7 @@ export class SoundService {
     [SoundEffect.NOTES_DOWN]: { file: 'notes-down.wav', gain: 0.8 },
     [SoundEffect.INCORRECT]: { file: 'incorrect.wav', gain: 0.4 },
     [SoundEffect.POP]: { file: 'pop.wav', gain: 0.8 },
+    [SoundEffect.SWORD]: { file: 'sword.wav', gain: 0.1 },
   };
 
   constructor(
@@ -89,8 +91,8 @@ export class SoundService {
     this.isTabVisible = !document.hidden;
   }
 
-  play(sound: SoundEffect) {
-    if (!this.isTabVisible) return;
+  play(sound: SoundEffect, playEvenIfInvisible: boolean = false) {
+    if (!this.isTabVisible && !playEvenIfInvisible) return;
     if (!this.meService.getSync()?.enable_sound) return;
 
     const buffer = this.audioBuffers.get(sound);

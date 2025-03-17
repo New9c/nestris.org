@@ -52,7 +52,7 @@ export class SoloBeforeGameModalComponent implements OnDestroy {
   );
 
   public startGame() {
-    this.soloClientRoom.startGame();
+    this.soloClientRoom.startGame(3, true);
   }
 
   public backToSummary() {
