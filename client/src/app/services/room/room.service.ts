@@ -14,10 +14,8 @@ import { MultiplayerClientRoom } from './multiplayer-client-room';
 import { FetchService, Method } from '../fetch.service';
 
 const MAX_MESSAGES = 15;
-export interface Message {
+export interface Message extends ChatMessage {
   id: string;
-  username: string;
-  message: string;
 }
 
 
@@ -70,8 +68,9 @@ export class RoomService {
       const chatMessage = event as ChatMessage;
 
       // Push the message to the messages array, limiting the number of messages
+      const newMessage: Message = Object.assign({}, chatMessage, { id: uuid() });
       this.messages$.next([
-        ...this.messages$.getValue(), { id: uuid(), username: chatMessage.username, message: chatMessage.message }
+        ...this.messages$.getValue(), newMessage
       ].slice(-MAX_MESSAGES));
     });
   }

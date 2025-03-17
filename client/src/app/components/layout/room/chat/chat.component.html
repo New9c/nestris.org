@@ -8,8 +8,8 @@
     <div class="main">
 
         <div class="message expanding-div" *ngFor="let message of messages; trackBy: messageHash">
-            <h1 class="username">{{message.username}}</h1>
-            <p class="text">{{message.message}}</p>
+            <h1 class="username" *ngIf="message.username">{{message.username}}</h1>
+            <p class="text" [ngClass]="message.username ? 'normal' : 'special'">{{message.message}}</p>
         </div>
 
         <app-chat-text-entry

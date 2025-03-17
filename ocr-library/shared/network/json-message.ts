@@ -120,8 +120,8 @@ export class MeMessage extends JsonMessage {
 
 export class ChatMessage extends JsonMessage {
     constructor(
-        public readonly username: string,
-        public readonly message: string
+        public readonly username: string | null, // if null, special message in italics
+        public readonly message: string,
     ) {
         super(JsonMessageType.CHAT)
     }

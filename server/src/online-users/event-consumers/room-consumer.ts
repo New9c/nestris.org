@@ -524,13 +524,16 @@ export class RoomConsumer extends EventConsumer {
 
             // Trigger the onPlayerLeave hook
             await room._onPlayerLeave(userid, sessionID);
-            const player = room.getPlayerByUserID(userid);
-            console.log(`Player ${player?.username} left room ${room.id}`);
+            const player = room.getPlayerByUserID(userid)!;
+            console.log(`Player ${player.username} left room ${room.id}`);
 
             // If that was the last player in the room, delete the room entirely
             if (room.playerSessionIDsInRoom.length === 0) {
                 await room._deinit();
                 this.rooms.delete(room.id);
+            } else {
+                // Otherwise, send a message to the room that the player left
+                room._onChatMessage(new ChatMessage(null, `${player.username} left the room`));
             }
         } else {
             // Remove the spectator from the room

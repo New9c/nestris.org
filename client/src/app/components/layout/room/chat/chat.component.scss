@@ -64,6 +64,10 @@
     overflow-wrap: anywhere;
 }
 
+.text.special {
+    font-style: italic;
+}
+
 .fade {
     -webkit-mask-image: linear-gradient(0deg, #000 60%, transparent);
 }
