@@ -61,8 +61,6 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
             else trophyChange = trophyDelta.trophyLoss;
 
             const startTrophies = state.players[playerIndex].trophies;
-            const newTrophies = startTrophies + trophyChange;
-            const xpBonusIfWin = Math.floor(newTrophies * 0.1);
 
             // Send trophy change message to display alert
             RankedMultiplayerRoom.Users.sendToUserSession(player.sessionID, new TrophyChangeMessage(
@@ -71,7 +69,7 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
 
             // Update each player's trophies and XP after the match
             const updatedUser = await DBUserObject.alter(player.userid, new DBRankedMatchEndEvent({
-                xpGained: state.matchWinner === playerIndex ? xpBonusIfWin : 0, // solo xp gain handled by GamePlayer
+                xpGained: 0, // solo xp gain handled by GamePlayer
                 win: state.matchWinner === playerIndex,
                 lose: state.matchWinner !== playerIndex && state.matchWinner !== PlayerIndex.DRAW,
                 trophyChange: trophyChange,
