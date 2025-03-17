@@ -91,6 +91,7 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
                 myScore: state.points[0].game[playerIndex].score,
                 opponentGameID: state.points[0].game[otherIndex].gameID,
                 opponentScore: state.points[0].game[otherIndex].score,
+                startLevel: state.startLevel,
             })
         });
 

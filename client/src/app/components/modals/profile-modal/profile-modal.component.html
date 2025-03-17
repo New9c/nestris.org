@@ -101,6 +101,9 @@
                         <a [routerLink]="['/game', activity.opponentGameID]" target="_blank">
                             <p class="highlight clickable">{{numberWithCommas(activity.opponentScore)}}</p>
                         </a>
+                        <ng-container *ngIf="activity.startLevel">
+                            <p>on level {{activity.startLevel}} start</p>
+                        </ng-container>
                     </ng-container>
 
                     <ng-container *ngIf="activity.type === ActivityType.QUEST_COMPLETION">

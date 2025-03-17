@@ -28,6 +28,7 @@ export type RankedMatchActivity = {
     myScore: number, // score achieved by the user
     opponentGameID: string, // id of game played by opponent in match
     opponentScore: number, // score achieved by the opponent
+    startLevel?: number,
 }
 
 // EXAMPLE: Completed quest [questName] and gained [xp] xp
