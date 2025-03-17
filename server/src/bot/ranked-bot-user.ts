@@ -19,6 +19,7 @@ import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import { SRPlacementAI } from "./sr-placement-ai";
 import { AIConfig, AIPlacement, PlacementAI } from "./placement-ai";
+import { time } from "console";
 
 const BEFORE_GAME_MESSAGE = [
     "glhf",
@@ -52,17 +53,26 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
 
     override async start() {
 
+        // Wait some time before connecting
+        await sleep(randomInt(5000, 60000));
+
         // Connect the bot to the server
         this.connect();
 
         // Keep queuing and playing matches indefinitely
         while (true) {
 
-
-            await sleep(randomInt(1000, 3000));
+            // Wait some time before joining the queue
+            await sleep(randomInt(1000, 60000));
 
             // Find a match in the ranked queue
-            await this.handleFindMatch();
+            const matchFound = await this.handleFindMatch(30);
+
+            // If no match found, take a break before trying again
+            if (!matchFound) {
+                await this.takeBreak(randomInt(10, 120));
+                continue;
+            }
             try {
 
                 // If the bot is kicked from the room, end this function early
@@ -91,18 +101,42 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
     }
 
     /**
+     * Disconnect for some time before reconnecting
+     */
+    private async takeBreak(seconds: number) {
+        this.disconnect();
+        await sleep(seconds * 1000);
+        this.connect();
+    }
+
+    /**
      * Join the ranked queue and waits for a match to be found and the bot to be placed in a room.
      * After this function completes, the bot is in a room and ready to play.
+     * If timeout is instead reached, returns false and does not join the room
      */
-    private async handleFindMatch() {
+    private async handleFindMatch(timeoutSeconds: number): Promise<boolean> {
 
         // Join the ranked queue as a bot
         this.queueConsumer.joinRankedQueue(this.sessionID, null);
         console.log(`Bot ${this.username} joined the ranked queue, waiting for room...`);
 
+        const timeout$ = new Subject<boolean>();
+        const timeoutId = setTimeout(() => {
+            timeout$.next(true);
+            timeout$.complete();
+        }, timeoutSeconds * 1000);
+
         // Wait until the bot is in the ranked room
-        await waitUntilValue(this.inRoomStatus$, InRoomStatus.PLAYER);
-        console.log(`Bot ${this.username} is now in a room!`);
+        try {
+            await waitUntilValue(this.inRoomStatus$, InRoomStatus.PLAYER, timeout$);
+            console.log(`Bot ${this.username} is now in a room!`);
+            return true;
+        } catch {
+            console.log("No opponent found, exiting queue");
+            return false;
+        } finally {
+            clearTimeout(timeoutId);
+        }
     }
 
     /**
@@ -237,7 +271,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
         const wasPieceLocked = state.isPieceLocked();
 
         // Get the inputs to make for this frame
-        const inputs = placementAI.getInputForPlacementAndFrame(this.placementIndex, state.getPlacementFrameCount());
+        const inputs = placementAI.getInputForPlacementAndFrame(this.placementIndex, state.getPlacementFrameCount() - 1);
         keyManager.setOnlyPressed(inputs);
 
         // Advance the emulator state by one frame
@@ -307,6 +341,9 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
 
         // Wait until the match is over, or the bot leaves the room
         await waitUntilCondition(this.roomState$, state => state?.status === MultiplayerRoomStatus.AFTER_MATCH, leftRoom$, error);
+
+        // Wait a random amount of time
+        await sleep(randomInt(1000, 3000));
 
         // Leave the room
         await this.roomConsumer.freeSession(this.userid, this.sessionID);

@@ -74,6 +74,7 @@ import { GetGlobalChatRoute } from './src/routes/misc/get-global-chat-route';
 import { GlobalChatConsumer } from './src/online-users/event-consumers/global-chat-consumer';
 import { GetRelativeRanksRoute } from './src/routes/leaderboard/get-relative-ranks';
 import { SetStartingTrophiesRoute } from './src/routes/user/set-starting-trophies-route';
+import { registerSRBots } from './src/bot/sr-bots';
 
 // Load environment variables
 require('dotenv').config();
@@ -210,7 +211,8 @@ async function main() {
   routes.registerRoute(GetErrorsRoute);
 
   const bots = new BotManager();
-  //bots.registerBot(new RankedBotUser('bot', 400, {aiConfig : { inputSpeed: InputSpeed.HZ_10 }}));
+  bots.registerBot(new RankedBotUser('bot2', 2000, {aiConfig : { inputSpeed: InputSpeed.HZ_10 }}));
+  //registerSRBots(bots);
   await bots.init();
 
 
