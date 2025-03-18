@@ -19,6 +19,7 @@ export interface AIPlacement {
 
 export interface AIConfig {
     inputSpeed: InputSpeed;
+    inaccuracy: number; // inaccuracy chance per placement
     misdrop: number; // misdrop chance per placement
 }
 
@@ -48,7 +49,7 @@ export abstract class PlacementAI {
     // Generates a series of X and . characters to represent the input frame timeline. Can be random or deterministic.
     protected abstract generateInputFrameTimeline(): string;
 
-    protected abstract computePlacement(
+    public abstract computePlacement(
         board: TetrisBoard,
         current: TetrominoType,
         next: TetrominoType | null,
@@ -62,7 +63,7 @@ export abstract class PlacementAI {
      * @param inputFrameTimeline The input frame timeline to compute the shift map for
      * @param move The lock placement to compute the shift map for
      */
-    protected abstract computeShiftMap(inputFrameTimeline: string, lockPlacement: MoveableTetromino): ShiftMap;
+    protected abstract computeShiftMap(inputFrameTimeline: string, lockPlacement: MoveableTetromino, isMisdrop: boolean): ShiftMap;
 
     /**
      * Register the board state and current and next pieces for a given placement index, to initiate
@@ -86,11 +87,15 @@ export abstract class PlacementAI {
         // Compute the placement for this position
         this.computePlacement(board, current, next, level, lines, inputFrameTimeline).then(move => {
 
+            const isMisdrop = Math.random() < this.config.misdrop;
+
             // Update the placement with the computed shifts
             const placement = this.placements.get(index);
             if (!placement) throw new Error(`Placement at index ${index} not found`);
-            placement.shiftMap = move.placement === null ? DEFAULT_SHIFT_MAP : this.computeShiftMap(inputFrameTimeline, move.placement);
+            placement.shiftMap = move.placement === null ? DEFAULT_SHIFT_MAP : this.computeShiftMap(inputFrameTimeline, move.placement, isMisdrop);
             //console.log(`Computed shift map for placement at index ${index}: ${Array.from(placement.shiftMap.entries()).map(([frame, keybinds]) => `${frame}: ${keybinds.map(keybind => keybind).join(' ')}`).join(', ')}`);
+
+            if (isMisdrop) move.playerEval = move.bestEval - 20;
 
             // Call the callback
             this.onPlacementComputed(move);

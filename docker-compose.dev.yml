@@ -44,6 +44,7 @@ services:
       --ext "ts,json"
       --ignore "node_modules/*"
       --ignore "dist/*"
+      --ignore results.json
       --exec "node --inspect=0.0.0.0:9229 -r ts-node/register index.ts"
 
   cpp-service:

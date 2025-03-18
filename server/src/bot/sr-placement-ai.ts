@@ -11,13 +11,13 @@ import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from "../../shared/models/input-s
 
 export class SRPlacementAI extends PlacementAI {
 
-    protected override generateInputFrameTimeline(): string {
+    public override generateInputFrameTimeline(): string {
 
         return INPUT_SPEED_TO_TIMELINE[this.config.inputSpeed];
 
     }
 
-    protected override async computePlacement(
+    public override async computePlacement(
         board: TetrisBoard,
         current: TetrominoType,
         next: TetrominoType | null,
@@ -46,12 +46,32 @@ export class SRPlacementAI extends PlacementAI {
 
         if (stackrabbit.nextBox.length === 0) return noPlacement;
 
-        // Get best move
+        
         const bestEval = stackrabbit.nextBox[0].score;
+
+        // If inaccuracy, pick move closest to -6 lower than bestEval
+        if (Math.random() < this.config.inaccuracy) {
+            const targetEval = bestEval - 6;
+            let closestPlacement = stackrabbit.nextBox[0];
+            for (let placement of stackrabbit.nextBox) {
+                if (Math.abs(placement.score - targetEval) < Math.abs(closestPlacement.score - targetEval)) {
+                    closestPlacement = placement;
+                }
+            }
+
+            return {
+                placement: closestPlacement.firstPlacement,
+                bestEval: bestEval,
+                playerEval: closestPlacement.score
+            }
+
+        }
+
+        // Get best move
         const playerEval = bestEval - randomInt(0, 300) / 100;
         return {
             placement: stackrabbit.nextBox[0].firstPlacement,
-            bestEval: stackrabbit.nextBox[0].score,
+            bestEval: bestEval,
             playerEval: playerEval,
         }
 
@@ -61,7 +81,7 @@ export class SRPlacementAI extends PlacementAI {
         
     }
 
-    protected override computeShiftMap(inputFrameTimeline: string, lockPlacement: MoveableTetromino): ShiftMap {
+    protected override computeShiftMap(inputFrameTimeline: string, lockPlacement: MoveableTetromino, isMisdrop: boolean): ShiftMap {
         
         // Calculate the number of frames to shift, where sign indicates direction
         const spawnPiece = MoveableTetromino.fromSpawnPose(lockPlacement.tetrominoType);
@@ -115,7 +135,7 @@ export class SRPlacementAI extends PlacementAI {
         }
 
         // If dice roll results in misdrop, add an extra shift or rotation somewhere within the inputs
-        if (Math.random() < this.config.misdrop) {
+        if (isMisdrop) {
             const misdropIndex = randomInt(0, frameIndex + randomInt(0, 50));
 
             const keybind: Keybind = (

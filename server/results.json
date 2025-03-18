@@ -1,0 +1,40 @@
+[
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.1,
+      "misdrop": 0.02
+    },
+    "stats": {
+      "average": {
+        "level": 21.666666666666668,
+        "lines": 123.33333333333333,
+        "score": 497933.3333333333
+      },
+      "variance": {
+        "level": 4.496912521077347,
+        "lines": 88.97315450304222,
+        "score": 359826.0577309851
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.2,
+      "misdrop": 0.02
+    },
+    "stats": {
+      "average": {
+        "level": 20,
+        "lines": 78.33333333333333,
+        "score": 246253.33333333334
+      },
+      "variance": {
+        "level": 2.8284271247461903,
+        "lines": 74.53112697986586,
+        "score": 221442.44358799467
+      }
+    }
+  }
+]

@@ -23,7 +23,6 @@ export class GetRelativeLeaderboardsRoute extends GetRoute<RelativeLeaderboards>
     override async get(userInfo: UserInfo | undefined): Promise<RelativeLeaderboards> {
         const userid = userInfo!.userid;
 
-        const queueConsumer = EventConsumerManager.getInstance().getConsumer(RankedQueueConsumer);
         const roomConsumer = EventConsumerManager.getInstance().getConsumer(RoomConsumer);
 
         let puzzlesPlayingNow: number = 0;
@@ -35,7 +34,6 @@ export class GetRelativeLeaderboardsRoute extends GetRoute<RelativeLeaderboards>
         const soloPlayingNow: number = roomConsumer.getRoomCount(room => room instanceof SoloRoom);
         const soloLeaderboard = LeaderboardManager.getFullLeaderboard(FullHighscoreLeaderboard).getLeaderboardForUser(userid);
 
-        const inQueue = queueConsumer.playersInQueue();
         const rankedPlayingNow: number = 2 * roomConsumer.getRoomCount(room => room instanceof MultiplayerRoom && room.ranked);
         const rankedLeaderboard = LeaderboardManager.getFullLeaderboard(FullTrophiesLeaderboard).getLeaderboardForUser(userid);
         
@@ -47,7 +45,7 @@ export class GetRelativeLeaderboardsRoute extends GetRoute<RelativeLeaderboards>
                 leaderboard: soloLeaderboard
             },
             ranked: {
-                playingNow: inQueue + rankedPlayingNow,
+                playingNow: rankedPlayingNow,
                 leaderboard: rankedLeaderboard
             },
             puzzles: {

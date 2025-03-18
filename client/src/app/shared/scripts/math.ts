@@ -13,6 +13,14 @@ export function standardDeviation(data: number[]): number {
     return Math.sqrt(variance);
 }
 
+export function average(numbers: number[]): number {
+    if (numbers.length === 0) {
+        throw new Error("Cannot compute average of an empty list");
+    }
+    const sum = numbers.reduce((acc, num) => acc + num, 0);
+    return sum / numbers.length;
+}
+
 export function truncatedMean(data: number[], trimPercent: number): number {
     if (trimPercent < 0 || trimPercent > 50) {
         throw new Error("trimPercent must be between 0 and 50.");

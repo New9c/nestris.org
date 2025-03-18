@@ -5,6 +5,7 @@ import { createServer } from 'http';
 import { Server as WebSocketServer } from 'ws';
 import morgan from 'morgan';
 import cors from 'cors';
+import fs from 'fs';
 
 import { DeploymentEnvironment, ServerStats } from './shared/models/server-stats';
 import { handleDiscordCallback, redirectToDiscord } from './src/authentication/discord-util';
@@ -75,6 +76,8 @@ import { GlobalChatConsumer } from './src/online-users/event-consumers/global-ch
 import { GetRelativeRanksRoute } from './src/routes/leaderboard/get-relative-ranks';
 import { SetStartingTrophiesRoute } from './src/routes/user/set-starting-trophies-route';
 import { registerSRBots } from './src/bot/sr-bots';
+import { runBotSimulations, simulateBot, simulateBotAveraged, testBotHyperparameters } from './src/bot/simulate-bot';
+import { AIConfig } from './src/bot/placement-ai';
 
 // Load environment variables
 require('dotenv').config();
@@ -215,6 +218,10 @@ async function main() {
   registerSRBots(bots);
   await bots.init();
 
+  if (NODE_ENV === DeploymentEnvironment.DEV) {
+    const results = await testBotHyperparameters();
+    fs.writeFileSync("results.json", JSON.stringify(results, null, 2));
+  }
 
   app.get('/api/v2/server-stats', (req: Request, res: Response) => {
     const stats: ServerStats = {

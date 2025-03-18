@@ -38,7 +38,7 @@ export async function getTopMovesHybrid(
     const response = await axios.get(request);
 
     const topMovesHybrid = decodeStackrabbitResponse(response.data, current, next);
-    console.log(`Fetched topMovesHybrid depth ${depth} in ${Date.now() - startTime}ms`);
+    //console.log(`Fetched topMovesHybrid depth ${depth} in ${Date.now() - startTime}ms`);
 
     return topMovesHybrid;
 }
