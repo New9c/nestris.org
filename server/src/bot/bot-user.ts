@@ -7,6 +7,7 @@ import { OnlineUserManager } from '../online-users/online-user-manager';
 import { PacketDisassembler } from '../../shared/network/stream-packets/packet-disassembler';
 import { BotOnlineUserSession } from '../online-users/online-user';
 import { EventConsumerManager } from '../online-users/event-consumer';
+import { QuestConsumer } from '../online-users/event-consumers/quest-consumer';
 
 /**
  * Create a new bot user with the given ID, generating a random username for the bot.
@@ -27,6 +28,12 @@ export async function createBotUser(userid: string, initialTrophies: number): Pr
 
     // Set the initial trophies of the bot user
     const user = await DBUserObject.alter(userid, new DBSetInitialTrophiesEvent({trophies: initialTrophies}), false);
+
+    await EventConsumerManager.getInstance().getConsumer(QuestConsumer).updateChampionQuestCategory(
+        user.userid,
+        user.wins,
+        user.trophies
+    );
 
     return user;
 }
