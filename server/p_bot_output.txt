@@ -1,0 +1,5 @@
+const bots: BotType[] = [
+    { trophies: 784, speed: InputSpeed.HZ_6, inaccuracy: 0.2, misdrop: 0.02, botIDs: ['634faae5-0685-48cc-8f54-ed38247c2a7f'] },
+    { trophies: 1614, speed: InputSpeed.HZ_8, inaccuracy: 0.1, misdrop: 0.01, botIDs: ['e723b0ed-b301-41a8-b20d-46d9cee287b5'] },
+    // etc...
+];

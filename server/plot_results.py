@@ -6,25 +6,28 @@ import numpy as np
 with open("results.json", "r") as f:
     data = json.load(f)
 
-# Extract relevant fields
-configs = [f"Speed: {d['config']['inputSpeed']}, Inacc: {d['config']['inaccuracy']}, Misdrop: {d['config']['misdrop']}" for d in data]
-scores = np.array([d['stats']['average']['score'] for d in data])
-score_variances = np.array([d['stats']['variance']['score'] for d in data])
-lines = np.array([d['stats']['average']['lines'] for d in data])
-line_variances = np.array([d['stats']['variance']['lines'] for d in data])
+# Sort the data by average score in descending order
+data_sorted = sorted(data, key=lambda d: d['stats']['average']['score'], reverse=True)
 
-# Adjust figure size dynamically
-fig, ax1 = plt.subplots(figsize=(10, max(6, len(configs) * 0.5)))
+# Extract the sorted fields
+configs = [f"Speed: {d['config']['inputSpeed']}, Inacc: {d['config']['inaccuracy']}, Misdrop: {d['config']['misdrop']}" for d in data_sorted]
+scores = np.array([d['stats']['average']['score'] for d in data_sorted])
+score_variances = np.array([d['stats']['variance']['score'] for d in data_sorted])
+lines = np.array([d['stats']['average']['lines'] for d in data_sorted])
+line_variances = np.array([d['stats']['variance']['lines'] for d in data_sorted])
 
-# Create second x-axis (for score) at the top
+# Adjust figure height dynamically to allow scrolling
+fig, ax1 = plt.subplots(figsize=(10, max(6, len(configs) * 0.5)))  # Large height for scrolling
+
+# Create second x-axis for score at the top
 ax2 = ax1.twiny()
-ax1.xaxis.set_label_position("bottom")  # Set lines axis at bottom
+ax1.xaxis.set_label_position("bottom")
 ax1.xaxis.tick_bottom()
-ax2.xaxis.set_label_position("top")  # Set score axis at top
+ax2.xaxis.set_label_position("top")
 ax2.xaxis.tick_top()
 
 # Set bar heights
-bar_height = 0.4  # Adjusted for clear separation
+bar_height = 0.4
 
 # Define positions for each pair (score on top, lines below)
 y_positions_score = np.arange(len(configs)) + bar_height / 2
@@ -48,9 +51,8 @@ ax1.tick_params(axis='x', colors='green')
 ax1.set_yticks(np.arange(len(configs)))
 ax1.set_yticklabels(configs)
 
-# Add title
-plt.title("StackRabbit performance with depth=1, no tucks")
+# Adjust layout for scrolling
+plt.subplots_adjust(left=0.3, right=0.95, top=0.95, bottom=0.05)
 
-plt.tight_layout()
+# Enable interactive mode for scrolling (if using Jupyter)
 plt.show()
-

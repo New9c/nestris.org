@@ -96,9 +96,9 @@ type Hyperparameters = {
 };
 
 const defaultHyperparams: Hyperparameters = {
-    inputSpeeds: [InputSpeed.HZ_8, InputSpeed.HZ_10, InputSpeed.HZ_12],
-    inaccuracies: [0.1, 0.2, 0.3],
-    misdrops: [0.01, 0.03, 0.5],
+    inputSpeeds: [InputSpeed.HZ_6, InputSpeed.HZ_8, InputSpeed.HZ_10, InputSpeed.HZ_12, InputSpeed.HZ_14],
+    inaccuracies: [0.05, 0.1, 0.2, 0.3],
+    misdrops: [0.005, 0.01, 0.03],
     simulationsPerConfig: 3
 };
 

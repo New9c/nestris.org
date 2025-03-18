@@ -1,6 +1,5 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { BehaviorSubject, map, Subscription } from 'rxjs';
-import { FetchService, Method } from 'src/app/services/fetch.service';
 import { GlobalChatService } from 'src/app/services/state/global-chat.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';

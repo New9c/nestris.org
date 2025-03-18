@@ -9,12 +9,14 @@ import { OnSessionDisconnectEvent } from "../online-user-events";
 import { RoomAbortError, RoomConsumer } from "./room-consumer";
 import { NotificationType } from "../../../shared/models/notifications";
 import { OnlineUserActivityType } from "../../../shared/models/online-activity";
-import { DBUser } from "../../../shared/models/db-user";
+import { DBUser, LoginMethod } from "../../../shared/models/db-user";
 import { getEloChange, getStartLevelForElo } from "../../../shared/nestris-org/elo-system";
 import { Platform } from "../../../shared/models/platform";
 
 export class QueueError extends Error {}
 export class UserUnavailableToJoinQueueError extends QueueError {}
+
+const MIN_BOT_MATCH_SECONDS = 10;
 
 /**
  * Represents a range of trophies that a user can be matched with
@@ -103,29 +105,12 @@ class QueueUser {
     /**
      * Calculate opponent trophy range for user based on the user's trophies and queue time
      */
-    public getTrophyRange(queueSeconds: number, hasBot: boolean): TrophyRange | null {
+    public getTrophyRange(queueSeconds: number): TrophyRange {
 
-        // Bot users match with a narrower trophy range, and only if no players found
-        if (hasBot) {
-            if (queueSeconds < 10) return null; // cannot match with bots if under 10 seconds
-            if (queueSeconds < 12) return TrophyRange.fromDelta(this.trophies, 100);
-            if (queueSeconds < 15) return TrophyRange.fromDelta(this.trophies, 200);
-            if (queueSeconds < 30) return TrophyRange.fromDelta(this.trophies, 500);
-            if (queueSeconds < 60) return TrophyRange.fromDelta(this.trophies, 1000);
-            return new TrophyRange(null, null);
-        }
-
-        // FOR BETA, MATCH QUICKLY
-        if (queueSeconds < 2) return TrophyRange.fromDelta(this.trophies, 200);
+        if (queueSeconds < 2) return TrophyRange.fromDelta(this.trophies, 100);
+        if (queueSeconds < 4) return TrophyRange.fromDelta(this.trophies, 200);
         if (queueSeconds < 6) return TrophyRange.fromDelta(this.trophies, 400);
         if (queueSeconds < 10) return TrophyRange.fromDelta(this.trophies, 600);
-        if (queueSeconds < 20) return TrophyRange.fromDelta(this.trophies, 1000);
-        return new TrophyRange(null, null);
-
-        // Calculate trophy range based on queue time
-        if (queueSeconds < 3) return TrophyRange.fromDelta(this.trophies, 100);
-        if (queueSeconds < 5) return TrophyRange.fromDelta(this.trophies, 200);
-        if (queueSeconds < 10) return TrophyRange.fromDelta(this.trophies, 400);
         if (queueSeconds < 20) return TrophyRange.fromDelta(this.trophies, 1000);
         return new TrophyRange(null, null);
     }
@@ -294,14 +279,23 @@ export class RankedQueueConsumer extends EventConsumer {
         if (user1.queueElapsedSeconds() < 1) return false;
         if (user2.queueElapsedSeconds() < 1) return false;
 
-        // Check if the users have similar trophies
-        const queueSeconds = Math.min(user1.queueElapsedSeconds(), user2.queueElapsedSeconds());
+        
         const hasBot = user1.platform === null || user2.platform === null;
-        const trophyRange = user1.getTrophyRange(queueSeconds, hasBot);
-        if (trophyRange === null || !trophyRange.contains(user2.trophies)) return false;
+        const nonBotUsers = [user1, user2].filter(user => user.platform !== null);
+        let queueSeconds = Math.min(...nonBotUsers.map(user => user.queueElapsedSeconds()));
+
+        // Matching with bot delays the match process by some amount
+        if (hasBot) {
+            if (queueSeconds < MIN_BOT_MATCH_SECONDS) return false; // Can only match with bot after this time
+            else queueSeconds -= MIN_BOT_MATCH_SECONDS;
+        }
+
+        // Check if the users have similar trophies
+        const trophyRange = user1.getTrophyRange(queueSeconds);
+        if (!trophyRange.contains(user2.trophies)) return false;
 
         // Check if the users have not played each other before, unless both users have been waiting for a long time
-        const MAX_WAIT_TIME = 2; // If both users have been waiting for more than MAX_WAIT_TIME seconds, they can rematch
+        const MAX_WAIT_TIME = 5; // If both users have been waiting for more than MAX_WAIT_TIME seconds, they can rematch
         if (user1.queueElapsedSeconds() < MAX_WAIT_TIME && user2.queueElapsedSeconds() < MAX_WAIT_TIME) {
             if (this.previousOpponent.get(user1.userid) === user2.userid) return false;
             if (this.previousOpponent.get(user2.userid) === user1.userid) return false;
@@ -323,8 +317,13 @@ export class RankedQueueConsumer extends EventConsumer {
 
         const elo1 = user1.trophies;
         const elo2 = user2.trophies;
-        const numMatches1 = user1.matches_played;
-        const numMatches2 = user2.matches_played;
+        let numMatches1 = user1.matches_played;
+        let numMatches2 = user2.matches_played;
+
+        // Bots do not have drastic elo change because they have already been a little tuned
+        if (user1.login_method === LoginMethod.BOT) numMatches1 = Math.max(5, numMatches1);
+        if (user2.login_method === LoginMethod.BOT) numMatches2 = Math.max(5, numMatches2);
+
 
         // use the elo system to calculate the win/loss trophy delta for each user
         return {

@@ -1,16 +1,3 @@
-import { InputSpeed } from "../../shared/models/input-speed";
-import { BotManager } from "./bot-manager";
-import { RankedBotUser } from "./ranked-bot-user";
-
-interface BotType {
-    trophies: number,
-    speed: InputSpeed,
-    inaccuracy: number,
-    misdrop: number,
-    botIDs: string[],
-}
-
-
 const bots: BotType[] = [
     { trophies: 396, speed: InputSpeed.HZ_12, inaccuracy: 0.1, misdrop: 0.04, botIDs: ['640dba2b-e817-4136-bbe1-94fd71c8f8bd'] },
     { trophies: 480, speed: InputSpeed.HZ_6, inaccuracy: 0.2, misdrop: 0.04, botIDs: ['f15f9924-5866-4dbe-ac21-1ef84a781959'] },
@@ -84,16 +71,3 @@ const bots: BotType[] = [
     { trophies: 3183, speed: InputSpeed.HZ_14, inaccuracy: 0.1, misdrop: 0.003, botIDs: ['f087e038-eabb-4109-9758-426ce295e500'] },
     { trophies: 3209, speed: InputSpeed.HZ_14, inaccuracy: 0.05, misdrop: 0.003, botIDs: ['873fef59-8dda-4d6a-955b-22ccae40d592'] },
 ];
-
-
-export function registerSRBots(manager: BotManager) {
-
-    for (let { trophies, speed, inaccuracy, misdrop, botIDs } of bots) {
-        botIDs.forEach((userid) => manager.registerBot(new RankedBotUser(
-            userid,
-            trophies,
-            {aiConfig : { inputSpeed: speed, inaccuracy, misdrop }}
-        )));
-    }
-
-}

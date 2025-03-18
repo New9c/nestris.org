@@ -218,7 +218,7 @@ async function main() {
   registerSRBots(bots);
   await bots.init();
 
-  if (NODE_ENV === DeploymentEnvironment.DEV) {
+  if (NODE_ENV === DeploymentEnvironment.DEV && false) {
     const results = await testBotHyperparameters();
     fs.writeFileSync("results.json", JSON.stringify(results, null, 2));
   }
