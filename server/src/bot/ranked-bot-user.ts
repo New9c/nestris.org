@@ -139,7 +139,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
     override async start() {
 
         // Wait some time before connecting
-        await sleep(randomInt(5000, 500000));
+        await sleep(randomInt(5000, 1000000));
 
         // Connect the bot to the server
         this.connect();
