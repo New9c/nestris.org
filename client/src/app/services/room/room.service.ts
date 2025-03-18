@@ -139,8 +139,8 @@ export class RoomService {
     this.oldClientRoom = this.clientRoom;
     await this.clientRoom.init(event.roomState);
 
-    // Navigate to the room
-    this.router.navigate(['/online/room']);
+    // Navigate to the room and set room id as query parameter
+    this.router.navigate(['/online/room'], { queryParams: {id: event.roomInfo.id }});
 
     console.log(`Navigating to room with status ${this.status}, room info ${this.roomInfo}, and room state ${this.clientRoom.getState()}`);
   }

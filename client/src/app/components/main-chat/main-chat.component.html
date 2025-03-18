@@ -1,5 +1,5 @@
 <button class="fab" *ngIf="!(showChat$ | async)" (click)="makeChatVisible()" appClickSound>
-    <img [src]="chatImage$ | async" width="25px">
+    <img [src]="chatImage$ | async" width="23px">
 </button>
 
 <div class="chat" *ngIf="showChat$ | async">
