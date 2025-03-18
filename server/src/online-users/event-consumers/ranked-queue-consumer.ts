@@ -108,9 +108,10 @@ class QueueUser {
         // Bot users match with a narrower trophy range, and only if no players found
         if (hasBot) {
             if (queueSeconds < 10) return null; // cannot match with bots if under 10 seconds
+            if (queueSeconds < 12) return TrophyRange.fromDelta(this.trophies, 100);
             if (queueSeconds < 15) return TrophyRange.fromDelta(this.trophies, 200);
-            if (queueSeconds < 20) return TrophyRange.fromDelta(this.trophies, 500);
-            if (queueSeconds < 30) return TrophyRange.fromDelta(this.trophies, 1000);
+            if (queueSeconds < 30) return TrophyRange.fromDelta(this.trophies, 500);
+            if (queueSeconds < 60) return TrophyRange.fromDelta(this.trophies, 1000);
             return new TrophyRange(null, null);
         }
 
