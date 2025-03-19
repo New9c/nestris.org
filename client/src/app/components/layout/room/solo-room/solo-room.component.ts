@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, HostListener } from '@angular/core';
-import { map } from 'rxjs';
+import { BehaviorSubject, map } from 'rxjs';
 import { GameOverMode } from 'src/app/components/nes-layout/nes-board/nes-board.component';
 import { getDisplayKeybind } from 'src/app/components/ui/editable-keybind/editable-keybind.component';
-import { RatedMove } from 'src/app/components/ui/eval-bar/eval-bar.component';
 import { QuestService } from 'src/app/services/quest.service';
 import { EmulatorService } from 'src/app/services/emulator/emulator.service';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
@@ -12,6 +11,9 @@ import { MeService } from 'src/app/services/state/me.service';
 import { CATEGORY_REDIRECT, getQuest, QuestRedirect } from 'src/app/shared/nestris-org/quest-system';
 import { SoloGameInfo, SoloRoomState } from 'src/app/shared/room/solo-room-models';
 import { Platform } from 'src/app/shared/models/platform';
+import { InRoomStatus } from 'src/app/shared/network/json-message';
+import { FetchService, Method } from 'src/app/services/fetch.service';
+import { DBUser } from 'src/app/shared/models/db-user';
 
 @Component({
   selector: 'app-solo-room',
@@ -27,6 +29,7 @@ export class SoloRoomComponent {
   readonly SoloClientState = SoloClientState;
   readonly GameOverMode = GameOverMode;
   readonly Platform = Platform;
+  readonly InRoomStatus = InRoomStatus;
 
   public showAnalysis: boolean = false;
 

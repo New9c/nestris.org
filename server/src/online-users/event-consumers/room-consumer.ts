@@ -368,11 +368,11 @@ export abstract class Room<T extends RoomState = RoomState> {
         if (index === -1) throw new RoomError(`Session ${sessionID} is not a spectator in room ${this.id}`);
         this.spectators.splice(index, 1);
 
-        // Send a IN_ROOM_STATUS message to the spectator to indicate that they are not in any room
-        Room.Users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.NONE, null, null));
-
         // Update the spectator count for all players in the room
         this.sendToAll(new SpectatorCountMessage(this.spectators.length));
+
+        // Send a IN_ROOM_STATUS message to the spectator to indicate that they are not in any room
+        Room.Users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.NONE, null, null));
     }
 
     /**
@@ -482,6 +482,35 @@ export class RoomConsumer extends EventConsumer {
     }
 
     /**
+     * Adds a spectator to the room
+     * @param roomID The id of room to spectate
+     * @param userid userid of spectator
+     * @param sessionID session of spectator
+     * @returns The state of the room if successful, and null if not
+     */
+    public spectateRoom(roomID: string, userid: string, sessionID: string): RoomState | null {
+
+        const spectateRoom = this.getRoomByRoomID(roomID);
+
+        // Room not found
+        if (!spectateRoom) return null;
+
+        // Session already in room
+        if (spectateRoom.spectatorSessionIDs.includes(sessionID)) return null;
+
+        // If spectator is in an existing room, free
+        this.freeSession(userid, sessionID);
+
+        // Add spectator to session map
+        this.sessions.set(sessionID, spectateRoom.id);
+
+        // Add spectator to room
+        spectateRoom._addSpectator(sessionID);
+
+        return spectateRoom.getRoomState();
+    }
+
+    /**
      * Handles JSON messages received from the client.
      * @param event The event containing the session id and the JSON message.
      * @throws RoomError for known errors that should be sent to the client.
@@ -499,8 +528,6 @@ export class RoomConsumer extends EventConsumer {
         // Forward client room events to the room
         else if (event.message.type === JsonMessageType.CLIENT_ROOM_EVENT)
             await room._onClientRoomEvent(event.sessionID, (event.message as ClientRoomEventMessage).event);
-
-        
     }
 
     /**
@@ -531,14 +558,15 @@ export class RoomConsumer extends EventConsumer {
             const player = room.getPlayerByUserID(userid)!;
             console.log(`Player ${player.username} left room ${room.id}`);
 
+            // Send a message to the room that the player left
+            room._onChatMessage(new ChatMessage(null, `${player.username} left the room`));
+
             // If that was the last player in the room, delete the room entirely
             if (room.playerSessionIDsInRoom.length === 0) {
                 await room._deinit();
                 this.rooms.delete(room.id);
-            } else {
-                // Otherwise, send a message to the room that the player left
-                room._onChatMessage(new ChatMessage(null, `${player.username} left the room`));
             }
+
         } else {
             // Remove the spectator from the room
             room._removeSpectator(sessionID);

@@ -1,7 +1,7 @@
 import { Subject, Observable } from "rxjs";
 import { GameState } from "../../shared/game-state-from-packets/game-state";
 import { MeMessage } from "../../shared/network/json-message";
-import { PacketContent, PacketOpcode, GameStartSchema, GamePlacementSchema, StackRabbitPlacementSchema, GameRecoverySchema } from "../../shared/network/stream-packets/packet";
+import { PacketContent, PacketOpcode, GameStartSchema, GamePlacementSchema, StackRabbitPlacementSchema, GameRecoverySchema, GameRecoveryPacket } from "../../shared/network/stream-packets/packet";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { DBUserObject, DBGameEndEvent } from "../database/db-objects/db-user";
 import { CreateGameQuery } from "../database/db-queries/create-game-query";
@@ -374,6 +374,31 @@ export class GamePlayer {
             average_eval_loss,
             ratingCount
         }
+    }
+
+    isInGame() {
+        return this.gameState !== null;
+    }
+
+    /**
+     * Get recovery message for current game state to be sent to a user in the room
+     */
+    getRecoveryPacket(playerIndex: number = 0) {
+        if (this.gameState === null) return null;
+
+        const recoveryMessage = new PacketAssembler();
+        recoveryMessage.addPacketContent(new GameRecoveryPacket().toBinaryEncoder({
+            startLevel: this.gameState.startLevel,
+            isolatedBoard: this.gameState.getIsolatedBoard(),
+            current: this.gameState.getCurrentType(),
+            next: this.gameState.getNextType(),
+            score: this.gameState.getStatus().score,
+            level: this.gameState.getStatus().level,
+            lines: this.gameState.getStatus().lines,
+            countdown: this.gameState.getCountdown() ?? 0,
+        }));
+
+        return recoveryMessage.encode(playerIndex);
     }
 
     /**

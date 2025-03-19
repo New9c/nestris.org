@@ -34,7 +34,7 @@ export enum JsonMessageType {
     INVITATION = 'invitation',
     QUEST_COMPLETE = 'quest_complete',
     TROPHY_CHANGE = 'trophy_change',
-    ON_GLOBAL_CHAT_MESSAGE = 'on_global_chat_message'
+    ON_GLOBAL_CHAT_MESSAGE = 'on_global_chat_message',
 }
 
 export abstract class JsonMessage {

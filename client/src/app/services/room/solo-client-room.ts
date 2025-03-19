@@ -10,6 +10,14 @@ import { OcrGameService } from "../ocr/ocr-game.service";
 import { Platform } from "src/app/shared/models/platform";
 import { OCRStateID } from "src/app/ocr/state-machine/ocr-states/ocr-state-id";
 import { CONFIG } from "src/app/config";
+import { InRoomStatus, InRoomStatusMessage } from "src/app/shared/network/json-message";
+import { ServerPlayer } from "./server-player";
+import { WebsocketService } from "../websocket.service";
+import { PacketGroup } from "src/app/shared/network/stream-packets/packet";
+import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
+import { GameStateSnapshotWithoutBoard } from "src/app/shared/game-state-from-packets/game-state";
+import { FetchService, Method } from "../fetch.service";
+import { DBUser } from "src/app/shared/models/db-user";
 
 export enum SoloClientState {
     BEFORE_GAME_MODAL = 'BEFORE_GAME_MODAL',
@@ -24,6 +32,8 @@ export class SoloClientRoom extends ClientRoom {
     readonly ocr = this.injector.get(OcrGameService);
     readonly platformInterface = this.injector.get(PlatformInterfaceService);
     readonly activeQuestService = this.injector.get(QuestService);
+    readonly websocket = this.injector.get(WebsocketService);
+    readonly fetch = this.injector.get(FetchService);
 
     // The level at which the game starts, persisted across games
     public static startLevel$: BehaviorSubject<number> = new BehaviorSubject(18);
@@ -36,10 +46,42 @@ export class SoloClientRoom extends ClientRoom {
     public detectingOCR$ = new BehaviorSubject<boolean>(false);
     private inGame: boolean = false;
 
-    public override async init(state: SoloRoomState): Promise<void> {
+    // If spectating, this is the data for the player being streamed from server to this client
+    private spectatorPlayer?: ServerPlayer;
+    private packetGroupSubscription?: Subscription;
+    public spectatorBoard$?: Observable<TetrisBoard>;
+    public spectatorSnapshot$?: Observable<GameStateSnapshotWithoutBoard>;
+
+    // Only relevant for spectators: get score pb
+    public userHighestScore$ = new BehaviorSubject<number>(0);
+
+    public override async init(event: InRoomStatusMessage): Promise<void> {
+        const state = event.roomState as SoloRoomState;
 
         // Get the original games already completed in the room
         this.originalGames = state.previousGames;
+
+        // If spectating, only show game screen
+        if (event.status === InRoomStatus.SPECTATOR) {
+            this.setSoloState(SoloClientState.IN_GAME);
+            this.spectatorPlayer = new ServerPlayer(18, null);
+            this.spectatorBoard$ = this.spectatorPlayer.getBoard$();
+            this.spectatorSnapshot$ = this.spectatorPlayer.getSnapshot$();
+
+            // Subscribe to websocket binary messages
+            this.websocket.setPacketGroupContainsPrefix(true);
+            this.packetGroupSubscription = this.websocket.onPacketGroup().subscribe(async (packetGroup: PacketGroup) => {
+                packetGroup.packets.forEach(packet => this.spectatorPlayer!.onReceivePacket(packet));
+            });
+
+            // Only relevant for spectators: get score pb without blocking
+            this.fetch.fetch<DBUser>(
+                Method.GET, `/api/v2/user/${this.info.players[0].userid}`
+            ).then(
+                user => this.userHighestScore$.next(user.highest_score)
+            );
+            return;
+        }
 
         // Set level to 29 if doing a level 29 quest
         const activeQuestID = this.activeQuestService.activeQuestID$.getValue();
@@ -147,6 +189,7 @@ export class SoloClientRoom extends ClientRoom {
         this.emulator.stopGame(true);
         this.ocr.stopGameCapture();
         this.ocrSubscription?.unsubscribe();
+        this.packetGroupSubscription?.unsubscribe();
     }
 
 }

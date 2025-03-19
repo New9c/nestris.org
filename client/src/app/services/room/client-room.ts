@@ -1,26 +1,30 @@
 import { Injector } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
 import { RoomModal } from "src/app/components/layout/room/room/room.component";
-import { ClientRoomEvent, RoomState } from "src/app/shared/room/room-models";
+import { ClientRoomEvent, RoomInfo, RoomState } from "src/app/shared/room/room-models";
 import { WebsocketService } from "../websocket.service";
-import { ClientRoomEventMessage } from "src/app/shared/network/json-message";
+import { ClientRoomEventMessage, InRoomStatus, InRoomStatusMessage } from "src/app/shared/network/json-message";
 
 export abstract class ClientRoom {
 
     private state$: BehaviorSubject<RoomState>;
+    public readonly status: InRoomStatus;
+    public readonly info: RoomInfo;
 
     constructor(
         protected readonly injector: Injector,
         public readonly modal$: BehaviorSubject<RoomModal | null>,
-        initialState: RoomState,
+        event: InRoomStatusMessage,
     ) {
-        this.state$ = new BehaviorSubject(initialState);
+        this.status = event.status;
+        this.info = event.roomInfo!;
+        this.state$ = new BehaviorSubject(event.roomState!);
     }
 
     /**
      * Override this method to perform any initialization logic. Should only be called by the RoomService.
      */
-    public async init(initialState: RoomState): Promise<void> {}
+    public async init(initialState: InRoomStatusMessage): Promise<void> {}
 
     /**
      * Override this method to perform any cleanup logic. Should only be called by the RoomService.

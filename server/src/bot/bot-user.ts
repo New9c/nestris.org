@@ -91,7 +91,7 @@ export class BotUser<Config extends BotConfig = {}> {
     protected connect() {
         if (this._session) throw new Error(`Bot user ${this.username} is already connected`);
         this._session = this.users.onBotConnect(this);
-        console.log(`Bot user ${this.username} connected with ID ${this.userid}`);
+        //console.log(`Bot user ${this.username} connected with ID ${this.userid}`);
     }
 
     /**
@@ -101,7 +101,7 @@ export class BotUser<Config extends BotConfig = {}> {
         if (!this._session) throw new Error(`Bot user ${this.username} is already disconnected`);
         this.users.onBotDisconnect(this);
         this._session = undefined;
-        console.log(`Bot user ${this.username} disconnected with ID ${this.userid}`);
+        //console.log(`Bot user ${this.username} disconnected with ID ${this.userid}`);
     }
 
     /**

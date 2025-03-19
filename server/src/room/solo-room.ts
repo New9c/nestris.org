@@ -9,11 +9,14 @@ import { DBSoloGamesListAddEvent, DBSoloGamesListView } from "../database/db-vie
 import { Room } from "../online-users/event-consumers/room-consumer";
 import { UserSessionID } from "../online-users/online-user";
 import { GameEndEvent, GamePlayer, GameStartEvent } from "./game-player";
+import { GameRecoveryPacket } from "../../shared/network/stream-packets/packet";
 
 
 export class SoloRoom extends Room<SoloRoomState> {
 
     private player: GamePlayer;
+    
+    private syncedSpectatorSessionIDs = new Set<string>();
 
     /**
      * Creates a new SoloRoom for the single player with the given playerSessionID
@@ -76,6 +79,24 @@ export class SoloRoom extends Room<SoloRoomState> {
      * @param message The binary message from the player
      */
     protected async onPlayerSendBinaryMessage(sessionID: string, message: PacketDisassembler): Promise<void> {
+
+        const nonSyncedSpectatorSessionIDs = this.spectatorSessionIDs.filter(sessionID => !this.syncedSpectatorSessionIDs.has(sessionID));
+
+        if (nonSyncedSpectatorSessionIDs.length > 0) {
+
+            // If mid-game, send recovery packet to all non-synced spectators
+            if (this.player.isInGame()) {
+                const recoveryPacket = this.player.getRecoveryPacket()!;
+
+                nonSyncedSpectatorSessionIDs.forEach(sessionID => {
+                    Room.Users.sendToUserSession(sessionID, recoveryPacket);
+                    console.log(`Sent recovery packet to sync session ${sessionID} mid-game in room ${this.id}`);
+                });
+            }
+
+            // Mark all the previously non-synced spectator session IDs as synced
+            nonSyncedSpectatorSessionIDs.forEach(sessionID => this.syncedSpectatorSessionIDs.add(sessionID));
+        }
 
         // Resend message to all other players in the room
         this.sendToAllExcept(sessionID, PacketAssembler.encodeIndexFromPacketDisassembler(message, 0));

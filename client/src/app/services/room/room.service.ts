@@ -9,7 +9,6 @@ import { ClientRoom } from './client-room';
 import { SoloClientRoom } from './solo-client-room';
 import { RoomModal } from 'src/app/components/layout/room/room/room.component';
 import { v4 as uuid } from 'uuid';
-import { SoloRoomState } from 'src/app/shared/room/solo-room-models';
 import { MultiplayerClientRoom } from './multiplayer-client-room';
 import { FetchService, Method } from '../fetch.service';
 
@@ -39,7 +38,7 @@ export class RoomService {
 
   public modal$ = new BehaviorSubject<RoomModal | null>(null);
 
-  private roomInfo: RoomInfo | null = null;
+  private roomInfo$ = new BehaviorSubject<RoomInfo | null>(null);
   private numSpectators$ = new BehaviorSubject<number>(0);
 
   private messages$ = new BehaviorSubject<Message[]>([]);
@@ -95,16 +94,16 @@ export class RoomService {
     this.websocketService.sendJsonMessage(new ChatMessage(username, message));
   }
 
-  private createClientRoom(roomState: RoomState): ClientRoom {
+  private createClientRoom(event: InRoomStatusMessage): ClientRoom {
 
     // Reset modal
     this.modal$.next(null);
 
     // Create the client room based on the room type
-    switch (roomState.type) {
-      case RoomType.SOLO: return new SoloClientRoom(this.injector, this.modal$, roomState as SoloRoomState);
-      case RoomType.MULTIPLAYER: return new MultiplayerClientRoom(this.injector, this.modal$, roomState);
-      default: throw new Error(`Unknown room type ${roomState.type}`);
+    switch (event.roomState!.type) {
+      case RoomType.SOLO: return new SoloClientRoom(this.injector, this.modal$, event);
+      case RoomType.MULTIPLAYER: return new MultiplayerClientRoom(this.injector, this.modal$, event);
+      default: throw new Error(`Unknown room type ${event.roomState!.type}`);
     }
   }
 
@@ -117,9 +116,9 @@ export class RoomService {
     // If the client is not in a room
     if (event.status === InRoomStatus.NONE) {
       this.status = InRoomStatus.NONE;
-      this.roomInfo = null;
+      this.roomInfo$.next(null);
       this.clientRoom = null;
-      this.messages$.next([]);
+      this.numSpectators$.next(0);
 
       console.log("Updated room status to NONE");
       return;
@@ -132,17 +131,20 @@ export class RoomService {
 
     // Update the room state
     this.status = event.status;
-    this.roomInfo = event.roomInfo;
+    this.roomInfo$.next(event.roomInfo);
+
+    // Reset messages
+    this.messages$.next([]);
 
     // Create the client room
-    this.clientRoom = this.createClientRoom(event.roomState);
+    this.clientRoom = this.createClientRoom(event);
     this.oldClientRoom = this.clientRoom;
-    await this.clientRoom.init(event.roomState);
+    await this.clientRoom.init(event);
 
     // Navigate to the room and set room id as query parameter
     this.router.navigate(['/online/room'], { queryParams: {id: event.roomInfo.id }});
 
-    console.log(`Navigating to room with status ${this.status}, room info ${this.roomInfo}, and room state ${this.clientRoom.getState()}`);
+    console.log(`Navigating to room with status ${this.status}, room info ${this.getRoomInfo()}, and room state ${this.clientRoom.getState()}`);
   }
 
   /**
@@ -163,7 +165,11 @@ export class RoomService {
    * Get the room info.
    */
   public getRoomInfo(): RoomInfo | null {
-    return this.roomInfo;
+    return this.roomInfo$.getValue();
+  }
+
+  public getRoomInfo$(): Observable<RoomInfo | null> {
+    return this.roomInfo$.asObservable();
   }
 
   /**

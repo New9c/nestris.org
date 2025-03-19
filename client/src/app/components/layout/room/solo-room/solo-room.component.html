@@ -1,7 +1,24 @@
 <div class="left"></div>
 
 <div class="main">
-    <app-layout-one class="game" *ngIf="soloClientRoom.detectingOCR$ | async; else default"
+    <div *ngIf="soloClientRoom.status === InRoomStatus.SPECTATOR; else player" class="spectator">
+        <div class="spectator-header">
+            <p>{{soloClientRoom.info.players[0].username}}</p>
+            <app-highest-score [highestScore]="(soloClientRoom.userHighestScore$ | async) ?? 0" [size]="14" />
+        </div>
+        <app-layout-one *ngIf="(soloClientRoom.spectatorSnapshot$ | async) as spectator"
+        [canvasBoard]="soloClientRoom.spectatorBoard$"
+        [nextType]="spectator.next"
+        [level]="spectator.level"
+        [lines]="spectator.lines"
+        [score]="spectator.score"
+        [countdown]="spectator.countdown"
+        [trt]="spectator.tetrisRate"
+        [drought]="spectator.droughtCount"
+        />
+    </div>
+    <ng-template #player>
+        <app-layout-one class="game" *ngIf="soloClientRoom.detectingOCR$ | async; else default"
         [level]="null"
         [lines]="null"
         [score]="null"
@@ -10,6 +27,7 @@
         [showAccuracy]="showAnalysis"
         [keybinds]="OCR_INSTRUCTIONS"
     />
+    </ng-template>
     <ng-template #default>
         <app-layout-one class="game" *ngIf="(platform.getGameDataWithoutBoard$() | async) as data"
             [canvasBoard]="platform.gameBoard$"

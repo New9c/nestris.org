@@ -78,6 +78,7 @@ import { SetStartingTrophiesRoute } from './src/routes/user/set-starting-trophie
 import { registerSRBots } from './src/bot/sr-bots';
 import { runBotSimulations, simulateBot, simulateBotAveraged, testBotHyperparameters } from './src/bot/simulate-bot';
 import { AIConfig } from './src/bot/placement-ai';
+import { SpectateRoomRoute } from './src/routes/room/spectate-room-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -196,6 +197,7 @@ async function main() {
   routes.registerRoute(SetStartingTrophiesRoute);
   routes.registerRoute(EnterRankedQueueRoute);
   routes.registerRoute(LeaveRankedQueueRoute);
+  routes.registerRoute(SpectateRoomRoute);
   routes.registerRoute(GetUsernamesListRoute);
   routes.registerRoute(GetInvitationsRoute);
   routes.registerRoute(RemoveFriendRoute);

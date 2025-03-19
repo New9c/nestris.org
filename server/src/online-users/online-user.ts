@@ -75,7 +75,7 @@ export class BotOnlineUserSession extends OnlineUserSession {
         // Don't log binary messages to reduce log spam
         if (message instanceof Uint8Array) this.bot.onBinaryMessageFromServer(message);
         else {
-            console.log(`Sending message to bot ${this.bot.username}: ${JSON.stringify(message)}`);
+            //console.log(`Sending message to bot ${this.bot.username}: ${JSON.stringify(message)}`);
             this.bot.onJsonMessageFromServer(message);
         }
     }
