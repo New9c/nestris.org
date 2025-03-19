@@ -16,8 +16,6 @@ export class SoloRoom extends Room<SoloRoomState> {
 
     private player: GamePlayer;
     
-    private syncedSpectatorSessionIDs = new Set<string>();
-
     /**
      * Creates a new SoloRoom for the single player with the given playerSessionID
      * @param playerSessionID The playerSessionID of the player in the room
@@ -80,23 +78,8 @@ export class SoloRoom extends Room<SoloRoomState> {
      */
     protected async onPlayerSendBinaryMessage(sessionID: string, message: PacketDisassembler): Promise<void> {
 
-        const nonSyncedSpectatorSessionIDs = this.spectatorSessionIDs.filter(sessionID => !this.syncedSpectatorSessionIDs.has(sessionID));
-
-        if (nonSyncedSpectatorSessionIDs.length > 0) {
-
-            // If mid-game, send recovery packet to all non-synced spectators
-            if (this.player.isInGame()) {
-                const recoveryPacket = this.player.getRecoveryPacket()!;
-
-                nonSyncedSpectatorSessionIDs.forEach(sessionID => {
-                    Room.Users.sendToUserSession(sessionID, recoveryPacket);
-                    console.log(`Sent recovery packet to sync session ${sessionID} mid-game in room ${this.id}`);
-                });
-            }
-
-            // Mark all the previously non-synced spectator session IDs as synced
-            nonSyncedSpectatorSessionIDs.forEach(sessionID => this.syncedSpectatorSessionIDs.add(sessionID));
-        }
+        // Send recovery packets to any spectators that just joined
+        this.player.handleSyncingSpectators(this.spectatorSessionIDs, 0);
 
         // Resend message to all other players in the room
         this.sendToAllExcept(sessionID, PacketAssembler.encodeIndexFromPacketDisassembler(message, 0));

@@ -102,6 +102,8 @@ export class GamePlayer {
 
     private topoutScore: number | null = null;
 
+    private syncedSpectatorSessionIDs = new Set<string>();
+
     constructor(
         private readonly Users: OnlineUserManager,
         public readonly userid: string,
@@ -376,6 +378,30 @@ export class GamePlayer {
         }
     }
 
+    /**
+     * Sync any spectators that just joined mid-game by sending a recovery packet for current game state
+     * @param allSpectatorSessionIDs 
+     */
+    handleSyncingSpectators(allSpectatorSessionIDs: string[], playerIndex: number) {
+        const nonSyncedSpectatorSessionIDs = allSpectatorSessionIDs.filter(sessionID => !this.syncedSpectatorSessionIDs.has(sessionID));
+        
+        if (nonSyncedSpectatorSessionIDs.length === 0) return;
+
+        // If mid-game, send recovery packet to all non-synced spectators
+        if (this.isInGame()) {
+            const recoveryPacket = this.getRecoveryPacket(playerIndex)!;
+
+            nonSyncedSpectatorSessionIDs.forEach(sessionID => {
+                this.Users.sendToUserSession(sessionID, recoveryPacket);
+                console.log(`Sent recovery packet to sync session ${sessionID} for ${this.username}'s game`);
+            });
+        }
+
+        // Mark all the previously non-synced spectator session IDs as synced
+        nonSyncedSpectatorSessionIDs.forEach(sessionID => this.syncedSpectatorSessionIDs.add(sessionID));
+        
+    }
+
     isInGame() {
         return this.gameState !== null;
     }
@@ -383,7 +409,7 @@ export class GamePlayer {
     /**
      * Get recovery message for current game state to be sent to a user in the room
      */
-    getRecoveryPacket(playerIndex: number = 0) {
+    getRecoveryPacket(playerIndex: number) {
         if (this.gameState === null) return null;
 
         const recoveryMessage = new PacketAssembler();

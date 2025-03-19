@@ -164,6 +164,9 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         const playerIndex = this.getPlayerIndex(sessionID);
         const player = this.gamePlayers[playerIndex];
 
+        // Send recovery packets to any spectators that just joined
+        player.handleSyncingSpectators(this.spectatorSessionIDs, playerIndex);
+
         // Resend message to all other players in the room, prefixing with the player index
         this.sendToAllExcept(sessionID, PacketAssembler.encodeIndexFromPacketDisassembler(message, playerIndex));
 
