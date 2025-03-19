@@ -12,6 +12,13 @@
     padding-inline: 5px;
 }
 
+.bot {
+    display: block;
+    margin: 0;
+    padding: 0;
+    margin-left: 5px;
+}
+
 @media screen and (max-width: 1150px) {
     .modal {
         zoom: 0.8;

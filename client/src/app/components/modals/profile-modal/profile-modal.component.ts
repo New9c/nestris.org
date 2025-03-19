@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { MeService } from 'src/app/services/state/me.service';
-import { DBUser, DBUserWithOnlineStatus } from 'src/app/shared/models/db-user';
+import { DBUser, DBUserWithOnlineStatus, LoginMethod } from 'src/app/shared/models/db-user';
 import { League, LEAGUE_NAMES, leagueColor, previousLeague } from 'src/app/shared/nestris-org/league-system';
 import { ALL_QUEST_IDS, getQuest, getQuestStatus, QUEST_COLORS, QUEST_DIFFICULTY_ORDER, QuestCategory, QuestID } from 'src/app/shared/nestris-org/quest-system';
 import { QuestListModalConfig } from '../quest-list-modal/quest-list-modal.component';
@@ -44,6 +44,7 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
   readonly ActivityType = ActivityType;
   readonly abs = Math.abs;
   readonly numberWithCommas = numberWithCommas;
+  readonly LoginMethod = LoginMethod;
 
   readonly dateString = (date: Date) => date.toLocaleDateString("en-US", {
     year: "numeric",

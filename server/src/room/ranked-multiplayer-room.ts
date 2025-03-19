@@ -1,5 +1,5 @@
 import { UserSessionID } from "../online-users/online-user";
-import { MultiplayerRoomState, PlayerIndex, TrophyDelta, XPDelta } from "../../shared/room/multiplayer-room-models";
+import { bothPlayerIndicies, MultiplayerRoomState, PlayerIndex, TrophyDelta, XPDelta } from "../../shared/room/multiplayer-room-models";
 import { MultiplayerRoom } from "./multiplayer-room";
 import { v4 as uuid } from 'uuid';
 import { DBRankedMatchEndEvent, DBUserObject } from "../database/db-objects/db-user";
@@ -7,12 +7,10 @@ import { RoomError } from "../online-users/event-consumers/room-consumer";
 import { EventConsumerManager } from "../online-users/event-consumer";
 import { GlobalStatConsumer } from "../online-users/event-consumers/global-stat-consumer";
 import { QuestConsumer } from "../online-users/event-consumers/quest-consumer";
-import { QuestCategory, QuestID } from "../../shared/nestris-org/quest-system";
 import { TrophyChangeMessage } from "../../shared/network/json-message";
 import { ActivityConsumer } from "../online-users/event-consumers/activity-consumer";
 import { ActivityType } from "../../shared/models/activity";
 import { Platform } from "../../shared/models/platform";
-
 
 export class RankedMultiplayerRoom extends MultiplayerRoom {
 
@@ -100,14 +98,8 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
     }
 
     /**
-     * On creating the ranked multiplayer room, add match to the database
+     * On creating the ranked multiplayer room
      */
     protected override async onCreate(): Promise<void> {
-
-        const  { userid: player1UserID, trophies: player1Trophies } = this.getRoomState().players[PlayerIndex.PLAYER_1];
-        const  { userid: player2UserID, trophies: player2Trophies } = this.getRoomState().players[PlayerIndex.PLAYER_2];
-
-        // TODO: Add match to database
-        
     }
 }
