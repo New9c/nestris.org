@@ -16,14 +16,17 @@
 
         <ng-container>
 
-            <app-solid-button icon="./assets/img/tab-icons/profile.svg" [color]="ButtonColor.GREY" tooltip="View profile" (smartClick)="viewProfile()"/>
+            <app-solid-button icon="./assets/img/button-icons/eye.svg" [color]="ButtonColor.GREY" tooltipDirection="right"
+                [disabled]="!(friendInfo.activity ? spectateActivities[friendInfo.activity].canSpectate : false)"
+                [tooltip]="friendInfo.activity ? spectateActivities[friendInfo.activity].tooltip : noActivityTooltip"
+                [action]="spectate.bind(this)"
+            />
 
-            <app-solid-button icon="./assets/img/button-icons/eye.svg" [color]="ButtonColor.GREY" [disabled]="true" tooltip="Coming soon!"
-                />
+                <app-solid-button icon="./assets/img/tab-icons/profile.svg" [color]="ButtonColor.GREY" tooltip="View profile" tooltipDirection="right" (smartClick)="viewProfile()"/>
                     
             <!-- <app-solid-button icon="./assets/img/button-icons/challenge.svg" [color]="ButtonColor.GREY" [disabled]="true" tooltip="Coming soon!"
                 /> -->
-            <app-solid-button icon="./assets/img/puzzle-button-icons/delete.svg" class="delete" [color]="ButtonColor.GREY" (smartClick)="endFriendship()" tooltip="Remove friend" />
+            <app-solid-button icon="./assets/img/puzzle-button-icons/delete.svg" class="delete" [color]="ButtonColor.GREY" (smartClick)="endFriendship()" tooltip="Remove friend" tooltipDirection="right" />
         </ng-container>
         
         

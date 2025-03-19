@@ -79,6 +79,7 @@ import { registerSRBots } from './src/bot/sr-bots';
 import { runBotSimulations, simulateBot, simulateBotAveraged, testBotHyperparameters } from './src/bot/simulate-bot';
 import { AIConfig } from './src/bot/placement-ai';
 import { SpectateRoomRoute } from './src/routes/room/spectate-room-route';
+import { SpectateRoomOfUserRoute } from './src/routes/room/spectate-room-of-user-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -198,6 +199,7 @@ async function main() {
   routes.registerRoute(EnterRankedQueueRoute);
   routes.registerRoute(LeaveRankedQueueRoute);
   routes.registerRoute(SpectateRoomRoute);
+  routes.registerRoute(SpectateRoomOfUserRoute);
   routes.registerRoute(GetUsernamesListRoute);
   routes.registerRoute(GetInvitationsRoute);
   routes.registerRoute(RemoveFriendRoute);
