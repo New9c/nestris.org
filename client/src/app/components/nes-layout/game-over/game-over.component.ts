@@ -25,7 +25,7 @@ export class GameOverComponent implements OnChanges {
     const me = this.meService.getSync();
 
     this.gamepadSubscription = this.gamepadService.onPress().subscribe(key => {
-      if (this.mode && me && key === me.keybind_emu_start) this.clickNext.emit();
+      if (this.mode && me && key === me.keybind_emu_start) this.goClickNext();
     });
   }
 
@@ -61,6 +61,10 @@ export class GameOverComponent implements OnChanges {
     return 'NEXT';
   }
 
+  goClickNext() {
+    if (this.showNext) this.clickNext.emit();
+  }
+
 
   // Pressing "space" or "enter" should also trigger the next button
   @HostListener('document:keydown', ['$event'])
@@ -72,11 +76,13 @@ export class GameOverComponent implements OnChanges {
     const me = this.meService.getSync();
     if (!me) return;
 
+    if (!this.showNext) return;
+
     if (this.mode && (event.key === me.keybind_emu_start) && !this.alreadyClicked) {
       console.log('click game over');
       event.preventDefault();
       event.stopImmediatePropagation();
-      this.clickNext.emit();
+      this.goClickNext();
       this.alreadyClicked = true;
     }
   }

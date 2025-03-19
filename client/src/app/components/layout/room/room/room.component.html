@@ -7,7 +7,7 @@
 
 <ng-container *ngIf="roomType$ | async as roomType">
     <app-chat *ngIf="roomChatTypes.includes(roomType)"
-        [disabledMessage]="(roomService.getRoomInfo$() | async) ? undefined : 'All players have left the room'"
+        [disabledMessage]="roomType === RoomType.MULTIPLAYER && (this.spectating$ | async) ? 'Spectator chat disabled' : ((roomService.getRoomInfo$() | async) ? undefined : 'All players have left the room')"
         [messages]="(roomService.getMessages$() | async) ?? []"
         [numSpectators]="(roomService.getNumSpectators$() | async) ?? 0"
         (sendMessage)="sendChatMessage($event)"

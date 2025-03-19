@@ -170,10 +170,10 @@ export class MultiplayerClientRoom extends ClientRoom {
     }
 
     /**
-     * Sent to show the after match modal
+     * Sent to show the after match modal, if not speectator
      */
     public showAfterMatchModal() {
-        this.modal$.next(RoomModal.MULTIPLAYER_AFTER_MATCH);
+        if (this.myIndex !== null) this.modal$.next(RoomModal.MULTIPLAYER_AFTER_MATCH);
     }
 
     public showingAfterMatchModal(): boolean {

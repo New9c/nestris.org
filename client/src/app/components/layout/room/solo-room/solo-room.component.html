@@ -52,9 +52,11 @@
 </div>
 <div class="right">
     
-    <app-xp-status />
+    <app-xp-status *ngIf="soloClientRoom.status !== InRoomStatus.SPECTATOR" />
 
-    <div class="previous-games-panel fade" [ngClass]="{'seven-digit': hasSevenDigits(previousGames$ | async)}">
+    <div class="previous-games-panel fade" [ngClass]="{'seven-digit': hasSevenDigits(previousGames$ | async)}"
+        [ngStyle]="{'marginTop' : soloClientRoom.status === InRoomStatus.SPECTATOR ? '10px' : '0'}"
+    >
 
         <div class="previous-game" *ngFor="let game of (previousGames$ | async); trackBy: soloGameHash" [ngClass]="{'expanding-div' : !soloClientRoom.isOriginalGame(game.gameID)}">
             <div class="score-container"><p class="score">{{padScore(game.score)}}</p></div>

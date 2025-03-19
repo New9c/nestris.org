@@ -31,6 +31,8 @@ export class RoomComponent implements OnInit, OnDestroy {
   private gameDataSubscription?: Subscription;
   public roomType$ = new BehaviorSubject<RoomType | null>(null);
 
+  public spectating$ = new BehaviorSubject<boolean>(false);
+
   public roomChatTypes: RoomType[] = [
     RoomType.MULTIPLAYER,
     RoomType.SOLO
@@ -73,8 +75,10 @@ export class RoomComponent implements OnInit, OnDestroy {
         const sessionID = this.websocketService.getSessionID();
         const { roomState } = await this.fetchService.fetch<{roomState: RoomState}>(Method.POST, `/api/v2/spectate-room/${roomID}/${sessionID}`);
         
-        if (roomState) this.roomType$.next(roomState.type);
-        else {
+        if (roomState) {
+          this.roomType$.next(roomState.type);
+          this.spectating$.next(true);
+        } else {
           this.notificationService.notify(NotificationType.ERROR, "The requested room does not exist");
           this.router.navigate(['/']);
         }

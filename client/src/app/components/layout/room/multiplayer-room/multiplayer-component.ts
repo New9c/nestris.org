@@ -22,6 +22,10 @@ export class MultiplayerComponent {
     return this.multiplayerClientRoom.getMyIndex() === index;
   }
 
+  public isSpectator() {
+    return this.multiplayerClientRoom.getMyIndex() === null;
+  }
+
   /**
    * Blue is always on the left and red is always on the right. PLAYER_1 is on the left and PLAYER_2 is on the right,
    * except when the client is PLAYER_2, in which case the colors are reversed.

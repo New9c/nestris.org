@@ -15,7 +15,7 @@
                     [trt]="myData.trt"
                     [drought]="myData.drought"
                     [countdown]="showBoardText(state, playerIndex, ocrStatus$ | async) ?? myData.countdown"
-                    [gameOverShowNext]="true"
+                    [gameOverShowNext]="!isSpectator()"
                     [gameOver]="getGameOverMode(state, playerIndex)"
                     (clickNext)="clickNext(state)"
                     />
@@ -50,4 +50,4 @@
 
 </div>
 
-<app-xp-status *ngIf="(multiplayerState$ | async)?.ranked" />
+<app-xp-status *ngIf="(multiplayerState$ | async)?.ranked && !isSpectator()" />
