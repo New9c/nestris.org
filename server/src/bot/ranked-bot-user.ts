@@ -224,6 +224,13 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
             // If timeout ran out but just now found match, still continue to match
             if (this.roomStatus === InRoomStatus.PLAYER) return true;
 
+            if (this.queueConsumer.userMatched(this.userid)) {
+                console.log("bot timeout, but about to match so wait");
+                await waitUntilValue(this.roomStatus$, InRoomStatus.PLAYER);
+                console.log("matched after extra wait")
+                return true;
+            }
+
             console.log("No opponent found, exiting queue");
             return false;
         } finally {

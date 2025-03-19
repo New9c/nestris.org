@@ -81,7 +81,7 @@ export class BotUser<Config extends BotConfig = {}> {
         this._username = botUser.username;
 
         // Call the start() hook but don't wait for it to finish
-        console.log(`Bot user ${this.username} with userid ${this.userid} initialized, starting...`);
+        //console.log(`Bot user ${this.username} with userid ${this.userid} initialized, starting...`);
         this.start();
     }
 
@@ -128,7 +128,7 @@ export class BotUser<Config extends BotConfig = {}> {
      * @param message The JSON message to send to the server
      */
     protected sendJsonMessageToServer(message: JsonMessage) {
-        console.log(`Sending message from bot ${this.username} to server: ${JSON.stringify(message)}`);
+        //console.log(`Sending message from bot ${this.username} to server: ${JSON.stringify(message)}`);
         this.users.onBotMessage(this, message);
     }
 
