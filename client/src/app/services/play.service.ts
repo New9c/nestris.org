@@ -10,6 +10,7 @@ import { PlatformInterfaceService } from './platform-interface.service';
 import { RankedQueueService } from './room/ranked-queue.service';
 import { WebsocketService } from './websocket.service';
 import { MeService } from './state/me.service';
+import { RoomService } from './room/room.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,7 @@ export class PlayService {
     private websocketService: WebsocketService,
     private notifier: NotificationService,
     private rankedQueueService: RankedQueueService,
+    private roomService: RoomService,
     private meService: MeService,
     private router: Router,
   ) { }
@@ -78,6 +80,10 @@ export class PlayService {
   }
 
   async playPuzzles() {
+
+    // Leave any existing room
+    this.roomService.leaveRoom();
+
     this.router.navigate(['/online/puzzle'], { 
       queryParams: { mode: 'rated' } 
     });

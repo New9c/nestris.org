@@ -31,6 +31,6 @@ export class SpectateRoomRoute extends PostRoute {
             else throw new RouteError(404, `Currently no ranked multiplayer rooms`);
         }
 
-        return { roomState: await roomConsumer.spectateRoom(roomID, userInfo!.userid, sessionID, isTvMode) };
+        return { id: roomID, roomState: await roomConsumer.spectateRoom(roomID, userInfo!.userid, sessionID, isTvMode) };
     }
 }

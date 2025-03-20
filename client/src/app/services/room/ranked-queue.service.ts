@@ -8,6 +8,7 @@ import { NotificationType } from 'src/app/shared/models/notifications';
 import { Router } from '@angular/router';
 import { PlatformInterfaceService } from '../platform-interface.service';
 import { VideoCaptureService } from '../ocr/video-capture.service';
+import { RoomService } from './room.service';
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +27,7 @@ export class RankedQueueService {
     private notifier: NotificationService,
     private platform: PlatformInterfaceService,
     private videoCapture: VideoCaptureService,
+    private roomService: RoomService,
     private router: Router
   ) {
 
@@ -65,6 +67,9 @@ export class RankedQueueService {
 
     // If already in queue, do nothing
     if (this.isInQueue) return true;
+
+    // Leave any existing room
+    this.roomService.leaveRoom();
 
     // Send a request to join the queue
     const sessionID = this.websocketService.getSessionID();

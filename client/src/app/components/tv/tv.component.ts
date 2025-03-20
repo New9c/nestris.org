@@ -13,12 +13,14 @@ import { WebsocketService } from 'src/app/services/websocket.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TvComponent implements OnDestroy {
-  expanded$ = new BehaviorSubject<boolean>(false);
+  static expanded$ = new BehaviorSubject<boolean>(false);
 
   readonly roomInfo$ = this.roomService.getRoomInfo$();
 
   private loadTVInterval: any;
   private goingToRoom: boolean = false;
+
+  private spectateRoomID: string | null = null;
 
   constructor(
     private readonly roomService: RoomService,
@@ -27,6 +29,10 @@ export class TvComponent implements OnDestroy {
     private readonly router: Router,
   ) {
     this.loadTVInterval = setInterval(() => this.loadTvRoom(), 2000);
+  }
+
+  get expanded$() {
+    return TvComponent.expanded$;
   }
   
   get expanded() {
@@ -48,7 +54,8 @@ export class TvComponent implements OnDestroy {
     if (!this.expanded || this.roomService.getRoomInfo()) return;
 
     try {
-      await this.fetchService.fetch(Method.POST, `/api/v2/spectate-room/tv/${this.websocketService.getSessionID()}`);
+      const { id } = await this.fetchService.fetch<{id: string}>(Method.POST, `/api/v2/spectate-room/tv/${this.websocketService.getSessionID()}`);
+      this.spectateRoomID = id;
     } catch {
       console.log("No tv room found right now");
     }
@@ -73,9 +80,6 @@ export class TvComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.expanded$.next(false);
     clearInterval(this.loadTVInterval);
-    
-    if (this.roomService.getRoomInfo() && !this.goingToRoom) this.roomService.leaveRoom();
   }
 }

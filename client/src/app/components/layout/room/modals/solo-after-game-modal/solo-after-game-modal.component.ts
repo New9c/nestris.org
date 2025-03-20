@@ -25,7 +25,7 @@ import { numberWithCommas } from 'src/app/util/misc';
 })
 export class SoloAfterGameModalComponent implements OnDestroy {
 
-  public soloClientRoom = this.roomService.getClient<SoloClientRoom>();
+  public soloClientRoom = this.roomService.getOldClient<SoloClientRoom>();
 
   // Get the last game summary from the room state
   public summary$ = this.soloClientRoom.getState$<SoloRoomState>().pipe(
