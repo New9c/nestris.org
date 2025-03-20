@@ -399,7 +399,10 @@ export class GamePlayer {
 
         // Mark all the previously non-synced spectator session IDs as synced
         nonSyncedSpectatorSessionIDs.forEach(sessionID => this.syncedSpectatorSessionIDs.add(sessionID));
-        
+    }
+
+    removeSpectator(sessionID: string) {
+        this.syncedSpectatorSessionIDs.delete(sessionID);
     }
 
     isInGame() {

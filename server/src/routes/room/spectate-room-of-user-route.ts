@@ -33,6 +33,6 @@ export class SpectateRoomOfUserRoute extends PostRoute {
         ).map(({ room }) => room!);
         if (userRooms.length === 0) throw new RouteError(400, `Room user id ${roomUserID} is not a player in any room`);
 
-        return { roomState: roomConsumer.spectateRoom(userRooms[0].id, userInfo!.userid, sessionID) };
+        return { roomState: await roomConsumer.spectateRoom(userRooms[0].id, userInfo!.userid, sessionID, false) };
     }
 }

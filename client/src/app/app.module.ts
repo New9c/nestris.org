@@ -114,6 +114,9 @@ import { LockedIconComponent } from './components/ui/locked-icon/locked-icon.com
 import { SelectStartingTrophiesModalComponent } from './components/modals/select-starting-trophies-modal/select-starting-trophies-modal.component';
 import { RangeComponent } from './components/modals/select-starting-trophies-modal/range/range.component';
 import { ClickSoundDirective } from './directives/click-sound.directive';
+import { TvComponent } from './components/tv/tv.component';
+import { TvRoomComponent } from './components/tv/tv-room/tv-room.component';
+import { ExpandComponent } from './components/ui/expand/expand.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -264,6 +267,9 @@ const customNotifierOptions: NotifierOptions = {
     SelectStartingTrophiesModalComponent,
     RangeComponent,
     ClickSoundDirective,
+    TvComponent,
+    TvRoomComponent,
+    ExpandComponent,
   ],
   imports: [
     BrowserModule,

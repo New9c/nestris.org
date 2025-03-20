@@ -1,0 +1,20 @@
+<div class="match-container" *ngIf="(multiplayerState$ | async) as state">
+    <div *ngFor="let playerIndex of bothPlayerIndicies" class="player-container">
+        <div class="player" *ngIf="state.players[playerIndex] as player">
+            <app-game-header [username]="player.username" [trophies]="player.trophies" [rated]="true" />
+            <app-layout-one *ngIf="(multiplayerClientRoom.getSnapshotForPlayer$(playerIndex) | async) as playerData"
+            [canvasBoard]="multiplayerClientRoom.getBoardForPlayer$(playerIndex)"
+            [nextType]="playerData.next"
+            [level]="state.status === MultiplayerRoomStatus.BEFORE_GAME ? state.startLevel : playerData.level"
+            [lines]="playerData.lines"
+            [score]="playerData.score"
+            [trt]="playerData.tetrisRate"
+            [drought]="playerData.droughtCount"
+            [countdown]="showBoardText(state, playerIndex) ?? playerData.countdown"
+            [gameOverShowNext]="false"
+            [gameOver]="getGameOverMode(state, playerIndex)"
+            [dimmed]="player.leftRoom"
+            />     
+        </div>
+    </div>
+</div>

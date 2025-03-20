@@ -1,0 +1,126 @@
+@import "../../../styles.scss";
+
+:host {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    pointer-events: none;
+}
+
+.fab {
+    pointer-events: auto;
+
+    position: absolute;
+    right: 20px;
+    bottom: 90px;
+
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25), 
+              0px 2px 4px rgba(0, 0, 0, 0.15);
+
+    z-index: 10;
+    transition: all 0.2s;
+}
+
+.fab.collapsed {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background-color: #2F3033;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fab.collapsed:hover {
+    filter: brightness(1.1);
+    transform: scale(1.03);
+}
+
+.fab.collapsed:active {
+    filter: brightness(1.15);
+    transform: scale(1.04);
+}
+
+.fab.expanded.no-room {
+    cursor: auto;
+}
+
+img.tv {
+    margin: 0;
+    padding: 0;
+    display: block;
+}
+
+.fab.expanded {
+    width: 260px;
+    height: 165px;
+    border-radius: 10px;
+    background-color: $dark-color;
+
+    bottom: 20px;
+}
+
+.fab.expanded img.tv {
+    display: none;
+}
+
+.header {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 34px;
+}
+
+.header h1 {
+    font-family: $main-font;
+    font-size: 12px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+}
+
+.tv-container {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.no-room-found {
+    width: 100%;
+    flex-grow: 1;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.no-room-found p {
+    font-family: $main-font;
+    font-size: 11px;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+}
+
+app-x {
+    position: absolute;
+    right: -5px;
+    top: -5px;
+}
+
+app-expand {
+    position: absolute;
+    left: -5px;
+    top: -5px;
+}

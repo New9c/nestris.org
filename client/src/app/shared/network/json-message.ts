@@ -158,7 +158,8 @@ export class InRoomStatusMessage extends JsonMessage {
     constructor(
         public readonly status: InRoomStatus,
         public readonly roomInfo: RoomInfo | null,
-        public readonly roomState: RoomState | null
+        public readonly roomState: RoomState | null,
+        public readonly isTVMode: boolean = false,
     ) {
         super(JsonMessageType.IN_ROOM_STATUS)
     }

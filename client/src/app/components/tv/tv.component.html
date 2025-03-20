@@ -1,0 +1,19 @@
+<button class="fab" appClickSound [clickSoundDisabled]="!!(expanded$ | async) && !(roomInfo$ | async)" (click)="onClick()" [ngClass]="[(expanded$ | async) ? 'expanded' : 'collapsed', (roomInfo$ | async) ? 'has-room' : 'no-room']">
+    <img class="tv" src="./assets/img/button-icons/tv.svg" width="23px">
+
+    <div *ngIf="expanded$ | async" class="tv-container">
+        <app-expand *ngIf="roomInfo$ | async" (clickExpand)="onClickExpand($event)" />
+        <app-x (clickX)="onClickX($event)" />
+
+        <div class="header">
+            <h1>Featured live match</h1>
+        </div>
+
+        <app-tv-room *ngIf="roomInfo$ | async" />
+        <div *ngIf="!(roomInfo$ | async)" class="no-room-found">
+            <p>Waiting for a match...</p>
+        </div>
+    </div>
+    
+
+</button>

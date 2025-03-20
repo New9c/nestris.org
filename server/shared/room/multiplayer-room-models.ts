@@ -6,7 +6,9 @@ export enum PlayerIndex {
     PLAYER_2 = 1,
     DRAW = 2,
 }
+
 export const bothPlayerIndicies: (PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2)[] = [PlayerIndex.PLAYER_1, PlayerIndex.PLAYER_2];
+
 
 export interface GameInfo {
     gameID: string;

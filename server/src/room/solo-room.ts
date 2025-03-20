@@ -97,4 +97,8 @@ export class SoloRoom extends Room<SoloRoomState> {
     protected override async onDelete(): Promise<void> {
         await this.player.onDelete();
     }
+
+    protected override async onSpectatorLeave(sessionID: string): Promise<void> {
+        this.player.removeSpectator(sessionID);
+    }
 }

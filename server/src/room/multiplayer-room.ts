@@ -3,7 +3,7 @@ import { PacketDisassembler } from "../../shared/network/stream-packets/packet-d
 import { ClientRoomEvent, RoomType } from "../../shared/room/room-models";
 import { Room } from "../online-users/event-consumers/room-consumer";
 import { UserSessionID } from "../online-users/online-user";
-import { calculateScoreForPlayer, MatchPoint, MultiplayerRoomEventType, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex, PlayerInfo, TrophyDelta } from "../../shared/room/multiplayer-room-models";
+import { bothPlayerIndicies, calculateScoreForPlayer, MatchPoint, MultiplayerRoomEventType, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex, PlayerInfo, TrophyDelta } from "../../shared/room/multiplayer-room-models";
 import { GameEndEvent, GamePlayer, GameStartEvent } from "./game-player";
 import { GymRNG } from "../../shared/tetris/piece-sequence-generation/gym-rng";
 import { DBUserObject } from "../database/db-objects/db-user";
@@ -326,6 +326,10 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
     public getOpponentTopoutScore(sessionID: string): number | null {
         const opponentIndex = this.getOtherPlayerIndex(this.getPlayerIndex(sessionID));
         return this.gamePlayers[opponentIndex].getTopoutScore();
+    }
+
+    protected override async onSpectatorLeave(sessionID: string): Promise<void> {
+        bothPlayerIndicies.forEach(playerIndex => this.gamePlayers[playerIndex].removeSpectator(sessionID));
     }
 
 }

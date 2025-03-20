@@ -12,5 +12,5 @@ Grey by default; red when hovered
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class XComponent {
-  @Output() clickX = new EventEmitter();
+  @Output() clickX = new EventEmitter<MouseEvent>();
 }

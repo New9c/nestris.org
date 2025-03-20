@@ -3,11 +3,13 @@ import { OnSessionBinaryMessageEvent, OnSessionDisconnectEvent, OnSessionJsonMes
 import { PacketDisassembler } from "../../../shared/network/stream-packets/packet-disassembler";
 import { ChatMessage, ClientRoomEventMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, RoomStateUpdateMessage, SendPushNotificationMessage, SpectatorCountMessage } from "../../../shared/network/json-message";
 import { OnlineUserManager } from "../online-user-manager";
-import { ClientRoomEvent, RoomInfo, RoomState } from "../../../shared/room/room-models";
+import { ClientRoomEvent, RoomInfo, RoomState, RoomType } from "../../../shared/room/room-models";
 import { v4 as uuid } from 'uuid';
 import { NotificationType } from "../../../shared/models/notifications";
 import { UserSessionID } from "../online-user";
 import { OnlineUserActivityType } from "../../../shared/models/online-activity";
+import { bothPlayerIndicies, MultiplayerRoomState } from "../../../shared/room/multiplayer-room-models";
+import { average } from "../../../shared/scripts/math";
 
 export class RoomError extends Error {
     constructor(message: string) {
@@ -289,6 +291,9 @@ export abstract class Room<T extends RoomState = RoomState> {
      */
     protected async onPlayerLeave(userid: string, sessionID: string): Promise<void> {}
 
+    protected async onSpectatorJoin(sessionID: string): Promise<void> {}
+    protected async onSpectatorLeave(sessionID: string): Promise<void> {}
+
 
 
     // ======================== METHODS ONLY CALLED BY RoomConsumer ========================
@@ -343,13 +348,16 @@ export abstract class Room<T extends RoomState = RoomState> {
      * ROOM_PRESENCE message received from the client.
      * @param sessionID The session id of the spectator to add
      */
-    public async _addSpectator(sessionID: string) {
+    public async _addSpectator(sessionID: string, isTVMode: boolean) {
 
         // Add the spectator to the list of spectators
         this.spectators.push(new RoomSpectator(sessionID));
 
+        // Call spectator join hook
+        await this.onSpectatorJoin(sessionID);
+
         // Send a IN_ROOM_STATUS message to the spectator to indicate that they are a spectator in the room
-        Room.Users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.SPECTATOR, this.roomInfo, this.roomState));
+        Room.Users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.SPECTATOR, this.roomInfo, this.roomState, isTVMode));
 
         // Update the spectator count for all players in the room
         this.sendToAll(new SpectatorCountMessage(this.spectators.length));
@@ -367,6 +375,9 @@ export abstract class Room<T extends RoomState = RoomState> {
         const index = this.spectators.findIndex(spectator => spectator.sessionID === sessionID);
         if (index === -1) throw new RoomError(`Session ${sessionID} is not a spectator in room ${this.id}`);
         this.spectators.splice(index, 1);
+
+        // Call spectator leave hook
+        await this.onSpectatorLeave(sessionID);
 
         // Update the spectator count for all players in the room
         this.sendToAll(new SpectatorCountMessage(this.spectators.length));
@@ -464,6 +475,37 @@ export class RoomConsumer extends EventConsumer {
         return this.rooms.get(roomID);
     }
 
+
+    /**
+     * Returns the best ranked multiplayer room, or undefined if does not exist
+     */
+    public getTVRoom(): Room | undefined {
+
+        const rankedRooms = Array.from(
+            this.rooms.values()
+        ).filter(
+            room => (
+                room.getRoomState().type === RoomType.MULTIPLAYER
+                &&
+                (room.getRoomState() as MultiplayerRoomState).ranked
+            )
+        );
+
+        const getAverageTrophies = (room: Room) => average(
+            bothPlayerIndicies.map(
+                playerIndex => (room.getRoomState() as MultiplayerRoomState).players[playerIndex].trophies
+            )
+        );
+
+        let bestRoom: Room | undefined = undefined;
+        for (let room of rankedRooms) {
+            if (bestRoom === undefined || getAverageTrophies(room) > getAverageTrophies(bestRoom)) {
+                bestRoom = room;
+            }
+        }
+        return bestRoom;
+    }
+
     /**
      * Handles binary messages received from the client.
      * @param event The event containing the session id and the binary message.
@@ -488,7 +530,7 @@ export class RoomConsumer extends EventConsumer {
      * @param sessionID session of spectator
      * @returns The state of the room if successful, and null if not
      */
-    public spectateRoom(roomID: string, userid: string, sessionID: string): RoomState | null {
+    public async spectateRoom(roomID: string, userid: string, sessionID: string, isTVMode: boolean): Promise<RoomState | null> {
 
         const spectateRoom = this.getRoomByRoomID(roomID);
 
@@ -505,7 +547,7 @@ export class RoomConsumer extends EventConsumer {
         this.sessions.set(sessionID, spectateRoom.id);
 
         // Add spectator to room
-        spectateRoom._addSpectator(sessionID);
+        await spectateRoom._addSpectator(sessionID, isTVMode);
 
         return spectateRoom.getRoomState();
     }

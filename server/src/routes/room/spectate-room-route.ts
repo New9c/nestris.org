@@ -5,6 +5,7 @@ import { PostRoute, RouteError, UserInfo } from "../route";
 
 /**
  * Route for spectating a room
+ * Special route has :roomid = tv, meaning it will find best match
  */
 export class SpectateRoomRoute extends PostRoute {
     route = "/api/v2/spectate-room/:roomid/:sessionid";
@@ -12,7 +13,7 @@ export class SpectateRoomRoute extends PostRoute {
 
     override async post(userInfo: UserInfo | undefined, pathParams: any) {
         
-        const roomID = pathParams.roomid as string;
+        let roomID = pathParams.roomid as string;
         const sessionID = pathParams.sessionid as string;
 
         // Make sure sessionID corresponds to the user
@@ -23,6 +24,13 @@ export class SpectateRoomRoute extends PostRoute {
         }
 
         const roomConsumer = EventConsumerManager.getInstance().getConsumer(RoomConsumer);
-        return { roomState: roomConsumer.spectateRoom(roomID, userInfo!.userid, sessionID) };
+        const isTvMode = roomID === 'tv';
+        if (isTvMode) {
+            const bestRoom = roomConsumer.getTVRoom();
+            if (bestRoom) roomID = bestRoom.getRoomInfo().id;
+            else throw new RouteError(404, `Currently no ranked multiplayer rooms`);
+        }
+
+        return { roomState: await roomConsumer.spectateRoom(roomID, userInfo!.userid, sessionID, isTvMode) };
     }
 }

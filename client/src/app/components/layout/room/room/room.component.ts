@@ -10,6 +10,8 @@ import { FetchService, Method } from 'src/app/services/fetch.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { SoundEffect, SoundService } from 'src/app/services/sound.service';
+import { MultiplayerRoomState } from 'src/app/shared/room/multiplayer-room-models';
+import { InRoomStatus } from 'src/app/shared/network/json-message';
 
 export enum RoomModal {
   SOLO_BEFORE_GAME = 'SOLO_BEFORE_GAME',
@@ -63,6 +65,7 @@ export class RoomComponent implements OnInit, OnDestroy {
 
     const roomType = this.roomService.getRoomType();
     this.roomType$.next(roomType);
+
     console.log('Room type:', roomType);
 
     // If not in room, redirect to home
@@ -87,6 +90,8 @@ export class RoomComponent implements OnInit, OnDestroy {
         // Otherwise, user probably accidentally navigated to empty room url. go back home
         this.router.navigate(['/']);
       }      
+    } else {
+      if (this.roomService.getClient().status === InRoomStatus.SPECTATOR) this.spectating$.next(true);
     }
   }
 

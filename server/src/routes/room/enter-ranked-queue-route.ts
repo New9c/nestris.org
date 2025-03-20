@@ -51,6 +51,7 @@ export class EnterRankedQueueRoute extends PostRoute {
 
         try {
             // Join the ranked queue
+            await EventConsumerManager.getInstance().getConsumer(RoomConsumer).freeSession(userInfo!.userid, sessionID);
             await EventConsumerManager.getInstance().getConsumer(RankedQueueConsumer).joinRankedQueue(sessionID, platform);
 
         } catch (error) {

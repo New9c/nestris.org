@@ -56,37 +56,6 @@ export class MultiplayerRoomComponent extends MultiplayerComponent {
     return undefined;
   }
 
-  getGameOverMode(state: MultiplayerRoomState, index: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2): GameOverMode | undefined {
-
-    if (this.multiplayerClientRoom.showingAfterMatchModal()) return undefined;
-
-    if (state.status === MultiplayerRoomStatus.BEFORE_GAME) {
-
-      // if before first game, show ready
-      if (state.lastGameWinner === null) {
-        if (this.isMyIndex(index)) return state.ready[index] ? undefined : GameOverMode.READY;
-        return undefined;
-
-      } else if (state.ready[index]) { // If player is ready after a game, do not show game over mode
-        return undefined;
-
-      } else { // If not ready after a game, show win/lose/tie
-
-        if (state.lastGameWinner === index) return GameOverMode.WIN;
-        if (state.lastGameWinner === PlayerIndex.DRAW) return GameOverMode.TIE;
-        return GameOverMode.LOSE;
-      }
-    }
-
-    else if (state.status === MultiplayerRoomStatus.AFTER_MATCH) {
-      if (state.matchWinner === index) return GameOverMode.WIN;
-      if (state.matchWinner === PlayerIndex.DRAW) return GameOverMode.TIE;
-      return GameOverMode.LOSE;
-    }
-
-    return undefined;
-  }
-
   clickNext(state: MultiplayerRoomState) {
     if (state.status === MultiplayerRoomStatus.BEFORE_GAME) {
       console.log('Ready for next game');

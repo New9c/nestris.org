@@ -23,8 +23,10 @@ export class CreateSoloRoomRoute extends PostRoute {
         
         // Create a solo room
         try {
+            const roomConsumer = EventConsumerManager.getInstance().getConsumer(RoomConsumer);
+            await roomConsumer.freeSession(userInfo!.userid, sessionID);
             const soloRoom = new SoloRoom({userid: userInfo!.userid, sessionID: sessionID});
-            await EventConsumerManager.getInstance().getConsumer(RoomConsumer).createRoom(soloRoom);
+            roomConsumer.createRoom(soloRoom);
         } catch (error: any) {
             if (error instanceof RoomAbortError) {
                 throw new RouteError(404, `Unable to create room for ${error.name}: ${error.message}`);
