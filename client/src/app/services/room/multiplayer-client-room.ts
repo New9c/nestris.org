@@ -18,6 +18,7 @@ import { OCRConfig } from "src/app/ocr/state-machine/ocr-state-machine";
 import { Platform } from "src/app/shared/models/platform";
 import { OCRStateID } from "src/app/ocr/state-machine/ocr-states/ocr-state-id";
 import { InRoomStatusMessage } from "src/app/shared/network/json-message";
+import { RoomService } from "./room.service";
 
 export enum OCRStatus {
     NOT_OCR,
@@ -45,7 +46,7 @@ export class MultiplayerClientRoom extends ClientRoom {
     private ocrStatus$ = new BehaviorSubject<OCRStatus>(OCRStatus.NOT_OCR);
 
     public override async init(event: InRoomStatusMessage): Promise<void> {
-            const state = event.roomState as MultiplayerRoomState;
+        const state = event.roomState as MultiplayerRoomState;
 
         // Reset game data
         this.platform.updateGameData({

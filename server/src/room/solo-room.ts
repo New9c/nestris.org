@@ -9,7 +9,7 @@ import { DBSoloGamesListAddEvent, DBSoloGamesListView } from "../database/db-vie
 import { Room } from "../online-users/event-consumers/room-consumer";
 import { UserSessionID } from "../online-users/online-user";
 import { GameEndEvent, GamePlayer, GameStartEvent } from "./game-player";
-import { GameRecoveryPacket } from "../../shared/network/stream-packets/packet";
+import { PlayerIndex } from "../../shared/room/multiplayer-room-models";
 
 
 export class SoloRoom extends Room<SoloRoomState> {
@@ -28,7 +28,7 @@ export class SoloRoom extends Room<SoloRoomState> {
 
         const username = SoloRoom.Users.getUserInfo(playerSessionID.userid)!.username;
 
-        this.player = new GamePlayer(SoloRoom.Users, playerSessionID.userid, username, playerSessionID.sessionID, DBGameType.SOLO, soloXPStrategy);
+        this.player = new GamePlayer(SoloRoom.Users, PlayerIndex.PLAYER_1, playerSessionID.userid, username, playerSessionID.sessionID, DBGameType.SOLO, soloXPStrategy);
         
         // Handle solo-room-specific behavior when the game starts
         this.player.onGameStart$().subscribe(async (event: GameStartEvent) => {
@@ -78,9 +78,6 @@ export class SoloRoom extends Room<SoloRoomState> {
      */
     protected async onPlayerSendBinaryMessage(sessionID: string, message: PacketDisassembler): Promise<void> {
 
-        // Send recovery packets to any spectators that just joined
-        this.player.handleSyncingSpectators(this.spectatorSessionIDs, 0);
-
         // Resend message to all other players in the room
         this.sendToAllExcept(sessionID, PacketAssembler.encodeIndexFromPacketDisassembler(message, 0));
 
@@ -98,7 +95,11 @@ export class SoloRoom extends Room<SoloRoomState> {
         await this.player.onDelete();
     }
 
-    protected override async onSpectatorLeave(sessionID: string): Promise<void> {
-        this.player.removeSpectator(sessionID);
-    }
+    /**
+         * When spectator joins, send recovery packet to get spectator up-to-date on game state
+         * @param sessionID SessionID of spectator
+         */
+        protected override async onSpectatorJoin(sessionID: string): Promise<void> {
+            this.player.onSpectatorJoin(sessionID);
+        }
 }

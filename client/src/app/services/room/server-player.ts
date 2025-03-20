@@ -71,9 +71,14 @@ export class ServerPlayer {
         const gameRecovery = packet.content as GameRecoverySchema;
 
         // Spectators that join mid-game will be sent a recovery packet
-        if (!this.state) this.state = GameState.fromRecovery(gameRecovery);
-
-        else this.state.onRecovery(gameRecovery);
+        if (!this.state) {
+          this.state = GameState.fromRecovery(gameRecovery);
+          console.log("game recovery for server player, create new state");
+        }
+        else {
+          this.state.onRecovery(gameRecovery);
+          console.log("game recovery for server player, update existing state");
+        }
 
       } else if (packet.opcode === PacketOpcode.GAME_FULL_STATE) {
         const fullState = packet.content as GameFullStateSchema;

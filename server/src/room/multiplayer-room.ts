@@ -50,8 +50,8 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         const player1Username = MultiplayerRoom.Users.getUserInfo(player1SessionID.userid)!.username;
         const player2Username = MultiplayerRoom.Users.getUserInfo(player2SessionID.userid)!.username;
         this.gamePlayers = {
-            [PlayerIndex.PLAYER_1]: new GamePlayer(MultiplayerRoom.Users, player1SessionID.userid, player1Username, player1SessionID.sessionID, DBGameType.RANKED_MATCH),
-            [PlayerIndex.PLAYER_2]: new GamePlayer(MultiplayerRoom.Users, player2SessionID.userid, player2Username, player2SessionID.sessionID, DBGameType.RANKED_MATCH),
+            [PlayerIndex.PLAYER_1]: new GamePlayer(MultiplayerRoom.Users, PlayerIndex.PLAYER_1, player1SessionID.userid, player1Username, player1SessionID.sessionID, DBGameType.RANKED_MATCH),
+            [PlayerIndex.PLAYER_2]: new GamePlayer(MultiplayerRoom.Users, PlayerIndex.PLAYER_2, player2SessionID.userid, player2Username, player2SessionID.sessionID, DBGameType.RANKED_MATCH),
         };
 
         // Reset previousGame when a new game starts
@@ -164,17 +164,14 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         const playerIndex = this.getPlayerIndex(sessionID);
         const player = this.gamePlayers[playerIndex];
 
-        // Send recovery packets to any spectators that just joined
-        player.handleSyncingSpectators(this.spectatorSessionIDs, playerIndex);
-
-        // Resend message to all other players in the room, prefixing with the player index
-        this.sendToAllExcept(sessionID, PacketAssembler.encodeIndexFromPacketDisassembler(message, playerIndex));
-
         // Handle each packet individually
         while (message.hasMorePackets()) {
             const packet = message.nextPacket();
             await player.handlePacket(packet);
         }
+        
+        // Resend message to all other players in the room, prefixing with the player index
+        this.sendToAllExcept(sessionID, PacketAssembler.encodeIndexFromPacketDisassembler(message, playerIndex));
     }
 
     /**
@@ -328,8 +325,12 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         return this.gamePlayers[opponentIndex].getTopoutScore();
     }
 
-    protected override async onSpectatorLeave(sessionID: string): Promise<void> {
-        bothPlayerIndicies.forEach(playerIndex => this.gamePlayers[playerIndex].removeSpectator(sessionID));
+    /**
+     * When spectator joins, send recovery packet to get spectator up-to-date on game state
+     * @param sessionID SessionID of spectator
+     */
+    protected override async onSpectatorJoin(sessionID: string): Promise<void> {
+        bothPlayerIndicies.forEach(playerIndex => this.gamePlayers[playerIndex].onSpectatorJoin(sessionID));
     }
 
 }

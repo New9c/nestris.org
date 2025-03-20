@@ -8,7 +8,7 @@ import { v4 as uuid } from 'uuid';
 import { NotificationType } from "../../../shared/models/notifications";
 import { UserSessionID } from "../online-user";
 import { OnlineUserActivityType } from "../../../shared/models/online-activity";
-import { bothPlayerIndicies, MultiplayerRoomState } from "../../../shared/room/multiplayer-room-models";
+import { bothPlayerIndicies, MultiplayerRoomState, MultiplayerRoomStatus } from "../../../shared/room/multiplayer-room-models";
 import { average } from "../../../shared/scripts/math";
 
 export class RoomError extends Error {
@@ -484,11 +484,11 @@ export class RoomConsumer extends EventConsumer {
         const rankedRooms = Array.from(
             this.rooms.values()
         ).filter(
-            room => (
-                room.getRoomState().type === RoomType.MULTIPLAYER
-                &&
-                (room.getRoomState() as MultiplayerRoomState).ranked
-            )
+            room => {
+                if (room.getRoomState().type !== RoomType.MULTIPLAYER) return false;
+                const state = room.getRoomState() as MultiplayerRoomState;
+                return state.ranked && [MultiplayerRoomStatus.BEFORE_GAME, MultiplayerRoomStatus.IN_GAME].includes(state.status);
+            }
         );
 
         const getAverageTrophies = (room: Room) => average(
@@ -611,7 +611,7 @@ export class RoomConsumer extends EventConsumer {
 
         } else {
             // Remove the spectator from the room
-            room._removeSpectator(sessionID);
+            await room._removeSpectator(sessionID);
         }
 
         // Remove the session from the session map

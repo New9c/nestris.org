@@ -16,6 +16,7 @@ import { XPStrategy } from "../../shared/nestris-org/xp-system";
 import { DBGameType } from "../../shared/models/db-game";
 import { ActivityConsumer } from "../online-users/event-consumers/activity-consumer";
 import { ActivityType, PersonalBestActivity } from "../../shared/models/activity";
+import { PlayerIndex } from "../../shared/room/multiplayer-room-models";
 
 // Event that is emitted when a game starts
 export interface GameStartEvent {
@@ -102,10 +103,9 @@ export class GamePlayer {
 
     private topoutScore: number | null = null;
 
-    private syncedSpectatorSessionIDs = new Set<string>();
-
     constructor(
         private readonly Users: OnlineUserManager,
+        public readonly playerIndex: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2,
         public readonly userid: string,
         public readonly username: string,
         public readonly sessionID: string,
@@ -378,31 +378,10 @@ export class GamePlayer {
         }
     }
 
-    /**
-     * Sync any spectators that just joined mid-game by sending a recovery packet for current game state
-     * @param allSpectatorSessionIDs 
-     */
-    handleSyncingSpectators(allSpectatorSessionIDs: string[], playerIndex: number) {
-        const nonSyncedSpectatorSessionIDs = allSpectatorSessionIDs.filter(sessionID => !this.syncedSpectatorSessionIDs.has(sessionID));
-        
-        if (nonSyncedSpectatorSessionIDs.length === 0) return;
-
-        // If mid-game, send recovery packet to all non-synced spectators
-        if (this.isInGame()) {
-            const recoveryPacket = this.getRecoveryPacket(playerIndex)!;
-
-            nonSyncedSpectatorSessionIDs.forEach(sessionID => {
-                this.Users.sendToUserSession(sessionID, recoveryPacket);
-                console.log(`Sent recovery packet to sync session ${sessionID} for ${this.username}'s game`);
-            });
-        }
-
-        // Mark all the previously non-synced spectator session IDs as synced
-        nonSyncedSpectatorSessionIDs.forEach(sessionID => this.syncedSpectatorSessionIDs.add(sessionID));
-    }
-
-    removeSpectator(sessionID: string) {
-        this.syncedSpectatorSessionIDs.delete(sessionID);
+    onSpectatorJoin(sessionID: string) {
+        if (!this.isInGame()) return;
+        const recoveryPacket = this.getRecoveryPacket(this.playerIndex)!;
+        this.Users.sendToUserSession(sessionID, recoveryPacket);
     }
 
     isInGame() {

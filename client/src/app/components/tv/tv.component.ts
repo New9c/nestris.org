@@ -18,9 +18,6 @@ export class TvComponent implements OnDestroy {
   readonly roomInfo$ = this.roomService.getRoomInfo$();
 
   private loadTVInterval: any;
-  private goingToRoom: boolean = false;
-
-  private spectateRoomID: string | null = null;
 
   constructor(
     private readonly roomService: RoomService,
@@ -54,8 +51,7 @@ export class TvComponent implements OnDestroy {
     if (!this.expanded || this.roomService.getRoomInfo()) return;
 
     try {
-      const { id } = await this.fetchService.fetch<{id: string}>(Method.POST, `/api/v2/spectate-room/tv/${this.websocketService.getSessionID()}`);
-      this.spectateRoomID = id;
+      await this.fetchService.fetch<{id: string}>(Method.POST, `/api/v2/spectate-room/tv/${this.websocketService.getSessionID()}`);
     } catch {
       console.log("No tv room found right now");
     }
@@ -74,7 +70,6 @@ export class TvComponent implements OnDestroy {
 
     const roomInfo = this.roomService.getRoomInfo();
     if (roomInfo) {
-      this.goingToRoom = true;
       this.router.navigate(['/online/room'], { queryParams: {id: roomInfo.id }});
     }
   }
