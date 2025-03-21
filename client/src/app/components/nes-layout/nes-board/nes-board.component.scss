@@ -59,9 +59,13 @@
     height: 20%;
 }
 
-.block.animate {
+.animate .block {
     transition: opacity 1s;
     transition-delay: 0.2s;
+}
+
+.animate .board-canvas {
+
 }
 
 canvas {

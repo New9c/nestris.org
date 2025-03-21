@@ -41,7 +41,7 @@
                     [countdown]="showBoardText(state, playerIndex) ?? playerData.countdown"
                     [gameOverShowNext]="false"
                     [gameOver]="getGameOverMode(state, playerIndex)"
-                    [dimmed]="player.leftRoom"
+                    [dimmed]="player.leftRoom || state.status === MultiplayerRoomStatus.AFTER_MATCH"
                     />                    
             </ng-container>
 

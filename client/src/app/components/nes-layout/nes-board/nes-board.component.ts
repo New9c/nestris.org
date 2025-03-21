@@ -198,7 +198,7 @@ export class NesBoardComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   // draw a block on the canvas
-  drawCanvasNESBlock(ctx: CanvasRenderingContext2D, scale: number, level: number, x: number, y: number, color: ColorType) {
+  drawCanvasNESBlock(ctx: CanvasRenderingContext2D, scale: number, level: number, x: number, y: number, color: ColorType, opacity: number = 1) {
 
     // Don't draw empty blocks
     if (color === ColorType.EMPTY) return;

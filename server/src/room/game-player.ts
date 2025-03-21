@@ -137,7 +137,7 @@ export class GamePlayer {
         // If in the middle of a game, end the game and save the game state
         if (this.gameState) {
             await this.onGameEnd(this.packets, this.gameState, this.placementEvaluations, true);
-        }
+        } else this.topoutScore = 0; // Game didn't even start yet, but player left
     }
 
     /**

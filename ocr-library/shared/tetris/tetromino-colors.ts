@@ -143,7 +143,7 @@ export const COLOR_SECOND_COLORS_RGB: {[key: number]: RGBColor } = {
     8: new RGBColor(248,56,0),
     9: new RGBColor(252,160,68),
 }
-
+const WHITE = new RGBColor(255, 255, 255);
 export function getColorForLevel(colorType: ColorType, level: number = 0): string {
     if (level < 0) level = 0;
     level = level % 10;
