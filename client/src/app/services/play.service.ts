@@ -11,6 +11,7 @@ import { RankedQueueService } from './room/ranked-queue.service';
 import { WebsocketService } from './websocket.service';
 import { MeService } from './state/me.service';
 import { RoomService } from './room/room.service';
+import { ServerRestartWarningService } from './server-restart-warning.service';
 
 @Injectable({
   providedIn: 'root'
@@ -27,6 +28,7 @@ export class PlayService {
     private rankedQueueService: RankedQueueService,
     private roomService: RoomService,
     private meService: MeService,
+    private restartWarning: ServerRestartWarningService,
     private router: Router,
   ) { }
 
@@ -47,8 +49,16 @@ export class PlayService {
     return true;
   }
 
-  async playSolo(checkVideoSource: boolean = true) {
+  private checkWarning(): boolean {
+    if (this.restartWarning.isWarning()) {
+      this.notifier.notify(NotificationType.ERROR, "Server is about to restart! Please wait.");
+      return true;
+    }
+    return false;
+  }
 
+  async playSolo(checkVideoSource: boolean = true) {
+    if (this.checkWarning()) return;
     if (checkVideoSource && this.checkVideoSource(() => this.playSolo(false))) return;
 
     const sessionID = this.websocketService.getSessionID();
@@ -56,7 +66,7 @@ export class PlayService {
   }
 
   async playRanked(checkVideoSource: boolean = true) {
-
+    if (this.checkWarning()) return;
     if (checkVideoSource && this.checkVideoSource(() => this.playRanked(false))) return;
 
     // If user has not selected starting trophies
@@ -80,6 +90,7 @@ export class PlayService {
   }
 
   async playPuzzles() {
+    if (this.checkWarning()) return;
 
     // Leave any existing room
     this.roomService.leaveRoom();

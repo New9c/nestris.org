@@ -6,20 +6,24 @@ import { BannerManagerService, BannerPriority, BannerType } from './banner-manag
 import { NotificationService } from './notification.service';
 import { NotificationAutohide, NotificationType } from '../shared/models/notifications';
 import { FetchService, Method } from './fetch.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ServerRestartWarningService {
 
-  private warning$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private _warning$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private notificationID: string | undefined;
+
+  public warning$ = this._warning$.asObservable();
 
   constructor(
     private fetchService: FetchService,
     private websocketService: WebsocketService,
     private bannerService: BannerManagerService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private router: Router,
   ) {
 
     // Subscribe to changes in server restart warning
@@ -35,6 +39,9 @@ export class ServerRestartWarningService {
     console.log("Setting server restart warning", warning);
 
     if (warning) {
+
+      // Leave ranked queue
+      if (this.router.url === '/online/ranked') this.router.navigate(["/"]);
 
       // Send a notification
       this.notificationID = this.notificationService.notify(
@@ -66,7 +73,11 @@ export class ServerRestartWarningService {
       }
     }
 
-    this.warning$.next(warning);
+    this._warning$.next(warning);
+  }
+
+  public isWarning(): boolean {
+    return this._warning$.getValue();
   }
 
 }

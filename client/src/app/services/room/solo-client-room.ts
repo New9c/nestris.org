@@ -18,6 +18,10 @@ import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
 import { GameStateSnapshotWithoutBoard } from "src/app/shared/game-state-from-packets/game-state";
 import { FetchService, Method } from "../fetch.service";
 import { DBUser } from "src/app/shared/models/db-user";
+import { ServerRestartWarningService } from "../server-restart-warning.service";
+import { NotificationService } from "../notification.service";
+import { NotificationType } from "src/app/shared/models/notifications";
+import { Router } from "@angular/router";
 
 export enum SoloClientState {
     BEFORE_GAME_MODAL = 'BEFORE_GAME_MODAL',
@@ -34,6 +38,9 @@ export class SoloClientRoom extends ClientRoom {
     readonly activeQuestService = this.injector.get(QuestService);
     readonly websocket = this.injector.get(WebsocketService);
     readonly fetch = this.injector.get(FetchService);
+    readonly restartWarning = this.injector.get(ServerRestartWarningService);
+    readonly notifier = this.injector.get(NotificationService);
+    readonly router = this.injector.get(Router);
 
     // The level at which the game starts, persisted across games
     public static startLevel$: BehaviorSubject<number> = new BehaviorSubject(18);
@@ -158,6 +165,12 @@ export class SoloClientRoom extends ClientRoom {
     public startGame(countdown = 3, delay: boolean = false) {
 
         if (this.platformInterface.getPlatform() === Platform.OCR) throw new Error(`Cannot start emulator game on OCR`);
+        
+        if (this.restartWarning.isWarning()) {
+            this.notifier.notify(NotificationType.ERROR, "Server is about to restart! Please wait.");
+            this.router.navigate(["/"]);
+            return;
+        }
 
         const startLevel = SoloClientRoom.startLevel$.getValue();
         console.log('Starting game with start level', startLevel);

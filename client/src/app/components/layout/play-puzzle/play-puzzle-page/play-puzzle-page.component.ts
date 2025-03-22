@@ -24,6 +24,7 @@ import { SinglePuzzleStrategy } from './puzzle-states/single-puzzle-strategy';
 import { PUZZLE_THEME_TEXT } from 'src/app/shared/puzzles/puzzle-theme';
 import { getDisplayKeybind } from 'src/app/components/ui/editable-keybind/editable-keybind.component';
 import { SoundEffect, SoundService } from 'src/app/services/sound.service';
+import { ServerRestartWarningService } from 'src/app/services/server-restart-warning.service';
 
 const RIGHT_ANSWER_COMMENTS = [
   "You got it!",
@@ -124,6 +125,7 @@ export class PlayPuzzlePageComponent implements OnInit {
     private injector: Injector,
     private sound: SoundService,
     private me: MeService,
+    private restartWarning: ServerRestartWarningService,
   ) {}
 
 
@@ -154,6 +156,12 @@ export class PlayPuzzlePageComponent implements OnInit {
   }
 
   public async fetchNextPuzzle() {
+
+    // If server restart, do not allow
+    if (this.restartWarning.isWarning()) {
+      this.notifier.notify(NotificationType.ERROR, "Server is about to restart! Please wait.");
+      return;
+    }
 
     // Clear the timer and hovered move
     this.currentPuzzleTime$.next(0);
