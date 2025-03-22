@@ -1,7 +1,7 @@
 import { EventConsumer } from "../event-consumer";
 import { OnSessionBinaryMessageEvent, OnSessionDisconnectEvent, OnSessionJsonMessageEvent } from "../online-user-events";
 import { PacketDisassembler } from "../../../shared/network/stream-packets/packet-disassembler";
-import { ChatMessage, ClientRoomEventMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, RoomStateUpdateMessage, SendPushNotificationMessage, SpectatorCountMessage } from "../../../shared/network/json-message";
+import { ChatMessage, ClientRoomEventMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, RedirectMessage, RoomStateUpdateMessage, SendPushNotificationMessage, SpectatorCountMessage } from "../../../shared/network/json-message";
 import { OnlineUserManager } from "../online-user-manager";
 import { ClientRoomEvent, RoomInfo, RoomState, RoomType } from "../../../shared/room/room-models";
 import { v4 as uuid } from 'uuid';

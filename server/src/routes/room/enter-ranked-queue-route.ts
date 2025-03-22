@@ -4,6 +4,7 @@ import { RANKED_UNLOCK_SCORE } from "../../../shared/nestris-org/elo-system";
 import { DBObjectNotFoundError } from "../../database/db-object-error";
 import { DBUserObject } from "../../database/db-objects/db-user";
 import { EventConsumerManager } from "../../online-users/event-consumer";
+import { ActivityConsumer } from "../../online-users/event-consumers/activity-consumer";
 import { RankedQueueConsumer, UserUnavailableToJoinQueueError } from "../../online-users/event-consumers/ranked-queue-consumer";
 import { RoomConsumer } from "../../online-users/event-consumers/room-consumer";
 import { SoloRoom } from "../../room/solo-room";
@@ -43,15 +44,16 @@ export class EnterRankedQueueRoute extends PostRoute {
         if (!Object.values(Platform).includes(platform)) {
             throw new RouteError(400, `Platform ${platform} is not valid`);
         }
+
+        const roomConsumer = EventConsumerManager.getInstance().getConsumer(RoomConsumer);
+        const activityConsumer = EventConsumerManager.getInstance().getConsumer(ActivityConsumer);
         
-        // Make sure user is not already in an activity
-        if (EventConsumerManager.getInstance().getUsers().isUserInActivity(userInfo!.userid)) {
-            throw new RouteError(400, `You are already in an activity!`);
-        }
+        // Leave any existing activities
+        await activityConsumer.freeUserFromActivity(userInfo!.userid);
 
         try {
             // Join the ranked queue
-            await EventConsumerManager.getInstance().getConsumer(RoomConsumer).freeSession(userInfo!.userid, sessionID);
+            await roomConsumer.freeSession(userInfo!.userid, sessionID);
             await EventConsumerManager.getInstance().getConsumer(RankedQueueConsumer).joinRankedQueue(sessionID, platform);
 
         } catch (error) {

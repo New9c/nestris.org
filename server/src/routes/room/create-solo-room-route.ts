@@ -1,5 +1,6 @@
 import { Authentication } from "../../../shared/models/db-user";
 import { EventConsumerManager } from "../../online-users/event-consumer";
+import { ActivityConsumer } from "../../online-users/event-consumers/activity-consumer";
 import { RoomAbortError, RoomConsumer } from "../../online-users/event-consumers/room-consumer";
 import { SoloRoom } from "../../room/solo-room";
 import { PostRoute, RouteError, UserInfo } from "../route";
@@ -15,11 +16,17 @@ export class CreateSoloRoomRoute extends PostRoute {
         
         const sessionID = pathParams.sessionid as string;
 
+        const users = EventConsumerManager.getInstance().getUsers();
+        const roomConsumer = EventConsumerManager.getInstance().getConsumer(RoomConsumer);
+        const activityConsumer = EventConsumerManager.getInstance().getConsumer(ActivityConsumer);
+
         // Make sure sessionID corresponds to the user
         if (!sessionID) throw new RouteError(400, "Session ID is required");
-        if (EventConsumerManager.getInstance().getUsers().getUserIDBySessionID(sessionID) !== userInfo!.userid) {
+        if (users.getUserIDBySessionID(sessionID) !== userInfo!.userid) {
             throw new RouteError(400, `Session ID ${sessionID} does not correspond to user ${userInfo!.username}`);
         }
+
+        await activityConsumer.freeUserFromActivity(userInfo!.userid);
         
         // Create a solo room
         try {
