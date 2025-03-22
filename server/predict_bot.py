@@ -71,7 +71,7 @@ def predict_score(input_speed, inaccuracy, misdrop):
 def generate_bot_configs_and_write_to_file():
     # Define the possible values for each parameter
     input_speeds = [6, 8, 10, 12, 14]
-    inaccuracies = [0.2, 0.1, 0.05]
+    inaccuracies = [0.3, 0.2, 0.1, 0.05]
     misdrops = [0.04, 0.03, 0.01, 0.005, 0.003]
 
     # Generate all permutations of the configurations
