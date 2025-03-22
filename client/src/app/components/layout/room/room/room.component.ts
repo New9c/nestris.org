@@ -82,7 +82,6 @@ export class RoomComponent implements OnInit, OnDestroy {
           this.roomType$.next(roomState.type);
           this.spectating$.next(true);
         } else {
-          this.notificationService.notify(NotificationType.ERROR, "The requested room does not exist");
           this.router.navigate(['/']);
         }
 

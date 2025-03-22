@@ -24,6 +24,7 @@
     flex-direction: column;
     justify-content: space-between;
     padding-bottom: 50px;
+    align-items: center;
 }
 
 h1.title {
@@ -111,6 +112,44 @@ h1.title {
 .level p {
     font-family: 'NES';
     font-size: 25px;
+    vertical-align: center;
+    padding: 0;
+}
+
+.instructions {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.instructions .row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    width: 500px;
+}
+
+.instructions .row div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.instructions p {
+    font-family: $main-font;
+    font-size: 14px;
+    font-weight: 500;
     margin: 0;
     padding: 0;
+    text-wrap: balance;
+    line-height: 2;
+    text-align: center;
+}
+
+app-editable-keybind {
+    display: inline-block;
+    vertical-align: middle;
+    zoom: 0.7;
+    margin-inline: 5px;
 }

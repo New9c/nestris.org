@@ -18,6 +18,8 @@ export function getDisplayKeybind(keybind: string | null): string {
 })
 export class EditableKeybindComponent {
   @Input() keybind!: string;
+  @Input() editable: boolean = true;
+  @Input() color: string = "#151515";
 
   getDisplayKeybind(): string {
     return getDisplayKeybind(this.keybind);

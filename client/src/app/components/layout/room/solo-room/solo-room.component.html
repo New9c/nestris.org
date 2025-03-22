@@ -45,7 +45,6 @@
             [showEvalBar]="showAnalysis"
             [showAccuracy]="showAnalysis"
             [ratedMove]="platform.getRatedMove$()| async"
-            [keybinds]="(platform.getPlatform() === Platform.OCR) ? undefined : getKeybinds()"
         />
     </ng-template>
 

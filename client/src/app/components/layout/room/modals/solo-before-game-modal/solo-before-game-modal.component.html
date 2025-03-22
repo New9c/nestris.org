@@ -1,7 +1,24 @@
 <div class="modal">
     <div class="content">
         <h1 class="title">Play a solo game!</h1>
-        <div></div>
+        
+        <ng-container *ngIf="platform.getPlatform() === Platform.ONLINE" >
+            <div class="instructions" *ngIf="meService.get$() | async as me">
+                <div class="row">
+                    <div><p class="translate prevent-select">As the pieces fall, you can shift them left and right using the
+                        <app-editable-keybind [keybind]="me.keybind_emu_move_left" color="black" (click)="settings()" /> and
+                        <app-editable-keybind [keybind]="me.keybind_emu_move_right" color="black" (click)="settings()" /> keys.</p></div>
+                    <img src="./assets/img/instruction-icons/translate-piece.svg">
+                </div>
+                <div class="row">
+                    <div><p class="rotate prevent-select">You can also rotate the pieces with
+                        <app-editable-keybind [keybind]="me.keybind_emu_rot_left" color="black" (click)="settings()" /> and
+                        <app-editable-keybind [keybind]="me.keybind_emu_rot_right" color="black" (click)="settings()" /> keys!</p></div>
+                    <img src="./assets/img/instruction-icons/rotate-piece.svg">
+                </div>
+            </div>
+        </ng-container>
+
         <div class="select-level-content">
             <div class="select-level-container">
                 <h1>Select start level</h1>

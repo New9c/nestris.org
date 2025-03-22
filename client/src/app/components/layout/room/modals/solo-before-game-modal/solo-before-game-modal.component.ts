@@ -33,7 +33,7 @@ export class SoloBeforeGameModalComponent implements OnDestroy {
     private readonly roomService: RoomService,
     private readonly router: Router,
     public readonly platform: PlatformInterfaceService,
-    private readonly meService: MeService,
+    public readonly meService: MeService,
     private readonly gamepadService: GamepadService,
     private readonly sound: SoundService,
   ) {
@@ -50,6 +50,10 @@ export class SoloBeforeGameModalComponent implements OnDestroy {
   public lastGameSummary$ = this.soloClientRoom.getState$<SoloRoomState>().pipe(
     map(state => state.lastGameSummary)
   );
+
+  public settings() {
+    this.router.navigate(["/settings"]);
+  }
 
   public startGame() {
     this.soloClientRoom.startGame(3, true);
