@@ -180,6 +180,8 @@ async function main() {
   const scheduler = new TaskScheduler();
   // scheduler.schedule(ExampleTask, 5, TimeUnit.MINUTES);
 
+  for (let i = 0; i < 50; i++) console.log(await generateRandomUsername());
+
   // initialize routes
   const routes = new RouteManager(app);
   routes.registerRoute(GetMeRoute);

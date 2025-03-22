@@ -1,6 +1,8 @@
+import { count } from "console";
+import { randomChoice, randomInt } from "../../shared/scripts/math";
 import { UsernameExistsQuery } from "../database/db-queries/username-exists-query";
 import { Database } from "../database/db-query";
-import { adjectives, Config, nouns, uniqueUsernameGenerator } from 'unique-username-generator';
+import { uniqueNamesGenerator, adjectives, names, animals, colors, countries, languages, NumberDictionary } from 'unique-names-generator';
 
 
 // Return the first version of the username that doesn't already exist in the database
@@ -9,7 +11,6 @@ export async function makeUsernameUnique(username: string) {
     // If the username is already unique, return it
     const usernameExists = await Database.query(UsernameExistsQuery, username);
     if (!usernameExists) {
-        console.log(`Username ${username} is already unique`);
         return username;
     }
 
@@ -25,24 +26,48 @@ export async function makeUsernameUnique(username: string) {
 
 // Generate a completely random username that is guaranteed to be unique in the database
 export async function generateRandomUsername(): Promise<string> {
+    const separators = ['', '_', '-', ' '];
+    const styles = ['lowerCase', 'capital'];
+    const specialCharsEnd = ['!', '~'];
 
-    const seperators =  [''];
-    const randomDigits = [0, 1, 2, 3, 1, 2, 3];
-    const style = ['lowerCase', 'capital'];
-    const length = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+    const random = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
-    const random = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)];
+    const numberDictionary = NumberDictionary.generate({ min: 10, max: 9999 });
 
-    const config: Config = {
-        dictionaries: [adjectives, nouns, tetrisWords],
-        separator: random(seperators),
-        randomDigits: random(randomDigits),
-        length: random(length),
-        style: random(style),
+    // Choose a name first for realism
+    let username = uniqueNamesGenerator({
+        dictionaries: [random([names, names, names, names, names, adjectives, adjectives, adjectives, tetrisWords, tetrisWords, animals, languages]), random([names, names, tetrisWords, tetrisWords])],
+        length: random([1, 1, 1, 2]), // 1-word names are now more common
+        separator: random(separators),
+        style: random(styles) as any
+    });
+
+    // Add numbers in a realistic way (e.g., common birth years)
+    if (Math.random() < 0.3) {
+        username += random([randomInt(1, 9999), randomInt(1, 999), randomInt(1, 99)]);
     }
-    const username = uniqueUsernameGenerator(config); // returns a unique username
+
+    if (Math.random() < 0.02) username = username.toUpperCase();
+
+    const char = random(specialCharsEnd);
+    if (Math.random() < 0.05) username += char;
+
+    if (Math.random() < 0.05) username = randomInt(1, 100).toString() + username;
+
+    // replace random letter
+    if (Math.random() < 0.1) {
+        const alphanumeric = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        const randomIndex = Math.floor(Math.random() * username.length);
+        const randomChar = alphanumeric[Math.floor(Math.random() * alphanumeric.length)];
+
+        return username.substring(0, randomIndex) + randomChar + username.substring(randomIndex + 1);
+    }
+
+    if (username.length > 15) return await generateRandomUsername();
+
+    // Ensure username is unique
     const uniqueUsername = await makeUsernameUnique(username);
-    
+
     return uniqueUsername;
 }
 

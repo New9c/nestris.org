@@ -257,7 +257,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
         if (Math.random() < 0.2) this.sendJsonMessageToServer(new ChatMessage(this.username, message));
 
         // Wait a random amount of time before sending the 'READY' signal
-        await sleepWithTimeout(randomInt(1000, 2000), leftRoom$, error);
+        await sleepWithTimeout(randomInt(2000, 5000), leftRoom$, error);
 
         // Send 'READY' signal to the server
         this.sendJsonMessageToServer(new ClientRoomEventMessage({type: MultiplayerRoomEventType.READY }));
@@ -321,12 +321,20 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
         let framesDone: number = 0;
         let epoch: number = performance.now();
 
+        let topoutMs: number | null = null;
+
+        // Mullen for a random amount of time after opponent tops out
+        const mullenSeconds = randomInt(1, 10);
+
         // Loop until topout
         while (true) {
 
             // If opponent already topout and bot has higher score, force early top
             const opponentTopoutScore = room.getOpponentTopoutScore(this.sessionID);
-            const allowTopout = opponentTopoutScore !== null && state.getStatus().score > opponentTopoutScore;
+            if (topoutMs === null && opponentTopoutScore !== null && state.getStatus().score > opponentTopoutScore) {
+                topoutMs = Date.now();
+            }
+            const allowTopout = (topoutMs !== null && (Date.now() - topoutMs) / 1000 > mullenSeconds);
         
             // calculate how many frames to advance based on time elapsed to maintain 60fps
             const diff = performance.now() - epoch;
@@ -456,7 +464,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
         }
 
         // Wait a random amount of time
-        await sleep(randomInt(500, 2000));
+        await sleep(randomInt(1000, 10000));
 
         // Leave the room
         await this.roomConsumer.freeSession(this.userid, this.sessionID);

@@ -1,3 +1,4 @@
+import { randomInt } from "crypto";
 import { Keybind } from "../../shared/emulator/keybinds";
 import { InputSpeed } from "../../shared/models/input-speed";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
@@ -40,6 +41,8 @@ export abstract class PlacementAI {
 
     // A map of placement index to the placement data
     readonly placements = new Map<number, Placement>();
+
+    readonly spawnDelay = randomInt(0, 150);
 
     constructor(
         protected readonly config: AIConfig,
@@ -109,6 +112,10 @@ export abstract class PlacementAI {
      * @returns The keybind to press for the given placement and frame, or null for no input.
      */
     public getInputForPlacementAndFrame(placementIndex: number, frameIndex: number): Keybind[] {
+
+        // On first placement, delay moving the first piece by a human-random amount
+        if (placementIndex === 0) frameIndex -= this.spawnDelay;
+
         // Return the keybinds to press for the given frame index
         const shiftMap = this.placements.get(placementIndex)?.shiftMap;
         const keybinds = shiftMap?.map.get(frameIndex) ?? [];
