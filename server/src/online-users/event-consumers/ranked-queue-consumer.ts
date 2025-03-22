@@ -91,6 +91,7 @@ class QueueUser {
         public readonly username: string,
         public readonly sessionID: string,
         public readonly trophies: number,
+        public readonly matchesPlayed: number,
         public readonly platform: Platform | null, // What player is playing on, or null if bot
     ) {}
 
@@ -195,7 +196,7 @@ export class RankedQueueConsumer extends EventConsumer {
         const dbUser = await DBUserObject.get(userid);
 
         // Add user to the queue, maintaining earliest-joined-first order
-        this.queue.push(new QueueUser(userid, dbUser.username, sessionID, dbUser.trophies, platform));
+        this.queue.push(new QueueUser(userid, dbUser.username, sessionID, dbUser.trophies, dbUser.matches_played, platform));
 
         // Send the number of players in the queue to all users in the queue
         this.sendNumQueuingPlayers();
@@ -285,7 +286,7 @@ export class RankedQueueConsumer extends EventConsumer {
         let queueSeconds = Math.min(...nonBotUsers.map(user => user.queueElapsedSeconds()));
 
         // Matching with bot delays the match process by some amount
-        if (hasBot) {
+        if (hasBot && nonBotUsers[0].matchesPlayed >= 2) { // BUT the first two matches played have faster matches for retention
             if (queueSeconds < MIN_BOT_MATCH_SECONDS) return false; // Can only match with bot after this time
             else queueSeconds -= MIN_BOT_MATCH_SECONDS;
         }
