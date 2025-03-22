@@ -32,8 +32,6 @@ export async function generateRandomUsername(): Promise<string> {
 
     const random = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
-    const numberDictionary = NumberDictionary.generate({ min: 10, max: 9999 });
-
     // Choose a name first for realism
     let username = uniqueNamesGenerator({
         dictionaries: [random([names, names, names, names, names, adjectives, adjectives, adjectives, tetrisWords, tetrisWords, animals, languages]), random([names, names, tetrisWords, tetrisWords])],
@@ -50,7 +48,7 @@ export async function generateRandomUsername(): Promise<string> {
     if (Math.random() < 0.02) username = username.toUpperCase();
 
     const char = random(specialCharsEnd);
-    if (Math.random() < 0.05) username += char;
+    if (Math.random() < 0.02) username += char;
 
     if (Math.random() < 0.05) username = randomInt(1, 100).toString() + username;
 
