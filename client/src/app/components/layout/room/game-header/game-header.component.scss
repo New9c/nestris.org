@@ -17,6 +17,11 @@
     margin-bottom: 5px;
 }
 
+.has-id .profile-container:hover {
+    cursor: pointer;
+    opacity: 0.8;
+}
+
 h1.name {
     font-family: $main-font;
     font-size: 25px;

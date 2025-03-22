@@ -1,5 +1,5 @@
-<div class="game-header">
-    <div class="profile-container">
+<div class="game-header" [ngClass]="userid ? 'has-id' : ''">
+    <div class="profile-container" (click)="openProfile($event)">
         <h1 class="name">{{username}}</h1>
         <app-trophies *ngIf="!rated" [trophies]="trophies" [size]="18" />
     </div>
