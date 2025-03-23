@@ -3,24 +3,27 @@ import { MemoryGameStatus, StatusSnapshot } from "../shared/tetris/memory-game-s
 
 const GREAT_GAME = [
     "That was a masterclass in stacking!",
-    "Impressive moves – you made it look easy!",
+    "Impressive moves - you made it look easy!",
     "Perfection from start to finish.",
-    "Flawless – pure perfection.",
+    "Flawless - pure perfection.",
+    "A truly impressive performance!",
+    "You played like a champion!",
 ]
 
 const GOOD_GAME = [
     "A solid performance with flashes of brilliance.",
     "A clean and well-executed game.",
     "A balanced game with some great moves.",
-    
+    "A well-played game with strong fundamentals!",
+    "Consistent, controlled, and fun to watch!",
 ]
 
 const DECENT_GAME = [
-    "A respectable performance – keep stacking!",
+    "A respectable performance - keep stacking!",
     "A solid game from start to finish.",
-    "Solid stacking! You’re getting better.",
-    "Good job! You’ve got the basics down.",
-    "That was a smooth game – keep it up!",
+    "Solid stacking! You're getting better.",
+    "Good job! You've got the basics down.",
+    "That was a smooth game - keep it up!",
     "Well done! A steady and solid game.",
 ]
 
@@ -30,50 +33,59 @@ const ROLLERCOASTER = [
     "A nail-biter from start to finish!",
     "A chaotic game, but you made it work!",
     "You had us all on the edge of our seats!",
+    "Unpredictable, exciting, and full of surprises!",
+    "Total chaos, but somehow, you made it work!",
 ]
 
 const BAD_TO_GOOD = [
     "It started rough, but you clutched it in the end!",
     "A shaky start, but what a comeback!",
     "You clawed your way back!",
-
+    "That comeback was nothing short of legendary!",
+    "A rough beginning, but you finished strong!",
+    "Talk about a redemption arc!",
 ]
   
 const BAD_ENDING = [
     "It was all going so well until disaster struck.",
     "An incredible game with a bittersweet ending.",
     "Great game, tragic ending.",
-    "The ending? Let’s not talk about it.",
-    "What a way to ruin it!",
+    "A tough break at the end, but an impressive game!",
+    "You were on fire... right up until the last moment.",
 ]
 
 const BAD_GAME = [
-    "Blocks just weren’t your friends today.",
-    "Hey, even the pros have bad games sometimes!",
-]
+    "Sometimes the blocks just don't cooperate.",
+    "Hey, even the best players have off days!",
+    "Chin up! Next game will be better.",
+    "It happens! Just shake it off and try again.",
+    "That was a tough one, but you've got this!",
+    "Even the pros get bad RNG sometimes.",
+    "Don't worry, you'll get 'em next time!",
+];
 
 const REALLY_BAD_GAME = [
-    "That game felt like a cry for help.",
-    "I’d say ‘nice try,’ but was it really?",
-    "Are you sure you weren’t trying to lose?",
-    "That wasn’t a topout – that was a mercy ending."
-]
+    "That one was rough - but everyone starts somewhere!",
+    "Hey, at least you're having fun… right?",
+    "We all have games we'd rather forget!",
+    "Think of it as a practice round!",
+    "A tough game just means a great comeback is coming!",
+    "Shake it off and show 'em what you can really do!",
+];
 
   
 const EARLY_TOPOUT = [
     "Well, that escalated quickly.",
-    "Game over? Already? Impressive.",
-    "You tried. Kind of.",
-    "Did you even try?",
-    "Well, that was embarrassing.",
-    "Shortest game in history!",
-    "Let’s just pretend this one didn’t happen.",
-    "Good effort! Just kidding.",
+    "Sometimes the blocks have other plans!",
+    "Oops. Let's try that again!",
+    "We'll call that a practice round!",
+    "That was the fastest game ever - maybe too fast!",
 ]
 
 const ONE_LINE_29 = [
-    "You cleared one line. Are you proud of yourself?",
+    "One line down, many more to go!",
     "It's better than club zero, I guess.",
+    "Slow and steady... maybe too slow?",
 ]
 
 const BAD_29 = [
@@ -97,7 +109,9 @@ const GOOD_29 = [
 const GREAT_29 = [
     "Are you an auto-clicker?",
     "Perfection from start to finish.",
-    "Is this worth a broken keyboard?",
+    "Flawless execution at lightning speed!",
+    "Your hands are moving at light speed!",
+    "That was pure muscle memory in action!",
 ]
 
 
@@ -110,8 +124,9 @@ const random = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
  * @param previousBest Previous best score of the player
  * @param history History of the game status across the game
  */
-export function getFeedback(status: MemoryGameStatus, previousBestLines: number): string {
+export function getFeedback(status: MemoryGameStatus, previousBestScore: number, previousBestLines: number): string {
 
+    previousBestLines = Math.min(previousBestLines, 250);
 
     // level 29 start is a special case
     if (status.startLevel >= 29) {
@@ -149,7 +164,7 @@ export function getFeedback(status: MemoryGameStatus, previousBestLines: number)
     console.log("trt", status.getTetrisRate());
 
     // If lines is too low, it's an early topout
-    if (status.lines < Math.max(Math.min(previousBestLines, 200) / 3, 30)) return random(EARLY_TOPOUT);
+    if (status.lines < Math.max(Math.min(previousBestLines, 200) / 3, 20)) return random(EARLY_TOPOUT);
 
     // Games are guaranteed to have at least 30 lines
 
@@ -158,6 +173,9 @@ export function getFeedback(status: MemoryGameStatus, previousBestLines: number)
         if (status.getTetrisRate() >= 0.75) return random(GREAT_GAME);
         if (status.getTetrisRate() >= 0.5) return random(GOOD_GAME);
     }
+
+    if (status.score >= previousBestScore * 0.9) return random(GREAT_GAME);
+    if (status.score >= previousBestScore * 0.7) return random(GOOD_GAME);
 
 
     const fullTetrisRate = status.getTetrisRate();
@@ -173,8 +191,8 @@ export function getFeedback(status: MemoryGameStatus, previousBestLines: number)
         const lateTetrisRate = getTetrisRateWithCondition(snapshot => snapshot.lines > Math.max(status.lines * 3 / 4, status.lines - 30));
         console.log("Early, mid, late TRT", earlyTetrisRate, midTetrisRate, lateTetrisRate);
 
-        if (earlyTetrisRate < 0.2 && midTetrisRate > 0.4 && lateTetrisRate > 0.4) return random(BAD_TO_GOOD);
-        if (earlyTetrisRate > 0.4 && midTetrisRate > 0.4 && lateTetrisRate < 0.2) return random(BAD_ENDING);
+        if (earlyTetrisRate < 0.25 && midTetrisRate > 0.4 && lateTetrisRate > 0.5) return random(BAD_TO_GOOD);
+        if (earlyTetrisRate > 0.4 && midTetrisRate > 0.4 && lateTetrisRate < 0.25) return random(BAD_ENDING);
     }
 
     // Check if tetris rates bounce between high and low many times, iterating over allTetrisRates

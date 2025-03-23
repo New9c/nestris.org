@@ -56,7 +56,9 @@ export class SoloAfterGameModalComponent implements OnDestroy {
 
     this.lastGameStatus = this.platformService.getPlatform() === Platform.OCR ? this.ocrService.getMemoryStatus()! : this.emulatorService.getLastGameStatus()!;
     console.log("last game status", this.lastGameStatus);
-    this.lastGameFeedback = getFeedback(this.lastGameStatus, this.meService.getSync()!.highest_lines);
+    
+    const me = this.meService.getSync()!;
+    this.lastGameFeedback = getFeedback(this.lastGameStatus, me.highest_score, me.highest_lines);
 
     const history = this.lastGameStatus.getHistory();
 
