@@ -18,7 +18,6 @@ import { PuzzleStrategyType } from './puzzle-states/puzzle-strategy-type';
 import { EloChange, EngineMove, PuzzleSolution, PuzzleStrategy, UnsolvedPuzzle } from './puzzle-states/puzzle-strategy';
 import { puzzleStrategyFactory } from './puzzle-states/puzzle-strategy-factory';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
-import { StackrabbitService } from 'src/app/services/stackrabbit/stackrabbit.service';
 import { RatedPuzzleStrategy } from './puzzle-states/rated-puzzle-strategy';
 import { SinglePuzzleStrategy } from './puzzle-states/single-puzzle-strategy';
 import { PUZZLE_THEME_TEXT } from 'src/app/shared/puzzles/puzzle-theme';
@@ -32,24 +31,31 @@ const RIGHT_ANSWER_COMMENTS = [
   "Superb solving!",
   "Bullseye!",
   "Sharp as a tack!",
-  "Nailed it with style!"
+  "Nailed it with style!",
+  "Right on the money!",
+  "You cracked the code!",
 ]
 
 const WRONG_ANSWER_COMMENTS = [
   "Good try! This puzzle's a toughie.",
   "Not quite, but you got the next one!",
   "Back to the drawing board!",
-  "Left your brain in bed today?",
-  "Not even close, but A for effort!",
-  "Was that a wild guess?",
-  "If that was a dart, you missed the board.",
-  "Try again, Einstein.",
-  "Feeling puzzled?",
-  "Is your GPS off today?",
-  "Your accuracy's on vacation.",
-  "I guess perfection's too mainstream for you.",
-  "Whoops, better luck next time!"
-]
+  "A valiant effort, but not the right move!",
+  "You're circling the right answer… just not there yet!",
+  "Almost! Give it another go!",
+  "That was a creative take - try again!",
+  "Oops! That one slipped by. Try again!",
+  "So close, I could almost high-five you!",
+  "Not quite, but I love the enthusiasm!",
+  "You gave it a shot - let's go again!",
+  "Every wrong answer is a step to the right one!",
+  "The right answer is playing hide-and-seek. Try again!",
+  "Keep at it - you're getting warmer!",
+  "You've got the spirit! Try one more time!",
+  "One step closer to cracking the puzzle!",
+  "Wrong turn, but you'll find the right path soon!",
+  "Almost there! I believe in you!",
+];
 
 enum PuzzleStateID {
   SOLVING = "SOLVING",
