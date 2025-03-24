@@ -3,6 +3,10 @@ export enum RoomType {
     MULTIPLAYER = 'MULTIPLAYER',
 }
 
+export const SPECTATOR_ONLY_CHAT_TYPES: RoomType[] = [
+    RoomType.MULTIPLAYER
+];
+
 export interface RoomPlayer {
     userid: string;
     sessionID: string;

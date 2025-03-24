@@ -14,7 +14,7 @@
 
         <app-chat-text-entry
             [disabledMessage]="disabledMessage"
-            [placeholderText]="messages.length === 0 ? 'Begin the conversation...' : 'Send a message...'"
+            [placeholderText]="placeholderMessage ?? (messages.length === 0 ? 'Begin the conversation...' : 'Send a message...')"
             (sendMessage)="sendMessage.emit($event)"
         />
     </div>

@@ -11,6 +11,7 @@ const MAX_CHARACTERS = 100;
 })
 export class ChatComponent {
   @Input() disabledMessage?: string;
+  @Input() placeholderMessage?: string;
   @Input() numSpectators: number = 0;
   @Input() messages: Message[] = [];
   @Output() sendMessage = new EventEmitter<string>();

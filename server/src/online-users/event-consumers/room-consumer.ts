@@ -3,7 +3,7 @@ import { OnSessionBinaryMessageEvent, OnSessionDisconnectEvent, OnSessionJsonMes
 import { PacketDisassembler } from "../../../shared/network/stream-packets/packet-disassembler";
 import { ChatMessage, ClientRoomEventMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, RedirectMessage, RoomStateUpdateMessage, SendPushNotificationMessage, SpectatorCountMessage } from "../../../shared/network/json-message";
 import { OnlineUserManager } from "../online-user-manager";
-import { ClientRoomEvent, RoomInfo, RoomState, RoomType } from "../../../shared/room/room-models";
+import { ClientRoomEvent, RoomInfo, RoomState, RoomType, SPECTATOR_ONLY_CHAT_TYPES } from "../../../shared/room/room-models";
 import { v4 as uuid } from 'uuid';
 import { NotificationType } from "../../../shared/models/notifications";
 import { UserSessionID } from "../online-user";
@@ -330,9 +330,21 @@ export abstract class Room<T extends RoomState = RoomState> {
     /**
      * If received a chat message, forward it to all players and spectators in the room. This should only be called by the RoomConsumer.
      * @param message The chat message to forward.
+     * @param sentBy PLAYER - sent by player, SPECTATOR - sent by spectator, NONE - sent by server
      */
-    public _onChatMessage(message: ChatMessage) {
-        this.sendToAll(message);
+    public _onChatMessage(message: ChatMessage, sentBy: InRoomStatus) {
+        if (sentBy === InRoomStatus.NONE || !SPECTATOR_ONLY_CHAT_TYPES.includes(this.roomState.type)) {
+            this.sendToAll(message);
+        } else if (sentBy === InRoomStatus.PLAYER) {
+            this.playerSessionIDsInRoom.forEach(sessionID => {
+                Room.Users.sendToUserSession(sessionID, message);
+            });
+        } else { // sentBy === InRoomStatus.SPECTATOR
+            this.spectatorSessionIDs.forEach(sessionID => {
+                Room.Users.sendToUserSession(sessionID, message);
+            });
+        }
+        
     }
 
     /**
@@ -564,11 +576,14 @@ export class RoomConsumer extends EventConsumer {
         if (!room) return;
 
         // Forward chat messages to the room
-        if (event.message.type === JsonMessageType.CHAT) 
-            room._onChatMessage(event.message as ChatMessage);
-
+        if (event.message.type === JsonMessageType.CHAT) {
+            let sentBy: InRoomStatus = InRoomStatus.NONE;
+            if (room.playerSessionIDs.includes(event.sessionID)) sentBy = InRoomStatus.PLAYER;
+            else if (room.spectatorSessionIDs.includes(event.sessionID)) sentBy = InRoomStatus.SPECTATOR;
+            room._onChatMessage(event.message as ChatMessage, sentBy);
+        
         // Forward client room events to the room
-        else if (event.message.type === JsonMessageType.CLIENT_ROOM_EVENT)
+        } else if (event.message.type === JsonMessageType.CLIENT_ROOM_EVENT)
             await room._onClientRoomEvent(event.sessionID, (event.message as ClientRoomEventMessage).event);
     }
 
@@ -601,7 +616,7 @@ export class RoomConsumer extends EventConsumer {
             console.log(`Player ${player.username} left room ${room.id}`);
 
             // Send a message to the room that the player left
-            room._onChatMessage(new ChatMessage(null, `${player.username} left the room`));
+            room._onChatMessage(new ChatMessage(null, `${player.username} left the room`), InRoomStatus.NONE);
 
             // If that was the last player in the room, delete the room entirely
             if (room.playerSessionIDsInRoom.length === 0) {

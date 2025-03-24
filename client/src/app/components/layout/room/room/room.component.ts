@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { RoomService } from 'src/app/services/room/room.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { RoomState, RoomType } from 'src/app/shared/room/room-models';
+import { RoomState, RoomType, SPECTATOR_ONLY_CHAT_TYPES } from 'src/app/shared/room/room-models';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { QuestService } from 'src/app/services/quest.service';
@@ -26,7 +26,6 @@ export enum RoomModal {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RoomComponent implements OnInit, OnDestroy {
-
   readonly RoomModal = RoomModal;
   readonly RoomType = RoomType;
 
@@ -44,13 +43,14 @@ export class RoomComponent implements OnInit, OnDestroy {
     //RoomType.SOLO
   ];
 
+  readonly SPECTATOR_ONLY_CHAT_TYPES = SPECTATOR_ONLY_CHAT_TYPES;
+
   constructor(
     public readonly roomService: RoomService,
     private readonly platform: PlatformInterfaceService,
     private readonly activeQuestService: QuestService,
     private readonly websocketService: WebsocketService,
     private readonly fetchService: FetchService,
-    private readonly notificationService: NotificationService,
     private readonly router: Router,
     private readonly activatedRoute: ActivatedRoute,
     private readonly cdr: ChangeDetectorRef,
