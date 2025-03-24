@@ -22,6 +22,11 @@ export class LeagueIconComponent {
     [League.BETTA_3]: "betta-3",
     [League.BETTA_2]: "betta-2",
     [League.BETTA_1]: "betta-1",
+    [League.RUBY_5] : "ruby-5",
+    [League.RUBY_4] : "ruby-4",
+    [League.RUBY_3] : "ruby-3",
+    [League.RUBY_2] : "ruby-2",
+    [League.RUBY_1] : "ruby-1",
   }
 
   public leagueToIcon(league: League | null | undefined) : string {
