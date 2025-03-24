@@ -6,7 +6,7 @@ import { ApiService, GameSortKey } from 'src/app/services/api.service';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { EVALUATION_TO_COLOR, overallAccuracyRating } from 'src/app/shared/evaluation/evaluation';
-import { DBGame } from 'src/app/shared/models/db-game';
+import { DBGame, DBGameType } from 'src/app/shared/models/db-game';
 import { SortOrder } from 'src/app/shared/models/query';
 import { numberWithCommas, timeAgo } from 'src/app/util/misc';
 
@@ -54,14 +54,15 @@ export class ReviewPageComponent implements OnInit {
 
   public me$ = this.meService.get$();
 
+  public readonly histogramOptions = [null, ...Object.values(DBGameType)];
+  public readonly histogramLabels = this.histogramOptions.map(option => { switch (option) {
+    case DBGameType.SOLO: return "Solo";
+    case DBGameType.RANKED_MATCH: return "Ranked";
+    case null: return "All games";
+  } });
+
   private static initialHistogram: HistogramColumn[] = Array.from({length: 17}, () => ({ count: 0, height: 0 }));
-  public histogram$ = concat(
-    of(ReviewPageComponent.initialHistogram),
-    from(this.fetchService.fetch<number[]>(Method.GET, '/api/v2/score-histogram')).pipe(
-      map(histogram => this.calculateHistogram(histogram)),
-      tap((histogram) => { ReviewPageComponent.initialHistogram = histogram })
-    )
-  );
+  public histogram$ = new BehaviorSubject<HistogramColumn[]>(ReviewPageComponent.initialHistogram);
 
   public readonly monthNavigator = new MonthNavigator();
   private DEFAULT_CHART: DBGame[] = [];
@@ -96,7 +97,9 @@ export class ReviewPageComponent implements OnInit {
     private readonly apiService: ApiService,
     private readonly meService: MeService,
     private readonly fetchService: FetchService,
-  ) {}
+  ) {
+    this.setHistogram(null);
+  }
 
   ngOnInit(): void {
 
@@ -112,13 +115,21 @@ export class ReviewPageComponent implements OnInit {
   }
 
   // Return an array of histogram columns, with height normalized to the max count and max height 1
-  calculateHistogram(histogram: number[]): HistogramColumn[] {
+  private calculateHistogram(histogram: number[]): HistogramColumn[] {
 
     const maxCount = Math.max(...histogram);
     return histogram.map(count => ({
       count,
       height: Math.pow(count / maxCount, 0.5)
     }));
+  }
+
+  public async setHistogram(option: DBGameType | null) {
+    console.log("set histogram", option);
+    const rawHistogram = await this.fetchService.fetch<number[]>(Method.GET, `/api/v2/score-histogram/${option ?? 'any'}`);
+    const histogram = this.calculateHistogram(rawHistogram);
+    this.histogram$.next(histogram);
+    ReviewPageComponent.initialHistogram = histogram
   }
 
   histogramLabel(i: number): string {

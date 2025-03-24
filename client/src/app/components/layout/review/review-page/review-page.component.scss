@@ -35,7 +35,7 @@ section {
     margin-top: 1px;
 }
 
-app-solid-selector {
+.history app-solid-selector {
     height: 0;
     z-index: 1;
 }
@@ -135,6 +135,20 @@ section.stats .left {
     align-items: center;
 }
 
+.score-histogram .header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.score-histogram app-solid-selector {
+    zoom: 0.75;
+    z-index: 10;
+    height: 20px;
+    margin-bottom: 10px;
+}
+
 .histogram {
     height: 150px;
     display: flex;
@@ -184,7 +198,7 @@ section.stats .left {
     width: 100%;
     box-sizing: border-box;
     border-radius: 2px;
-    transition: height 1s ease-in-out 0.2s;
+    transition: height 0.75s ease-in-out;
 }
 
 .panel.player-stats {

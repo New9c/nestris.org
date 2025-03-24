@@ -6,7 +6,13 @@
         <section class="stats">
             <div class="left">
                 <div class="panel score-histogram" *ngIf="histogram$ | async as histogram">
-                    <h1>Your lifetime scores</h1>
+                    <div class="header">
+                        <h1>Your lifetime scores</h1>
+                        <app-solid-selector [labels]="histogramLabels" (selectedChange)="setHistogram(histogramOptions[$event])"
+                        [color]="ButtonColor.DARK" [fontSize]="10" [textOpacity]="0.8" [paddingHorizontal]="10" [paddingVertical]="0"
+                        [dropdownIconWidth]="8" [width]="65" [height]="25" [fontWeight]="500" />
+                        
+                    </div>
                     <div class="histogram">
                         <div class="column" *ngFor="let scoreRange of HISTOGRAM_SCORE_RANGES; let i = index">
                             <p>{{histogramValue(histogram[i].count)}}</p>
@@ -54,7 +60,7 @@
             </div>
         </section>
 
-        <div class="section-header">
+        <div class="section-header history">
             <h1>History</h1>
             <app-solid-selector [labels]="sortLabels" (selectedChange)="sortIndex$.next($event)"
                 [color]="ButtonColor.DARK" [fontSize]="10" [textOpacity]="0.8" [paddingHorizontal]="10" [paddingVertical]="0"

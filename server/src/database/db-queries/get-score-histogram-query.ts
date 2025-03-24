@@ -1,3 +1,4 @@
+import { DBGameType } from "../../../shared/models/db-game";
 import { DBQuery } from "../db-query";
 
 // Get a histogram of scores, where score_range is the score divided by 100000
@@ -28,15 +29,18 @@ export class GetScoreHistogramQuery extends DBQuery<number[]> {
             END AS score_range,
             COUNT(*) AS count
         FROM games
-        WHERE userid = $1
+        WHERE (
+            userid = $1 AND
+            (type = $2 OR $2 = 'any')
+        )
         GROUP BY score_range
         ORDER BY score_range;
     `;
 
     public override warningMs = null;
 
-    constructor(id: string) {
-        super([id]);
+    constructor(id: string, type: DBGameType | 'any') {
+        super([id, type]);
     }
 
     public override parseResult(resultRows: any[]): number[] {
