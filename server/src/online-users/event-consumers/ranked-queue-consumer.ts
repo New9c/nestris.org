@@ -12,11 +12,58 @@ import { OnlineUserActivityType } from "../../../shared/models/online-activity";
 import { DBUser, LoginMethod } from "../../../shared/models/db-user";
 import { getEloChange, getStartLevelForElo } from "../../../shared/nestris-org/elo-system";
 import { Platform } from "../../../shared/models/platform";
+import { DBQuery } from "../../database/db-query";
 
 export class QueueError extends Error {}
 export class UserUnavailableToJoinQueueError extends QueueError {}
 
 const MIN_BOT_MATCH_SECONDS = 10;
+
+/**
+ * Select last 50 matches
+ * Take all the your scores in games that you lost. Call that set A. 
+ * Take all the opponents scores for games you won. Filter only to scores above median(A). Call that set B
+ * Final result is median(A U B)
+ */
+export class PerformanceScoreQuery extends DBQuery<number> {
+    
+    public override query = `
+        WITH recent_games AS (
+            -- Select the last 50 type = 1 games
+            SELECT (data->>'myScore')::INTEGER AS my_score,
+                (data->>'opponentScore')::INTEGER AS opponent_score
+            FROM activities
+            WHERE userid = $1
+            AND data->>'type' = '1'
+            ORDER BY created_at DESC
+            LIMIT 50
+        ),
+        median_m AS (
+            -- Compute M: the median score from the last 50 games
+            SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY my_score) AS M
+            FROM recent_games
+        ),
+        filtered_games AS (
+            -- Filter out games where user won but scored less than M
+            SELECT my_score
+            FROM recent_games, median_m
+            WHERE my_score < opponent_score -- Lost games (always included)
+            OR my_score >= M              -- Won games with at least M points
+        )
+        -- Compute final median from the filtered set
+        SELECT (SELECT M FROM median_m) AS original_median, percentile_cont(0.5) WITHIN GROUP (ORDER BY my_score) AS final_median
+        FROM filtered_games;
+    `;
+    public override warningMs = null;
+
+    constructor(userid: string) {
+        super([userid])
+    };
+    
+    public override parseResult(resultRows: any[]): number {
+        return resultRows[0].final_median ?? 0;
+    }
+}
 
 /**
  * Represents a range of trophies that a user can be matched with
@@ -311,10 +358,10 @@ export class RankedQueueConsumer extends EventConsumer {
      * @param user1 The first user in the match
      * @param user2 The second user in the match
      */
-    private async calculateTrophyDelta(user1: DBUser, user2: DBUser): Promise<{
+    private calculateTrophyDelta(user1: DBUser, user2: DBUser): {
         player1TrophyDelta: TrophyDelta,
         player2TrophyDelta: TrophyDelta,
-    }> {
+    } {
 
         const elo1 = user1.trophies;
         const elo2 = user2.trophies;
@@ -363,7 +410,7 @@ export class RankedQueueConsumer extends EventConsumer {
         ]);
 
         // Calculate the win/loss XP delta for the users
-        const { player1TrophyDelta, player2TrophyDelta } = await this.calculateTrophyDelta(dbUser1, dbUser2);
+        const { player1TrophyDelta, player2TrophyDelta } = this.calculateTrophyDelta(dbUser1, dbUser2);
 
         // Calculate start level
         const lowerElo = Math.min(dbUser1.trophies, dbUser2.trophies);
