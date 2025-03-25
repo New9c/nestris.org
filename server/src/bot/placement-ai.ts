@@ -5,6 +5,7 @@ import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { TETROMINO_CHAR } from "../../shared/tetris/tetrominos";
+import { getGravity } from "../../shared/tetris/gravity";
 
 export interface Placement {
     inputFrameTimeline: string; // i.e X..X., the timeline of inputs to make that is passed into SR, and should be used to determine inputs
@@ -59,6 +60,8 @@ export abstract class PlacementAI {
         level: number,
         lines: number,
         inputFrameTimeline: string,
+        isInaccuracy: boolean,
+        isFirst: boolean,
     ): Promise<AIPlacement>;
 
     /**
@@ -67,6 +70,19 @@ export abstract class PlacementAI {
      * @param move The lock placement to compute the shift map for
      */
     protected abstract computeShiftMap(inputFrameTimeline: string, lockPlacement: MoveableTetromino, isMisdrop: boolean): ShiftMap;
+
+    public randomError(level: number): { isMisdrop: boolean, isInaccuracy: boolean } {
+
+        let multiplier: number = 1;
+        let gravity = getGravity(level);
+        if (gravity === 3) multiplier = 1.5;
+        else if (gravity === 2) multiplier = 2;
+        else if (gravity === 1) multiplier = 2;
+
+        const isMisdrop = Math.random() < this.config.misdrop * multiplier;
+        const isInaccuracy = !isMisdrop && Math.random() < this.config.inaccuracy * multiplier;
+        return { isMisdrop, isInaccuracy };
+    }
 
     /**
      * Register the board state and current and next pieces for a given placement index, to initiate
@@ -87,10 +103,10 @@ export abstract class PlacementAI {
         // Create the initial placement result with default of no shifts
         this.placements.set(index, { inputFrameTimeline, shiftMap: null, computed: false });
 
-        // Compute the placement for this position
-        this.computePlacement(board, current, next, level, lines, inputFrameTimeline).then(move => {
+        const { isMisdrop, isInaccuracy } = this.randomError(level);
 
-            const isMisdrop = Math.random() < this.config.misdrop;
+        // Compute the placement for this position
+        this.computePlacement(board, current, next, level, lines, inputFrameTimeline, isInaccuracy, index === 0).then(move => {
 
             // Update the placement with the computed shifts
             const placement = this.placements.get(index);

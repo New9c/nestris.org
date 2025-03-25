@@ -23,8 +23,9 @@ export async function simulateBot(startLevel: number, config: AIConfig) {
         if (spawnPlacement.intersectsBoard(board)) break;
 
         // Make placement
-        const placement = await bot.computePlacement(board, current, next, status.level, status.lines, bot.generateInputFrameTimeline());
-        const isMisdrop = Math.random() < config.misdrop;
+        const { isMisdrop, isInaccuracy } = bot.randomError(status.level);
+        const placement = await bot.computePlacement(board, current, next, status.level, status.lines, bot.generateInputFrameTimeline(), isInaccuracy, false);
+        
         let finalPlacement: MoveableTetromino;
         if (!placement.placement || isMisdrop) {
             if (placement.placement && isMisdrop) {
@@ -92,35 +93,41 @@ type Hyperparameters = {
     inputSpeeds: InputSpeed[];
     inaccuracies: number[];
     misdrops: number[];
+    levels: number[];
+
     simulationsPerConfig: number;
 };
 
 const defaultHyperparams: Hyperparameters = {
     inputSpeeds: [InputSpeed.HZ_6, InputSpeed.HZ_8, InputSpeed.HZ_10, InputSpeed.HZ_12, InputSpeed.HZ_14],
-    inaccuracies: [0.05, 0.1, 0.2, 0.3],
-    misdrops: [0.005, 0.01, 0.03],
-    simulationsPerConfig: 3
+    inaccuracies: [0.3, 0.1, 0.01],
+    misdrops: [0.05, 0.03, 0.01, 0.005, 0.001, 0.0005],
+    levels: [18],
+    simulationsPerConfig: 5,
 };
 
 const defaultHyperparams2: Hyperparameters = {
-    inputSpeeds: [InputSpeed.HZ_10],
-    inaccuracies: [0.1, 0.2],
-    misdrops: [0.02],
-    simulationsPerConfig: 3
+    inputSpeeds: [InputSpeed.HZ_14],
+    inaccuracies: [0.01],
+    misdrops: [0.0005],
+    levels: [18],
+    simulationsPerConfig: 3,
 };
 
 
-export async function testBotHyperparameters(hyperparams: Hyperparameters = defaultHyperparams) {
+export async function testBotHyperparameters(hyperparams: Hyperparameters = defaultHyperparams2) {
     const results = [];
 
     for (const inputSpeed of hyperparams.inputSpeeds) {
         for (const inaccuracy of hyperparams.inaccuracies) {
             for (const misdrop of hyperparams.misdrops) {
-                const config: AIConfig = { inputSpeed, inaccuracy, misdrop };
-                const stats = await simulateBotAveraged(18, config, hyperparams.simulationsPerConfig);
-                
-                results.push({ config, stats });
-                console.log(`Config:`, config, `Results:`, stats);
+                for (const level of hyperparams.levels) {
+                    const config: AIConfig = { inputSpeed, inaccuracy, misdrop };
+                    const stats = await simulateBotAveraged(level, config, hyperparams.simulationsPerConfig);
+                    
+                    results.push({ config: Object.assign({}, config, {startLevel: level}), stats });
+                    console.log(`Config:`, config, `Results:`, stats);
+                }
             }
         }
     }

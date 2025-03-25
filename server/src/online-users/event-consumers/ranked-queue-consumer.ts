@@ -321,7 +321,20 @@ export class RankedQueueConsumer extends EventConsumer {
         if (user1.userid === user2.userid) return false;
 
         // Bots cannot match each other
-        if (user1.platform === null && user2.platform === null) return false;
+        if (user1.platform === null && user2.platform === null) {
+            const roomConsumer = EventConsumerManager.getInstance().getConsumer(RoomConsumer);
+            const ongoingMatchCount = roomConsumer.getRoomCount(room => room instanceof RankedMultiplayerRoom);
+
+            if (
+                this.matches.length === 0 && // no matches that just paired
+                ongoingMatchCount === 0 && // no ongoing matches
+                Math.abs(user1.trophies - user2.trophies) < 200 // trophies within 200
+            ) {
+                return true;
+            }
+
+            return false;
+        }
 
         // If either player has not been in the queue for at least one second, they cannot be matched
         if (user1.queueElapsedSeconds() < 1) return false;

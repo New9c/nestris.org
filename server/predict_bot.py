@@ -56,7 +56,7 @@ print(f"Mean Squared Error on Test Set: {mse}")
 def trophies_from_score(score):
     if score <= 0:
         raise ValueError("Score must be greater than zero for trophies calculation.")
-    return 3.4 * math.pow(score, 0.5)
+    return 3.5 * math.pow(score, 0.5)
 
 def predict_score(input_speed, inaccuracy, misdrop):
     # Predict the score using the trained model
@@ -71,8 +71,9 @@ def predict_score(input_speed, inaccuracy, misdrop):
 def generate_bot_configs_and_write_to_file():
     # Define the possible values for each parameter
     input_speeds = [6, 8, 10, 12, 14]
-    inaccuracies = [0.3, 0.2, 0.1, 0.05]
-    misdrops = [0.04, 0.03, 0.01, 0.005, 0.003]
+    inaccuracies = [0.3, 0.1, 0.01]
+    misdrops = [0.05, 0.03, 0.01, 0.005, 0.001, 0.0005]
+
 
     # Generate all permutations of the configurations
     bot_configs = list(itertools.product(input_speeds, inaccuracies, misdrops))
@@ -99,6 +100,7 @@ def generate_bot_configs_and_write_to_file():
 
         # Create the bot entry
         bot_entry = {
+            "score": round(score),
             "trophies": round(trophies),
             "speed": f"InputSpeed.HZ_{int(input_speed)}",  # Format as HZ_<speed>
             "inaccuracy": inaccuracy,

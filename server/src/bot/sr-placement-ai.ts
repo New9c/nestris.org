@@ -23,7 +23,9 @@ export class SRPlacementAI extends PlacementAI {
         next: TetrominoType | null,
         level: number,
         lines: number,
-        inputFrameTimeline: string
+        inputFrameTimeline: string,
+        isInaccuracy: boolean,
+        isFirst: boolean,
     ): Promise<AIPlacement> {
 
         if (next === null) throw new Error("Next piece must be provided for SRPlacementAI");
@@ -49,8 +51,17 @@ export class SRPlacementAI extends PlacementAI {
         
         const bestEval = stackrabbit.nextBox[0].score;
 
+        if (isFirst) {
+            const index = randomInt(0, stackrabbit.nextBox.length - 1);
+            return {
+                placement: stackrabbit.nextBox[index].firstPlacement,
+                bestEval: bestEval,
+                playerEval: stackrabbit.nextBox[index].score
+            }
+        }
+
         // If inaccuracy, pick move closest to some random amount lower than bestEval
-        if (Math.random() < this.config.inaccuracy) {
+        if (isInaccuracy) {
             const targetEval = bestEval - randomInt(3, 8);
             let closestPlacement = stackrabbit.nextBox[0];
             for (let placement of stackrabbit.nextBox) {

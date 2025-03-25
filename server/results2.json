@@ -1,0 +1,22 @@
+[
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.05,
+      "misdrop": 0.001,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 29.666666666666668,
+        "lines": 238.33333333333334,
+        "score": 1041440
+      },
+      "variance": {
+        "level": 0.9428090415820634,
+        "lines": 9.741092797468305,
+        "score": 125796.73233699938
+      }
+    }
+  }
+]

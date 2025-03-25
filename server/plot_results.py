@@ -6,11 +6,11 @@ import numpy as np
 with open("results.json", "r") as f:
     data = json.load(f)
 
-# Sort the data by average score in descending order
+
 data_sorted = sorted(data, key=lambda d: d['stats']['average']['score'], reverse=True)
 
 # Extract the sorted fields
-configs = [f"Speed: {d['config']['inputSpeed']}, Inacc: {d['config']['inaccuracy']}, Misdrop: {d['config']['misdrop']}" for d in data_sorted]
+configs = [f"Start level: {d['config']['startLevel']}, Speed: {d['config']['inputSpeed']}, Inacc: {d['config']['inaccuracy']}, Misdrop: {d['config']['misdrop']}" for d in data_sorted]
 scores = np.array([d['stats']['average']['score'] for d in data_sorted])
 score_variances = np.array([d['stats']['variance']['score'] for d in data_sorted])
 lines = np.array([d['stats']['average']['lines'] for d in data_sorted])
