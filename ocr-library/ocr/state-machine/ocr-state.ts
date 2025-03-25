@@ -1,8 +1,9 @@
+import { Frame } from "../util/frame";
 import { GlobalState } from "./global-state";
 import { OCRFrame } from "./ocr-frame";
 import { OCRConfig } from "./ocr-state-machine";
 import { OCRStateID } from "./ocr-states/ocr-state-id";
-import { PersistenceStrategy, SingleFramePersistenceStrategy } from "./persistence-strategy";
+import { PersistenceStrategy } from "./persistence-strategy";
 import { TextLogger } from "./state-machine-logger";
 
 export interface EventStatus {

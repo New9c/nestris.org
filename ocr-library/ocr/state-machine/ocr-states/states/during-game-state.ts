@@ -3,13 +3,13 @@ import { OCRFrame } from "../../ocr-frame";
 import { OCRState } from "../../ocr-state";
 import { OCRStateID } from "../ocr-state-id";
 import MoveableTetromino from "../../../../shared/tetris/moveable-tetromino";
-import { LogType, TextLogger } from "../../state-machine-logger";
+import { LogType } from "../../state-machine-logger";
 import { TETROMINO_CHAR } from "../../../../shared/tetris/tetrominos";
-import { RegularSpawnEvent } from "./regular-spawn-event";
-import { LineClearSpawnEvent } from "./line-clear-spawn-event";
-import { TopoutEvent } from "./topout-event";
-import { ConfusionEvent } from "./confusion-event";
-import { RestartGameEvent } from "./restart-game-event";
+import { RegularSpawnEvent } from "../events/regular-spawn-event";
+import { LineClearSpawnEvent } from "../events/line-clear-spawn-event";
+import { TopoutEvent } from "../events/topout-event";
+import { ConfusionEvent } from "../events/confusion-event";
+import { RestartGameEvent } from "../events/restart-game-event";
 import { getColorTypeForTetromino } from "src/app/shared/tetris/tetromino-colors";
 
 enum ActivePieceFailure {
@@ -63,25 +63,18 @@ export class PieceDroppingState extends OCRState {
             // We only update the active piece if it was found this frame
             this.activePiece = this.activePieceThisFrame;
 
+            // Since this is a stable frame, we can try to derive any ocr colors that haven't be derived yet
+            const displayBoard = this.globalState.game!.getStableBoard().copy();
+            this.activePieceThisFrame.blitToBoard(displayBoard);
+            this.globalState.ocrColor.deriveColorsFromBoard(ocrFrame, displayBoard, this.globalState.game!.getStatus().level);
+
             // We use the found active piece this frame to send an abbreviated-length packet for just the active piece
             this.globalState.game!.setAbbreviatedBoard(this.activePieceThisFrame);
 
         } else {
             // We didn't find the active piece this frame, so we are forced to send the entire board state
-            const colorBoard = ocrFrame.getColorBoard(this.currentLevel)!;
-
-            // If subtracting isolated board is a perfect substraction, use isolated board colors
-            const stableBoard = this.globalState.game!.getStableBoard();
-            const activePieceColor = getColorTypeForTetromino(this.globalState.game!.getCurrentType());
-            if (TetrisBoard.subtract(colorBoard, stableBoard, true) !== null) {
-                for (let {x, y, color} of stableBoard.iterateMinos()) {
-                    if (color !== ColorType.EMPTY) colorBoard.setAt(x, y, color);
-
-                    // This is probably the active piece, set to active piece color
-                    else if (colorBoard.exists(x, y)) colorBoard.setAt(x, y, activePieceColor);
-                }
-            }
-
+            const colorBoard = ocrFrame.getColorBoard(this.currentLevel, this.globalState.ocrColor)!;
+            
             // Update entire board
             this.globalState.game!.setFullBoard(colorBoard);
         }

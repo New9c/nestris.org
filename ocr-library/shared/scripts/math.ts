@@ -21,6 +21,19 @@ export function average(numbers: number[]): number {
     return sum / numbers.length;
 }
 
+export function median(numbers: number[]): number {
+    if (numbers.length === 0) {
+        throw new Error("List of numbers cannot be empty");
+    }
+
+    const sorted = [...numbers].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+
+    return sorted.length % 2 === 0
+        ? (sorted[mid - 1] + sorted[mid]) / 2
+        : sorted[mid];
+}
+
 export function truncatedMean(data: number[], trimPercent: number): number {
     if (trimPercent < 0 || trimPercent > 50) {
         throw new Error("trimPercent must be between 0 and 50.");

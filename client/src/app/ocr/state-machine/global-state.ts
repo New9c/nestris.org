@@ -9,6 +9,7 @@ import { GameState } from "../../shared/game-state-from-packets/game-state";
 import { TimeDelta } from "../../shared/scripts/time-delta";
 import { GameAnalyzer } from "../../shared/evaluation/game-analyzer";
 import { MemoryGameStatus, StatusHistory } from "src/app/shared/tetris/memory-game-status";
+import { OCRColor } from "./ocr-color";
 
 export enum RolloverState {
     BELOW_800K,
@@ -37,6 +38,8 @@ class OCRProfile {
  * Stores the state global to the state machine, and sends packets to the injected PacketSender on changes.
  */
 export class GlobalState {
+
+    public readonly ocrColor: OCRColor = new OCRColor();
 
     public game?: OCRGameState;
 

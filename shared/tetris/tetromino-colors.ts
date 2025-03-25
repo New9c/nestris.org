@@ -164,39 +164,6 @@ export function getColorForTetrominoAndLevel(tetrominoType: TetrominoType, level
     return getColorForLevel(getColorTypeForTetromino(tetrominoType), level);
 }
 
-function findMostSimilarColor(color1: RGBColor, color2: RGBColor, targetColor: RGBColor): RGBColor {
-    // Function to calculate the Euclidean distance between two colors
-    const colorDistance = (c1: RGBColor, c2: RGBColor): number => {
-
-        const h1 = rgbToHsv(c1);
-        const h2 = rgbToHsv(c2);
-
-        return Math.sqrt(Math.pow(h2.h - h1.h, 2) + Math.pow(h2.s - h1.s, 2) + Math.pow(h2.v - h1.v, 2));
-    };
-
-    // Calculating the distance of each color to the target color
-    const distance1 = colorDistance(color1, targetColor);
-    const distance2 = colorDistance(color2, targetColor);
-
-    // Determining the color with the minimum distance
-    return (distance1 < distance2) ? color1 : color2;
-}
-
-// given a raw RGB color and a level, find closest color in level that matches
-export function classifyColor(level: number, colorToClassify: RGBColor): ColorType {
-
-    if (colorToClassify.average > 245) return ColorType.WHITE;
-
-    level = level % 10;
-    const colorFirst = COLOR_FIRST_COLORS_RGB[level];
-    const colorSecond = COLOR_SECOND_COLORS_RGB[level];
-
-    const mostSimilarColor = findMostSimilarColor(colorFirst, colorSecond, colorToClassify);
-
-    if (mostSimilarColor === colorFirst) return ColorType.PRIMARY;
-    else return ColorType.SECONDARY;
-}
-
 export function colorDistance(color1: RGBColor, color2: RGBColor): number {
     return Math.sqrt(Math.pow(color2.r - color1.r, 2) + Math.pow(color2.g - color1.g, 2) + Math.pow(color2.b - color1.b, 2));
 }

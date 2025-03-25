@@ -1,8 +1,7 @@
-import { GlobalState, RolloverState } from "../../global-state";
+import { GlobalState } from "../../global-state";
 import { OCRFrame } from "../../ocr-frame";
 import { OCRState, StateEvent } from "../../ocr-state";
 import { ConsecutivePersistenceStrategy, TimedPersistenceStrategy } from "../../persistence-strategy";
-import { TextLogger } from "../../state-machine-logger";
 import { NOISE_THRESHOLD } from "./before-game-state";
 import { OCRStateID } from "../ocr-state-id";
 import { RestartGameEvent } from "../events/restart-game-event";
@@ -48,7 +47,7 @@ export class GameLimboState extends OCRState {
 
         // As we have no guarantees about what is going on, just keep sending the raw OCR board each frame
         this.globalState.game!.setFullState(
-            ocrFrame.getColorBoard(this.predictedLevel)!,
+            ocrFrame.getColorBoard(this.predictedLevel, this.globalState.ocrColor)!,
             this.next,
             this.predictedLevel,
             this.predictedLines,

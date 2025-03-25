@@ -1,7 +1,7 @@
 import { GlobalState, RolloverState } from "../../global-state";
 import MoveableTetromino from "../../../../shared/tetris/moveable-tetromino";
 import { StateEvent } from "../../ocr-state";
-import { PieceDroppingState } from "./during-game-state";
+import { PieceDroppingState } from "../states/during-game-state";
 import { ConsecutivePersistenceStrategy } from "../../persistence-strategy";
 import { TetrisBoard } from "../../../../shared/tetris/tetris-board";
 import { OCRFrame } from "../../ocr-frame";

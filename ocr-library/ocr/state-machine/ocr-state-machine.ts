@@ -10,6 +10,7 @@ import { OCRStateID } from "./ocr-states/ocr-state-id";
 import { GameAnalyzer } from "../../shared/evaluation/game-analyzer";
 import { BehaviorSubject, Observable } from "rxjs";
 import { MemoryGameStatus, StatusHistory } from "src/app/shared/tetris/memory-game-status";
+import { Frame } from "../util/frame";
 
 export interface OCRConfig {
     startLevel: number | null, // Can only transition to game if OCR detects matching start level

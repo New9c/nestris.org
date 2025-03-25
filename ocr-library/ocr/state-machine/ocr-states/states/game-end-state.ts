@@ -1,4 +1,3 @@
-import { GlobalState } from "../../global-state";
 import { OCRFrame } from "../../ocr-frame";
 import { OCRState, StateEvent } from "../../ocr-state";
 import { OCRConfig } from "../../ocr-state-machine";

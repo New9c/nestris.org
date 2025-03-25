@@ -2,13 +2,15 @@ import { BoardOCRBox } from "../calibration/board-ocr-box";
 import { Calibration } from "../util/calibration";
 import { Frame } from "../util/frame";
 import { ColorType, TetrisBoard } from "../../shared/tetris/tetris-board";
-import { averageRGB, classifyColor, colorDistance } from "../../shared/tetris/tetromino-colors";
 import { NextOCRBox } from "../calibration/next-ocr-box";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { findSimilarTetrominoType } from "../calibration/next-ocr-similarity";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import { NumberOCRBox } from "../calibration/number-ocr-box";
 import { DigitClassifier, Prediction } from "../digit-classifier/digit-classifier";
+import { OCRColor } from "./ocr-color";
+import { averageRGB, colorDistance, RGBColor } from "src/app/shared/tetris/tetromino-colors";
+import { Point } from "src/app/shared/tetris/point";
 
 /**
  * An OCRFrame stores a single RGB frame of a video, and provides methods to extract information from the frame
@@ -82,12 +84,26 @@ export class OCRFrame {
     }
 
     /**
+     * Get the raw RGB color for a mino
+     * @param mino The location of the mino as a point
+     * @returns The raw RGB color
+     */
+    getRawMinoColor(mino: Point): RGBColor {
+        const minoPoints = this.boardOCRBox.getMinoPoints(mino);
+        return averageRGB(minoPoints.map(point => {
+            const pixel = this.frame.getPixelAt(point);
+            if (!pixel) throw new Error(`Pixel does not exist at mino ${point.x}, ${point.y})`);
+            return pixel;
+        }));
+    }
+
+    /**
      * Get the tetris board with color information by finding the closest color to the level's three colors.
      * Caches computations for the board with each given level to find colors for
      * @param level 
      * @returns 
      */
-    getColorBoard(level: number): TetrisBoard {
+    getColorBoard(level: number, ocrColor: OCRColor = new OCRColor()): TetrisBoard {
 
         if (this._colorBoard.get(level) === undefined) {
             const colorBoard = new TetrisBoard();
@@ -99,15 +115,10 @@ export class OCRFrame {
                 if (mino.color === ColorType.EMPTY) continue;
 
                 // Find closest matching color corresponding to level
-                const minoPoints = this.boardOCRBox.getMinoPoints(mino);
-                const minoColor = averageRGB(minoPoints.map(point => {
-                    const pixel = this.frame.getPixelAt(point);
-                    if (!pixel) throw new Error(`Pixel does not exist at mino ${point.x}, ${point.y})`);
-                    return pixel;
-                }));
+                const minoColor = this.getRawMinoColor(mino);
+                const colorType = ocrColor.classifyColor(level, minoColor);
 
                 // Set color at mino location
-                const colorType = classifyColor(level, minoColor);
                 colorBoard.setAt(mino.x, mino.y, colorType);
             };
 

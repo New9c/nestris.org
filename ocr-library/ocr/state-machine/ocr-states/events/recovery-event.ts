@@ -49,7 +49,7 @@ export class RecoveryEvent extends StateEvent {
 
         // Try to seperate board from active piece
         const previousSeperation = this.previousSeperation;
-        const board = ocrFrame.getColorBoard(status.level)!;
+        const board = ocrFrame.getColorBoard(status.level, this.globalState.ocrColor)!;
         const seperation = board.seperateBoardAndPiece();
         this.previousSeperation = seperation;
 

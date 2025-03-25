@@ -1,5 +1,5 @@
 import { StateEvent } from "../../ocr-state";
-import { PieceDroppingState } from "./during-game-state";
+import { PieceDroppingState } from "../states/during-game-state";
 import { TimedPersistenceStrategy } from "../../persistence-strategy";
 import { OCRFrame } from "../../ocr-frame";
 import { OCRStateID } from "../ocr-state-id";
