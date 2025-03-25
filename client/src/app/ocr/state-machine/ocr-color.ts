@@ -46,13 +46,21 @@ export class OCRColor {
     private colorDistance(c1: RGBColor, c2: RGBColor): number {
         const hsv1 = rgbToHsv(c1);
         const hsv2 = rgbToHsv(c2);
-
-        // Correct hue distance calculation
-        let dh = Math.abs(hsv2.h - hsv1.h);
-        dh = Math.min(dh, 360 - dh); // Handle circular hue wraparound
-
-        // Euclidean distance in HSV space
-        return Math.sqrt(dh ** 2 + (hsv2.s - hsv1.s) ** 2 + (hsv2.v - hsv1.v) ** 2);
+    
+        // Normalize values to [0,1]
+        const h1 = hsv1.h / 360;
+        const h2 = hsv2.h / 360;
+        const s1 = hsv1.s / 100;
+        const s2 = hsv2.s / 100;
+        const v1 = hsv1.v / 100;
+        const v2 = hsv2.v / 100;
+    
+        // Correct hue distance calculation in normalized space
+        let dh = Math.abs(h2 - h1);
+        dh = Math.min(dh, 1 - dh); // Handle circular hue wraparound
+    
+        // Euclidean distance in normalized HSV space
+        return Math.sqrt(dh ** 2 + (s2 - s1) ** 2 + (v2 - v1) ** 2);
     }
 
     /**
