@@ -13,6 +13,7 @@ import { DBUser, LoginMethod } from "../../../shared/models/db-user";
 import { getEloChange, getStartLevelForElo } from "../../../shared/nestris-org/elo-system";
 import { Platform } from "../../../shared/models/platform";
 import { DBQuery } from "../../database/db-query";
+import { RankedAbortConsumer } from "./ranked-abort-consumer";
 
 export class QueueError extends Error {}
 export class UserUnavailableToJoinQueueError extends QueueError {}
@@ -123,6 +124,9 @@ class QueueMatch {
     public abort(abortedId: string) {
         this.abortedId = abortedId;
         console.log(`${abortedId} aborted match between ${this.userid1} and ${this.userid2}`);
+
+        const rankedAbortConsumer = EventConsumerManager.getInstance().getConsumer(RankedAbortConsumer);
+        rankedAbortConsumer.onAbort(abortedId);
     }
 }
 

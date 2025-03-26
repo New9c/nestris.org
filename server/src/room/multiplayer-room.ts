@@ -11,6 +11,8 @@ import { PacketAssembler } from "../../shared/network/stream-packets/packet-asse
 import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { DBGameType } from "../../shared/models/db-game";
 import { Platform } from "../../shared/models/platform";
+import { EventConsumerManager } from "../online-users/event-consumer";
+import { RankedAbortConsumer } from "../online-users/event-consumers/ranked-abort-consumer";
 
 export class MultiplayerRoom extends Room<MultiplayerRoomState> {
 
@@ -296,6 +298,9 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         // If a player left before starting game, abort
         if (!this.gamePlayers[playerIndex].isInGame() && roomState.points.length === 0) {
             state.status = MultiplayerRoomStatus.ABORTED;
+
+            const rankedAbortConsumer = EventConsumerManager.getInstance().getConsumer(RankedAbortConsumer);
+            rankedAbortConsumer.onAbort(userid, sessionID);
         }
 
         // Update multiplayer room state with player leaving

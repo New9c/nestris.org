@@ -80,6 +80,7 @@ import { runBotSimulations, simulateBot, simulateBotAveraged, testBotHyperparame
 import { AIConfig } from './src/bot/placement-ai';
 import { SpectateRoomRoute } from './src/routes/room/spectate-room-route';
 import { SpectateRoomOfUserRoute } from './src/routes/room/spectate-room-of-user-route';
+import { DelayedCounter, RankedAbortConsumer } from './src/online-users/event-consumers/ranked-abort-consumer';
 
 // Load environment variables
 require('dotenv').config();
@@ -149,6 +150,7 @@ async function main() {
   consumers.registerConsumer(GuestConsumer, {});
   consumers.registerConsumer(RoomConsumer, {});
   consumers.registerConsumer(RankedQueueConsumer, {});
+  consumers.registerConsumer(RankedAbortConsumer, {});
   consumers.registerConsumer(InvitationConsumer, {});
   consumers.registerConsumer(RatedPuzzleConsumer, {batchSize: NODE_ENV === DeploymentEnvironment.DEV ? 3 : 97});
   consumers.registerConsumer(ActivityConsumer, {});

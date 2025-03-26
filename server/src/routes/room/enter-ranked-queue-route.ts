@@ -5,6 +5,7 @@ import { DBObjectNotFoundError } from "../../database/db-object-error";
 import { DBUserObject } from "../../database/db-objects/db-user";
 import { EventConsumerManager } from "../../online-users/event-consumer";
 import { ActivityConsumer } from "../../online-users/event-consumers/activity-consumer";
+import { RankedAbortConsumer } from "../../online-users/event-consumers/ranked-abort-consumer";
 import { RankedQueueConsumer, UserUnavailableToJoinQueueError } from "../../online-users/event-consumers/ranked-queue-consumer";
 import { RoomConsumer } from "../../online-users/event-consumers/room-consumer";
 import { SoloRoom } from "../../room/solo-room";
@@ -44,6 +45,11 @@ export class EnterRankedQueueRoute extends PostRoute {
         if (!Object.values(Platform).includes(platform)) {
             throw new RouteError(400, `Platform ${platform} is not valid`);
         }
+
+        // Make sure not too many aborts
+        const rankedAbortConsumer = EventConsumerManager.getInstance().getConsumer(RankedAbortConsumer);
+        const suspended = rankedAbortConsumer.suspendedMessage(userInfo!.userid);
+        if (suspended) throw new RouteError(400, suspended);
 
         const roomConsumer = EventConsumerManager.getInstance().getConsumer(RoomConsumer);
         const activityConsumer = EventConsumerManager.getInstance().getConsumer(ActivityConsumer);
