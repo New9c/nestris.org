@@ -4,7 +4,7 @@ export interface BrowserConfig {
 }
 
 const ProductionConfig: BrowserConfig = {
-    requireOCRVerifier: true,
+    requireOCRVerifier: false,
     allowOCRMidGameStart: false,
 }
 

@@ -34,7 +34,7 @@ export class PieceDroppingState extends OCRState {
 
         this.registerEvent(new RestartGameEvent(this.config, this.globalState, this.textLogger));
         this.registerEvent(new RegularSpawnEvent(this, this.globalState));
-        this.registerEvent(new LineClearSpawnEvent(this, this.globalState));
+        this.registerEvent(new LineClearSpawnEvent(this, this.config, this.globalState));
         this.registerEvent(new TopoutEvent(this));
         this.registerEvent(new ConfusionEvent(this));
     }
@@ -74,7 +74,7 @@ export class PieceDroppingState extends OCRState {
         } else {
             // We didn't find the active piece this frame, so we are forced to send the entire board state
             const colorBoard = ocrFrame.getColorBoard(this.currentLevel, this.globalState.ocrColor)!;
-            
+
             // Update entire board
             this.globalState.game!.setFullBoard(colorBoard);
         }

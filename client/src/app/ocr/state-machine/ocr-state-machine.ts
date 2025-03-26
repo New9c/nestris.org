@@ -17,6 +17,7 @@ export interface OCRConfig {
     seed: string | null, // If defined, must set rng to this seed
     multipleGames: boolean, // whether OCR can start another game after first game ends
     midGameStart?: boolean, // If set, allows starting in the middle of the game
+    levelCap?: number, // if this level is reached, game stops
 }
 
 export class OCRStateMachine {
