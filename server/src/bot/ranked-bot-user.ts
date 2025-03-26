@@ -454,7 +454,12 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
     private async handleMatchEnd(leftRoom$: Observable<unknown>, error: Error) {
 
         // Wait until the match is over, or the bot leaves the room
-        await waitUntilCondition(this.roomState$, state => state?.status === MultiplayerRoomStatus.AFTER_MATCH, leftRoom$, error);
+        await waitUntilCondition(
+            this.roomState$,
+            state => [MultiplayerRoomStatus.AFTER_MATCH, MultiplayerRoomStatus.ABORTED].includes(state?.status),
+            leftRoom$,
+            error
+        );
 
         // Randomly send a message after the game ends
         const message = getRandomMessage(AFTER_GAME_MESSAGE);

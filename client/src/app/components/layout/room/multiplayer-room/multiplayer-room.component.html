@@ -1,7 +1,7 @@
 <div class="multiplayer-background" *ngIf="(multiplayerState$ | async) as state">
     <div class="side" *ngFor="let playerIndex of getPlayerIndices()" [ngClass]="getIndexColor(playerIndex)">
         <div class="player" *ngIf="state.players[playerIndex] as player">
-            <app-game-header [username]="player.username" [userid]="player.userid" [trophies]="player.trophies" [rated]="state.ranked"
+            <app-game-header [username]="player.username + (state.status === MultiplayerRoomStatus.ABORTED ? ' (Aborted)' : '')" [userid]="player.userid" [trophies]="player.trophies" [rated]="state.ranked"
             [score]="getScore(state, playerIndex)" [color]="getIndexColor(playerIndex)" />
 
             <!-- Show client gameplay directly if it's the player's board -->
@@ -25,7 +25,7 @@
                 </div>
 
                 <div *ngIf="(ocrTimer | async) as seconds" class="board-text abort-text">
-                    <p>Resigning in {{seconds}}...</p>
+                    <p>Aborting in {{seconds}}...</p>
                 </div>
                     
                 <div *ngIf="(ocrStatus$ | async) === OCRStatus.OCR_BEFORE_GAME" class="board-text ocr-config">

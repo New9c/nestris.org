@@ -1,6 +1,6 @@
 import { ClientRoom } from "./client-room";
 import { RoomModal } from "src/app/components/layout/room/room/room.component";
-import { BehaviorSubject, map, Observable, Subscription } from "rxjs";
+import { BehaviorSubject, map, Observable, of, Subscription, switchMap } from "rxjs";
 import { EmulatorService } from "../emulator/emulator.service";
 import { PlatformInterfaceService } from "../platform-interface.service";
 import { MultiplayerRoomEventType, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex } from "src/app/shared/room/multiplayer-room-models";
@@ -83,7 +83,7 @@ export class MultiplayerClientRoom extends ClientRoom {
     private ocrStatus$ = new BehaviorSubject<OCRStatus>(OCRStatus.NOT_OCR);
 
     public readyTimer?: Timer; // Timer to get ready
-    public ocrTimer?: Timer; // Timer to start ocr game after in_game start
+    public ocrTimer$ = new BehaviorSubject<Timer | undefined>(undefined); // Timer to start ocr game after in_game start
 
     public override async init(event: InRoomStatusMessage): Promise<void> {
         const state = event.roomState as MultiplayerRoomState;
@@ -189,14 +189,14 @@ export class MultiplayerClientRoom extends ClientRoom {
                 if (!stateObservable$) throw new Error(`Game capture already started`);
 
                 // Start timer where user has to start game before it expires
-                this.ocrTimer = new Timer(10, () => {
+                this.ocrTimer$.next(new Timer(10, () => {
                     this.sendClientRoomEvent({type: MultiplayerRoomEventType.ABORT});
                     this.ocr.stopGameCapture();
-                })
+                }));
 
                 this.ocrStateSubscription = stateObservable$.subscribe((state) => {
                     if (state.id === OCRStateID.PIECE_DROPPING) {
-                        if (this.ocrTimer?.secondsLeft) this.ocrTimer.stop();
+                        if (this.ocrTimer$.getValue()!.secondsLeft) this.ocrTimer$.getValue()!.stop();
                         this.ocrStatus$.next(OCRStatus.OCR_IN_GAME);
                     }
                     if (state.id === OCRStateID.GAME_END) {

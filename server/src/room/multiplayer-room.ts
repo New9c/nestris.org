@@ -199,7 +199,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
             
             // Trigger abort
             case MultiplayerRoomEventType.ABORT:
-                this.abortMatch(userid);
+                await this.onPlayerLeave(userid, sessionID);
                 return;
         }
     }
@@ -290,31 +290,21 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         // If match already ended, do nothing
         if (roomState.status === MultiplayerRoomStatus.AFTER_MATCH) return;
 
-        // If a player left before starting game, abort
         const playerIndex = this.getPlayerIndex(sessionID);
+        const state = this.getRoomState();
+
+        // If a player left before starting game, abort
         if (!this.gamePlayers[playerIndex].isInGame() && roomState.points.length === 0) {
-            this.abortMatch(userid);
-            return;
+            state.status = MultiplayerRoomStatus.ABORTED;
         }
 
         // Update multiplayer room state with player leaving
-        const state = this.getRoomState();
         state.players[playerIndex].leftRoom = true;
         this.updateRoomState(state);
 
         // If the player that left the room was in the middle of a game, end that game. This will call
         // match end callbacks if both players have ended the game
         await this.gamePlayers[playerIndex].onDelete();
-    }
-
-    /**
-     * Abort match, caused by userid
-     */
-    private abortMatch(userid: string) {
-        const state = this.getRoomState();
-        state.status = MultiplayerRoomStatus.ABORTED;
-        this.updateRoomState(state);
-        console.log(`Match aborted by ${userid}`);
     }
 
     /**

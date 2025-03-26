@@ -7,6 +7,7 @@ import { calculateScoreForPlayer, MultiplayerRoomState, MultiplayerRoomStatus, P
 import { MultiplayerComponent } from './multiplayer-component';
 import { Platform } from 'src/app/shared/models/platform';
 import { OCRStatus } from 'src/app/services/room/multiplayer-client-room';
+import { of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-multiplayer-room',
@@ -22,7 +23,9 @@ export class MultiplayerRoomComponent extends MultiplayerComponent {
 
   public ocrStatus$ = this.multiplayerClientRoom.getOCRStatus$();
   public readyTimer = this.multiplayerClientRoom.readyTimer?.timeVisibleAt$(10);
-  public ocrTimer = this.multiplayerClientRoom.ocrTimer?.timeVisibleAt$(5);
+  public ocrTimer = this.multiplayerClientRoom.ocrTimer$.pipe(
+    switchMap(timer => timer ? timer.timeVisibleAt$(5) : of(null))
+  );
 
   constructor(
     public readonly platform: PlatformInterfaceService,
