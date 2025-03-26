@@ -93,4 +93,5 @@ export interface TrophyDelta {
 
 export enum MultiplayerRoomEventType {
     READY = 'READY',
+    ABORT = 'ABORT',
 }

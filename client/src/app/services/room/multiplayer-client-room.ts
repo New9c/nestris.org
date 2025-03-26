@@ -1,18 +1,15 @@
 import { ClientRoom } from "./client-room";
 import { RoomModal } from "src/app/components/layout/room/room/room.component";
-import { BehaviorSubject, Observable, Subscription } from "rxjs";
+import { BehaviorSubject, map, Observable, Subscription } from "rxjs";
 import { EmulatorService } from "../emulator/emulator.service";
 import { PlatformInterfaceService } from "../platform-interface.service";
 import { MultiplayerRoomEventType, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex } from "src/app/shared/room/multiplayer-room-models";
-import { MeService } from "../state/me.service";
 import { ServerPlayer } from "./server-player";
 import { WebsocketService } from "../websocket.service";
 import { PacketGroup } from "src/app/shared/network/stream-packets/packet";
-import { GameStateSnapshot, GameStateSnapshotWithoutBoard } from "src/app/shared/game-state-from-packets/game-state";
+import { GameStateSnapshotWithoutBoard } from "src/app/shared/game-state-from-packets/game-state";
 import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
 import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
-import { AlertService } from "../alert.service";
-import { TrophyAlertComponent } from "src/app/components/alerts/trophy-alert/trophy-alert.component";
 import { OcrGameService } from "../ocr/ocr-game.service";
 import { OCRConfig } from "src/app/ocr/state-machine/ocr-state-machine";
 import { Platform } from "src/app/shared/models/platform";
@@ -27,13 +24,53 @@ export enum OCRStatus {
     OCR_AFTER_GAME,
 }
 
+class Timer {
+
+    private _time$: BehaviorSubject<number | null>;
+    public time$: Observable<number | null>;
+
+    private interval: any;
+
+    constructor(seconds: number, private readonly onExpire: () => void) {
+        if (seconds <= 0) throw new Error("Seconds must be positive");
+
+        this._time$ = new BehaviorSubject<number | null>(seconds);
+        this.time$ = this._time$.asObservable();
+
+        this.interval = setInterval(() => {
+            if (this.secondsLeft === null) return;
+            this._time$.next(this.secondsLeft - 1);
+            if (this.secondsLeft === 0) {
+                clearInterval(this.interval);
+                this.onExpire();
+            }
+        }, 1000);
+    }
+
+    get secondsLeft() {
+        return this._time$.getValue();
+    }
+
+    // An observable that emits values once time goes at or under the specified seconds
+    timeVisibleAt$(seconds: number): Observable<number | null> {
+        return this._time$.pipe(
+            map(time => (time !== null && time <= seconds) ? time : null),
+        );
+    }
+
+    stop() {
+        clearInterval(this.interval);
+        this._time$.next(null);
+    }
+}
+
 export class MultiplayerClientRoom extends ClientRoom {
 
-    private readonly me = this.injector.get(MeService);
     private readonly websocket = this.injector.get(WebsocketService);
     private readonly emulator = this.injector.get(EmulatorService);
     private readonly platform = this.injector.get(PlatformInterfaceService);
     private readonly ocr = this.injector.get(OcrGameService);
+    private readonly room = this.injector.get(RoomService);
 
     private serverPlayers!: {[PlayerIndex.PLAYER_1]: ServerPlayer, [PlayerIndex.PLAYER_2]: ServerPlayer};
 
@@ -44,6 +81,9 @@ export class MultiplayerClientRoom extends ClientRoom {
     private ocrStateSubscription?: Subscription;
 
     private ocrStatus$ = new BehaviorSubject<OCRStatus>(OCRStatus.NOT_OCR);
+
+    public readyTimer?: Timer; // Timer to get ready
+    public ocrTimer?: Timer; // Timer to start ocr game after in_game start
 
     public override async init(event: InRoomStatusMessage): Promise<void> {
         const state = event.roomState as MultiplayerRoomState;
@@ -61,9 +101,9 @@ export class MultiplayerClientRoom extends ClientRoom {
         })
 
         // Derive the index of the client in the room, or null if the client is a spectator
-        const myID = await this.me.getUserID();
-        if (state.players[PlayerIndex.PLAYER_1].userid === myID) this.myIndex = PlayerIndex.PLAYER_1;
-        else if (state.players[PlayerIndex.PLAYER_2].userid === myID) this.myIndex = PlayerIndex.PLAYER_2;
+        const mySessionID = await this.websocket.getSessionID();
+        if (state.players[PlayerIndex.PLAYER_1].sessionID === mySessionID) this.myIndex = PlayerIndex.PLAYER_1;
+        else if (state.players[PlayerIndex.PLAYER_2].sessionID === mySessionID) this.myIndex = PlayerIndex.PLAYER_2;
         else this.myIndex = null;
 
         // Initialize serverPlayers
@@ -91,6 +131,11 @@ export class MultiplayerClientRoom extends ClientRoom {
             // Process the packets
             packetGroup.packets.forEach(packet => this.serverPlayers[playerIndex].onReceivePacket(packet));
         });
+
+        // If player, set a timeout to be ready. On expire, abort
+        if (this.myIndex !== null) {
+            this.readyTimer = new Timer(20, () => this.sendClientRoomEvent({type: MultiplayerRoomEventType.ABORT}));
+        }
     }
 
     /**
@@ -137,11 +182,23 @@ export class MultiplayerClientRoom extends ClientRoom {
             if (this.platform.getPlatform() === Platform.ONLINE) {
                 this.emulator.startGame(newState.startLevel, true, newState.currentSeed, this);
             } else {
+
+                // Start OCR game
                 const config: OCRConfig = { startLevel: newState.startLevel, seed: newState.currentSeed, multipleGames: false };
                 const stateObservable$ = this.ocr.startGameCapture(config, this.platform, true);
                 if (!stateObservable$) throw new Error(`Game capture already started`);
+
+                // Start timer where user has to start game before it expires
+                this.ocrTimer = new Timer(10, () => {
+                    this.sendClientRoomEvent({type: MultiplayerRoomEventType.ABORT});
+                    this.ocr.stopGameCapture();
+                })
+
                 this.ocrStateSubscription = stateObservable$.subscribe((state) => {
-                    if (state.id === OCRStateID.PIECE_DROPPING) this.ocrStatus$.next(OCRStatus.OCR_IN_GAME);
+                    if (state.id === OCRStateID.PIECE_DROPPING) {
+                        if (this.ocrTimer?.secondsLeft) this.ocrTimer.stop();
+                        this.ocrStatus$.next(OCRStatus.OCR_IN_GAME);
+                    }
                     if (state.id === OCRStateID.GAME_END) {
                         this.ocrStatus$.next(OCRStatus.OCR_AFTER_GAME);
                     }
@@ -154,19 +211,21 @@ export class MultiplayerClientRoom extends ClientRoom {
 
             // If resigned, imediately show after match modal
             if (newState.wonByResignation) this.showAfterMatchModal();
+
+            this.room.onMatchEnd$.next();
         }
 
         // If aborted, show after match modal
         if (oldState.status !== MultiplayerRoomStatus.AFTER_MATCH && newState.status === MultiplayerRoomStatus.ABORTED) {
             this.showAfterMatchModal();
         }
-
     }
 
     /**
      * Sent when the client is ready to start the game
      */
     public sendReadyEvent() {
+        this.readyTimer?.stop();
         this.sendClientRoomEvent({type: MultiplayerRoomEventType.READY });
     }
 

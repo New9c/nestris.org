@@ -279,10 +279,11 @@ export abstract class Room<T extends RoomState = RoomState> {
     /**
      * Overwrite this method to handle when a client room event is received.
      * Precondition: The session id is guaranteed to be a player in the room.
+     * @param userid the userid of the player that sent the event
      * @param sessionID The session id of the player that sent the event
      * @param event The client room event that was received.
      */
-    protected async onClientRoomEvent(sessionID: string, event: ClientRoomEvent): Promise<void> {}
+    protected async onClientRoomEvent(userid: string, sessionID: string, event: ClientRoomEvent): Promise<void> {}
 
     /**
      * Override this method to handle when a player leaves the room.
@@ -351,8 +352,8 @@ export abstract class Room<T extends RoomState = RoomState> {
      * If received a client room event, trigger hook to be implemented by subclasses. This should only be called by the RoomConsumer.
      * @param event The client room event to handle.
      */
-    public async _onClientRoomEvent(sessionID: string, event: ClientRoomEvent) {
-        await this.onClientRoomEvent(sessionID, event);
+    public async _onClientRoomEvent(userid: string, sessionID: string, event: ClientRoomEvent) {
+        await this.onClientRoomEvent(userid, sessionID, event);
     }
 
     /**
@@ -584,7 +585,7 @@ export class RoomConsumer extends EventConsumer {
         
         // Forward client room events to the room
         } else if (event.message.type === JsonMessageType.CLIENT_ROOM_EVENT)
-            await room._onClientRoomEvent(event.sessionID, (event.message as ClientRoomEventMessage).event);
+            await room._onClientRoomEvent(event.userid, event.sessionID, (event.message as ClientRoomEventMessage).event);
     }
 
     /**

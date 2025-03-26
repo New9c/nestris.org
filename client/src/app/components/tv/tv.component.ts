@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { FetchService, Method } from 'src/app/services/fetch.service';
@@ -12,12 +12,13 @@ import { WebsocketService } from 'src/app/services/websocket.service';
   styleUrls: ['./tv.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TvComponent implements OnDestroy {
+export class TvComponent implements OnInit, OnDestroy {
   static expanded$ = new BehaviorSubject<boolean>(false);
 
   readonly roomInfo$ = this.roomService.getRoomInfo$();
 
   private loadTVInterval: any;
+  private matchEndSubscription?: Subscription;
 
   constructor(
     private readonly roomService: RoomService,
@@ -26,6 +27,17 @@ export class TvComponent implements OnDestroy {
     private readonly router: Router,
   ) {
     this.loadTVInterval = setInterval(() => this.loadTvRoom(), 2000);
+  }
+
+  ngOnInit(): void {
+    this.matchEndSubscription = this.roomService.onMatchEnd$.subscribe(() => {
+
+      // When a match ends, start spectating the next match in a little bit
+      const roomID = this.roomService.getRoomInfo()?.id;
+      if (roomID) setTimeout(() => {
+        if (this.roomService.getRoomInfo()?.id === roomID) this.roomService.leaveRoom();
+      }, 3000);
+    });
   }
 
   get expanded$() {
@@ -76,5 +88,6 @@ export class TvComponent implements OnDestroy {
 
   ngOnDestroy() {
     clearInterval(this.loadTVInterval);
+    this.matchEndSubscription?.unsubscribe();
   }
 }

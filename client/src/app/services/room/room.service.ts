@@ -3,7 +3,7 @@ import { ChatMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessag
 import { RoomInfo, RoomState, RoomType } from 'src/app/shared/room/room-models';
 import { WebsocketService } from '../websocket.service';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { MeService } from '../state/me.service';
 import { ClientRoom } from './client-room';
 import { SoloClientRoom } from './solo-client-room';
@@ -42,6 +42,9 @@ export class RoomService {
   private numSpectators$ = new BehaviorSubject<number>(0);
 
   private messages$ = new BehaviorSubject<Message[]>([]);
+
+  // Unfortunate lazy hack. Triggers whenever multiplayer match ends, to trigger tv room refresh
+  public onMatchEnd$ = new Subject<void>();
 
   constructor(
     private injector: Injector,

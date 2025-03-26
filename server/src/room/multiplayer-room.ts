@@ -22,9 +22,6 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         [PlayerIndex.PLAYER_2]: null,
     };
 
-    // If the match was ended due to a player resigning, this flag is set
-    private playerResigned: boolean = false;
-
     /**
      * Creates a new SoloRoom for the single player with the given playerSessionID
      * @param playerSessionID The playerSessionID of the player in the room
@@ -66,7 +63,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
             console.log(`Player ${player.username} game ended with score ${event.state.getStatus().score} (${event.forced ? 'abort' : 'topout'})`);
 
             // Only trigger onBothPlayersEndGame if both players have ended the game and neither player has resigned
-            if (this.previousGame[PlayerIndex.PLAYER_1] && this.previousGame[PlayerIndex.PLAYER_2] && !this.playerResigned) {
+            if (this.previousGame[PlayerIndex.PLAYER_1] && this.previousGame[PlayerIndex.PLAYER_2]) {
                 await this.onBothPlayersEndGame(
                     this.previousGame[PlayerIndex.PLAYER_1],
                     this.previousGame[PlayerIndex.PLAYER_2]
@@ -179,9 +176,8 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
      * @param sessionID The sessionID of the player
      * @param event The event sent by the player
      */
-    protected async onClientRoomEvent(sessionID: string, event: ClientRoomEvent): Promise<void> {
+    protected async onClientRoomEvent(userid: string, sessionID: string, event: ClientRoomEvent): Promise<void> {
         const playerIndex = this.getPlayerIndex(sessionID);
-
         const state = this.getRoomState();
 
         switch (event.type) {
@@ -200,6 +196,11 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
                     }
                 }
                 break;
+            
+            // Trigger abort
+            case MultiplayerRoomEventType.ABORT:
+                this.abortMatch(userid);
+                return;
         }
     }
 
@@ -289,24 +290,31 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         // If match already ended, do nothing
         if (roomState.status === MultiplayerRoomStatus.AFTER_MATCH) return;
 
-        // If a player left before any game even started, abort the match
-        if (roomState.status === MultiplayerRoomStatus.BEFORE_GAME && roomState.points.length === 0) {
-            const state = this.getRoomState();
-            state.status = MultiplayerRoomStatus.ABORTED;
-            this.updateRoomState(state);
-            console.log('Match aborted because a player left before any game started');
+        // If a player left before starting game, abort
+        const playerIndex = this.getPlayerIndex(sessionID);
+        if (!this.gamePlayers[playerIndex].isInGame() && roomState.points.length === 0) {
+            this.abortMatch(userid);
             return;
         }
 
         // Update multiplayer room state with player leaving
         const state = this.getRoomState();
-        const playerIndex = this.getPlayerIndex(sessionID);
         state.players[playerIndex].leftRoom = true;
         this.updateRoomState(state);
 
         // If the player that left the room was in the middle of a game, end that game. This will call
         // match end callbacks if both players have ended the game
-        await this.gamePlayers[playerIndex].onDelete();   
+        await this.gamePlayers[playerIndex].onDelete();
+    }
+
+    /**
+     * Abort match, caused by userid
+     */
+    private abortMatch(userid: string) {
+        const state = this.getRoomState();
+        state.status = MultiplayerRoomStatus.ABORTED;
+        this.updateRoomState(state);
+        console.log(`Match aborted by ${userid}`);
     }
 
     /**

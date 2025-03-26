@@ -21,6 +21,8 @@ export class MultiplayerRoomComponent extends MultiplayerComponent {
   readonly OCRStatus = OCRStatus;
 
   public ocrStatus$ = this.multiplayerClientRoom.getOCRStatus$();
+  public readyTimer = this.multiplayerClientRoom.readyTimer?.timeVisibleAt$(10);
+  public ocrTimer = this.multiplayerClientRoom.ocrTimer?.timeVisibleAt$(5);
 
   constructor(
     public readonly platform: PlatformInterfaceService,

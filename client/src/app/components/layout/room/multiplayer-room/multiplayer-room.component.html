@@ -19,8 +19,16 @@
                     [gameOver]="getGameOverMode(state, playerIndex)"
                     (clickNext)="clickNext(state)"
                     />
+
+                <div *ngIf="(readyTimer | async) as seconds" class="board-text abort-text">
+                    <p>Aborting in {{seconds}}...</p>
+                </div>
+
+                <div *ngIf="(ocrTimer | async) as seconds" class="board-text abort-text">
+                    <p>Resigning in {{seconds}}...</p>
+                </div>
                     
-                <div *ngIf="(ocrStatus$ | async) === OCRStatus.OCR_BEFORE_GAME" class="ocr-config">
+                <div *ngIf="(ocrStatus$ | async) === OCRStatus.OCR_BEFORE_GAME" class="board-text ocr-config">
                     <h1>Requirements</h1>
                     <p>Level: {{state.startLevel}}</p>
                     <p>Seed: {{state.currentSeed}}</p>

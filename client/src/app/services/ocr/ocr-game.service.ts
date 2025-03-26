@@ -78,4 +78,8 @@ export class OcrGameService {
     return this.stateMachine?.getMemoryStatus();
   }
 
+  getCurrentState$() {
+    return this.stateMachine?.getCurrentState$();
+  }
+
 }
