@@ -7,6 +7,7 @@ import { RatedMove } from 'src/app/components/ui/eval-bar/eval-bar.component';
 import { Observable } from 'rxjs';
 import { EVALUATION_TO_COLOR, overallAccuracyRating } from 'src/app/shared/evaluation/evaluation';
 import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
+import { COUNTDOWN_LINECAP_REACHED } from 'src/app/shared/network/stream-packets/packet';
 
 @Component({
   selector: 'app-layout-one',
@@ -35,6 +36,8 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
   @Input() dimmed: boolean = false;
   @Input() enginePiece?: MoveableTetromino;
   @Output() clickNext = new EventEmitter<void>();
+
+  readonly COUNTDOWN_LINECAP_REACHED = COUNTDOWN_LINECAP_REACHED;
 
 
   ngOnChanges(changes: SimpleChanges): void {

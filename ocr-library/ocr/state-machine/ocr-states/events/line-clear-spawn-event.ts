@@ -10,6 +10,7 @@ import { TETROMINO_CHAR } from "../../../../shared/tetris/tetrominos";
 import { LogType } from "../../state-machine-logger";
 import { calculatePushdown } from "./regular-spawn-event";
 import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
+import { OCRConfig } from "../../ocr-state-machine";
 
 /**
  * Event that triggers when a new piece is spawned without a line clear. This should result in the previous
@@ -23,6 +24,7 @@ export class LineClearSpawnEvent extends StateEvent {
 
     constructor(
         private readonly myState: PieceDroppingState,
+        private readonly config: OCRConfig,
         private readonly globalState: GlobalState)
     { super(); }
 
@@ -155,6 +157,13 @@ export class LineClearSpawnEvent extends StateEvent {
         // Update the stable board to reflect the new piece placement and report the placement of the previous piece
         this.myState.textLogger.log(LogType.INFO, `RegularSpawnEvent: Placed ${TETROMINO_CHAR[this.validPlacement!.tetrominoType]} at ${this.validPlacement!.getTetrisNotation()}`);
         this.globalState.game!.placePiece(this.validPlacement!, ocrFrame.getNextType()!, pushdown);
+
+        // If level cap reached, end game
+        const level = this.globalState.game!.getStatus().level;
+        if (this.config.levelCap && level >= this.config.levelCap) {
+            this.globalState.game!.linecapReached();
+            return OCRStateID.GAME_END;
+        }
 
         // We transition to a new instance of the same state
         return OCRStateID.PIECE_DROPPING;

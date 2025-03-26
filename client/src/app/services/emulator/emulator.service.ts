@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GameStartPacket, GameCountdownPacket, GamePlacementPacket, GameAbbrBoardPacket, GameFullBoardPacket, GameEndPacket } from 'src/app/shared/network/stream-packets/packet';
+import { GameStartPacket, GameCountdownPacket, GamePlacementPacket, GameAbbrBoardPacket, GameFullBoardPacket, GameEndPacket, COUNTDOWN_LINECAP_REACHED } from 'src/app/shared/network/stream-packets/packet';
 import { PlatformInterfaceService } from '../platform-interface.service';
 import { GameDisplayData } from 'src/app/shared/tetris/game-display-data';
 import { GymRNG } from 'src/app/shared/tetris/piece-sequence-generation/gym-rng';
@@ -106,9 +106,10 @@ export class EmulatorService {
 
   // starting game will create a game object and execute game frames at 60fps
   // if slowmode, will execute games at 5ps instead
-  startGame(startLevel: number, sendPacketsToServer: boolean, seed?: string, clientRoom?: ClientRoom, countdown = 3) {
+  startGame(startLevel: number, sendPacketsToServer: boolean, levelCap?: number, seed?: string, clientRoom?: ClientRoom, countdown = 3) {
     this.sendPacketsToServer = sendPacketsToServer;
     this.clientRoom = clientRoom;
+    console.log("elvel cap", levelCap);
 
     if (this.sendPacketsToServer) this.wakeLockService.enableWakeLock();
     this.questService.setInGame(true, this.clientRoom);
@@ -126,7 +127,7 @@ export class EmulatorService {
 
     // generate initial game state
     const gymSeed = seed ?? GymRNG.generateRandomSeed();
-    this.currentState = new EmulatorGameState(startLevel, new GymRNG(gymSeed), countdown);
+    this.currentState = new EmulatorGameState(startLevel, levelCap, new GymRNG(gymSeed), countdown);
     this.analyzer = new LiveGameAnalyzer(this.stackrabbitService, sendPacketsToServer ? this.platform : null, startLevel);
     
     this.analyzer.onNewPosition({
@@ -210,7 +211,7 @@ export class EmulatorService {
       nextPiece: state.getNextPieceType(),
       trt: this.currentState!.getTetrisRate(), // use non-runahead state for tetris rate because it is not correct with runahead
       drought: state.getDroughtCount(),
-      countdown: state.getCountdown(),
+      countdown: state.isReachedLevelCap() ? COUNTDOWN_LINECAP_REACHED : state.getCountdown(),
     };
     this.platform.updateGameData(data);
 
@@ -301,9 +302,18 @@ export class EmulatorService {
       }
 
     }
+
+    // if linecap, send countdown indicator
+    if (this.currentState.isReachedLevelCap()) {
+      this.sendPacket(new GameCountdownPacket().toBinaryEncoder({
+        delta: this.timeDelta.getDelta(),
+        countdown: COUNTDOWN_LINECAP_REACHED,
+      }));
+    }
     
     // if topped out, stop game
     if (this.currentState.isToppedOut()) {
+      this.updateClientsideDisplay();
       this.stopGame();
       this.onTopout$.next();
 

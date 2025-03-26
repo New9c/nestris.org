@@ -62,7 +62,7 @@ export class SRPlacementAI extends PlacementAI {
 
         // If inaccuracy, pick move closest to some random amount lower than bestEval
         if (isInaccuracy) {
-            const targetEval = bestEval - randomInt(3, 8);
+            const targetEval = bestEval - randomInt(3, 6);
             let closestPlacement = stackrabbit.nextBox[0];
             for (let placement of stackrabbit.nextBox) {
                 if (Math.abs(placement.score - targetEval) < Math.abs(closestPlacement.score - targetEval)) {

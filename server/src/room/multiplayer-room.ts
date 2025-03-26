@@ -38,6 +38,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         public readonly ranked: boolean,
         public readonly startLevel: number,
         public readonly winningScore: number,
+        public readonly levelCap?: number, // if this level is reached, game stops
     ) {
 
         super(
@@ -115,6 +116,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
             type: RoomType.MULTIPLAYER,
             startLevel: this.startLevel,
             ranked: this.ranked,
+            levelCap: this.levelCap,
             winningScore: this.winningScore,
             players: {
                 [PlayerIndex.PLAYER_1]: await this.getInfoForPlayer(PlayerIndex.PLAYER_1),

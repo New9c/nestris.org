@@ -1,21 +1,2001 @@
 [
   {
     "config": {
-      "inputSpeed": 14,
-      "inaccuracy": 0.01,
-      "misdrop": 0.0005,
+      "inputSpeed": 6,
+      "inaccuracy": 0.3,
+      "misdrop": 0.03,
       "startLevel": 18
     },
     "stats": {
       "average": {
-        "level": 32.333333333333336,
-        "lines": 227.33333333333334,
-        "score": 908900
+        "level": 18,
+        "lines": 13,
+        "score": 32173.333333333332
       },
       "variance": {
-        "level": 11.08552609887726,
-        "lines": 165.1066995073859,
-        "score": 642325.8693217953
+        "level": 0,
+        "lines": 9.41629792788369,
+        "score": 35828.08705781293
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.3,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 22.666666666666668,
+        "score": 65233.333333333336
+      },
+      "variance": {
+        "level": 0,
+        "lines": 6.599663291074443,
+        "score": 44158.91403656672
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.3,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 47.666666666666664,
+        "score": 118306.66666666667
+      },
+      "variance": {
+        "level": 0,
+        "lines": 16.35712552851373,
+        "score": 56106.613593130794
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.3,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 12.333333333333334,
+        "score": 22926.666666666668
+      },
+      "variance": {
+        "level": 0,
+        "lines": 6.342099196813483,
+        "score": 23338.999312071817
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.3,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18.333333333333332,
+        "lines": 76,
+        "score": 224286.66666666666
+      },
+      "variance": {
+        "level": 0.4714045207910317,
+        "lines": 41.737273509418415,
+        "score": 134754.69103357982
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.2,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 16.333333333333332,
+        "score": 39266.666666666664
+      },
+      "variance": {
+        "level": 0,
+        "lines": 9.104333522498443,
+        "score": 31262.29820228975
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.2,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 33,
+        "score": 61053.333333333336
+      },
+      "variance": {
+        "level": 0,
+        "lines": 22.861904265976328,
+        "score": 44822.105657315515
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.2,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 37.333333333333336,
+        "score": 102980
+      },
+      "variance": {
+        "level": 0,
+        "lines": 36.279777042068794,
+        "score": 79529.92392804107
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.2,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 3.3333333333333335,
+        "score": 9246.666666666666
+      },
+      "variance": {
+        "level": 0,
+        "lines": 3.39934634239519,
+        "score": 12017.99021837216
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.2,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 84,
+        "score": 246873.33333333334
+      },
+      "variance": {
+        "level": 0,
+        "lines": 47.686476070265456,
+        "score": 130063.78571899081
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.1,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 16,
+        "score": 47500
+      },
+      "variance": {
+        "level": 0,
+        "lines": 16.673332000533065,
+        "score": 60066.449870123004
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.1,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 10.666666666666666,
+        "score": 34580
+      },
+      "variance": {
+        "level": 0,
+        "lines": 6.79869268479038,
+        "score": 14562.811083944838
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.1,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 40.666666666666664,
+        "score": 140473.33333333334
+      },
+      "variance": {
+        "level": 0,
+        "lines": 20.401524997465806,
+        "score": 56875.1670083018
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.1,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 27.333333333333332,
+        "score": 60420
+      },
+      "variance": {
+        "level": 0,
+        "lines": 11.953614051360738,
+        "score": 43224.33882278209
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.1,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 67.33333333333333,
+        "score": 202920
+      },
+      "variance": {
+        "level": 0,
+        "lines": 10.274023338281628,
+        "score": 5895.105314298182
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.05,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 8.666666666666666,
+        "score": 21026.666666666668
+      },
+      "variance": {
+        "level": 0,
+        "lines": 4.784233364802441,
+        "score": 20527.817440948
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.05,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 26.333333333333332,
+        "score": 43193.333333333336
+      },
+      "variance": {
+        "level": 0,
+        "lines": 10.208928554075703,
+        "score": 23004.563798419553
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.05,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 14,
+        "score": 32173.333333333332
+      },
+      "variance": {
+        "level": 0,
+        "lines": 10.424330514074594,
+        "score": 30197.184563391926
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.05,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 11.666666666666666,
+        "score": 16973.333333333332
+      },
+      "variance": {
+        "level": 0,
+        "lines": 10.530379332620875,
+        "score": 19041.33281983054
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 6,
+      "inaccuracy": 0.05,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18.666666666666668,
+        "lines": 65,
+        "score": 212253.33333333334
+      },
+      "variance": {
+        "level": 0.9428090415820634,
+        "lines": 55.11805511808268,
+        "score": 143356.2800236607
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.3,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 47,
+        "score": 120713.33333333333
+      },
+      "variance": {
+        "level": 0,
+        "lines": 57.39337940912697,
+        "score": 160835.44578923585
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.3,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 68.66666666666667,
+        "score": 209126.66666666666
+      },
+      "variance": {
+        "level": 0,
+        "lines": 47.39432689913659,
+        "score": 179890.12523080735
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.3,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 21.666666666666668,
+        "lines": 101.66666666666667,
+        "score": 238206.66666666666
+      },
+      "variance": {
+        "level": 5.185449728701348,
+        "lines": 93.5283676515075,
+        "score": 192903.1683398579
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.3,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 19.333333333333332,
+        "score": 49400
+      },
+      "variance": {
+        "level": 0,
+        "lines": 6.236095644623236,
+        "score": 29738.894846087784
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.3,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 23,
+        "lines": 176,
+        "score": 532773.3333333334
+      },
+      "variance": {
+        "level": 3.559026084010437,
+        "lines": 37.532208390483326,
+        "score": 94553.59303355719
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.2,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 35.666666666666664,
+        "score": 96266.66666666667
+      },
+      "variance": {
+        "level": 0,
+        "lines": 5.734883511361751,
+        "score": 21398.04560130564
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.2,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 23.666666666666668,
+        "score": 38000
+      },
+      "variance": {
+        "level": 0,
+        "lines": 26.512051766864232,
+        "score": 45806.42167498643
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.2,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 21.666666666666668,
+        "lines": 122.33333333333333,
+        "score": 334380
+      },
+      "variance": {
+        "level": 5.185449728701348,
+        "lines": 77.17656523985906,
+        "score": 195582.44570172107
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.2,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 12.333333333333334,
+        "score": 10006.666666666666
+      },
+      "variance": {
+        "level": 0,
+        "lines": 13.29995822884,
+        "score": 10997.409796048441
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.2,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 25.333333333333332,
+        "lines": 173.33333333333334,
+        "score": 429526.6666666667
+      },
+      "variance": {
+        "level": 5.185449728701348,
+        "lines": 86.52681023179399,
+        "score": 164180.79573716558
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.1,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 45,
+        "score": 110833.33333333333
+      },
+      "variance": {
+        "level": 0,
+        "lines": 11.575836902790225,
+        "score": 55072.76721655531
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.1,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 33,
+        "score": 93353.33333333333
+      },
+      "variance": {
+        "level": 0,
+        "lines": 25.152865973217974,
+        "score": 88768.48439746069
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.1,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 19.666666666666668,
+        "lines": 105.66666666666667,
+        "score": 340140
+      },
+      "variance": {
+        "level": 1.247219128924647,
+        "lines": 64.36527704351849,
+        "score": 204380.62008582582
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.1,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 8.666666666666666,
+        "score": 26473.333333333332
+      },
+      "variance": {
+        "level": 0,
+        "lines": 5.792715732327589,
+        "score": 20497.312560973016
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.1,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 21.666666666666668,
+        "lines": 161.66666666666666,
+        "score": 430333.3333333333
+      },
+      "variance": {
+        "level": 3.8586123009300755,
+        "lines": 34.87437773240151,
+        "score": 118922.90649361412
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.05,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 21,
+        "score": 62573.333333333336
+      },
+      "variance": {
+        "level": 0,
+        "lines": 15.121728296285006,
+        "score": 63817.62835525063
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.05,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 36,
+        "score": 83726.66666666667
+      },
+      "variance": {
+        "level": 0,
+        "lines": 25.508168626278653,
+        "score": 59351.680309453375
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.05,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18.666666666666668,
+        "lines": 85.33333333333333,
+        "score": 280080
+      },
+      "variance": {
+        "level": 0.9428090415820634,
+        "lines": 60.49977043115307,
+        "score": 190818.97040563516
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.05,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 15.666666666666666,
+        "score": 25840
+      },
+      "variance": {
+        "level": 0,
+        "lines": 18.732028424302822,
+        "score": 33891.79645086207
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 8,
+      "inaccuracy": 0.05,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 23.333333333333332,
+        "lines": 176.66666666666666,
+        "score": 496446.6666666667
+      },
+      "variance": {
+        "level": 4.189935029992178,
+        "lines": 41.79579989531112,
+        "score": 20526.888598995112
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.3,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 41.333333333333336,
+        "score": 113493.33333333333
+      },
+      "variance": {
+        "level": 0,
+        "lines": 24.796953217863056,
+        "score": 45972.49709216249
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.3,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 66.33333333333333,
+        "score": 145920
+      },
+      "variance": {
+        "level": 0,
+        "lines": 37.20513704076659,
+        "score": 66985.71190933183
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.3,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 19,
+        "lines": 66.66666666666667,
+        "score": 241913.33333333334
+      },
+      "variance": {
+        "level": 1.4142135623730951,
+        "lines": 59.64524755213574,
+        "score": 253447.63579266012
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.3,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 19.333333333333332,
+        "score": 55986.666666666664
+      },
+      "variance": {
+        "level": 0,
+        "lines": 12.918548250050733,
+        "score": 62586.15253303952
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.3,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 51.333333333333336,
+        "score": 149340
+      },
+      "variance": {
+        "level": 0,
+        "lines": 19.430788855719562,
+        "score": 74125.00432827418
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.2,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 33,
+        "score": 74480
+      },
+      "variance": {
+        "level": 0,
+        "lines": 25.45584412271571,
+        "score": 45334.28136263623
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.2,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 60,
+        "score": 179360
+      },
+      "variance": {
+        "level": 0,
+        "lines": 16.87206764645835,
+        "score": 62671.97353416171
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.2,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 70.33333333333333,
+        "score": 186073.33333333334
+      },
+      "variance": {
+        "level": 0,
+        "lines": 31.05192783422991,
+        "score": 140325.63019238107
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.2,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 48.333333333333336,
+        "score": 115140
+      },
+      "variance": {
+        "level": 0,
+        "lines": 45.433712397538265,
+        "score": 98076.81479330373
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.2,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 19.666666666666668,
+        "lines": 130.66666666666666,
+        "score": 454973.3333333333
+      },
+      "variance": {
+        "level": 2.3570226039551585,
+        "lines": 27.86076492528915,
+        "score": 50199.53341969978
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.1,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 58.666666666666664,
+        "score": 162893.33333333334
+      },
+      "variance": {
+        "level": 0,
+        "lines": 28.802006102970598,
+        "score": 77587.85701097533
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.1,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 62.666666666666664,
+        "score": 210013.33333333334
+      },
+      "variance": {
+        "level": 0,
+        "lines": 37.38389433373087,
+        "score": 121620.71351359338
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.1,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18.666666666666668,
+        "lines": 126.66666666666667,
+        "score": 422493.3333333333
+      },
+      "variance": {
+        "level": 0.4714045207910317,
+        "lines": 11.8133634311129,
+        "score": 69033.09415699755
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.1,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 9,
+        "score": 8360
+      },
+      "variance": {
+        "level": 0,
+        "lines": 6.97614984548545,
+        "score": 6986.21499812309
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.1,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 26.333333333333332,
+        "lines": 209,
+        "score": 894026.6666666666
+      },
+      "variance": {
+        "level": 3.0912061651652345,
+        "lines": 31.15552385479446,
+        "score": 126990.29394231497
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.05,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 45.666666666666664,
+        "score": 130466.66666666667
+      },
+      "variance": {
+        "level": 0,
+        "lines": 33.209770985191824,
+        "score": 115877.91775063194
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.05,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 19.666666666666668,
+        "lines": 91,
+        "score": 222726.66666666666
+      },
+      "variance": {
+        "level": 2.3570226039551585,
+        "lines": 63.82789358893179,
+        "score": 167846.5810064523
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.05,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 21.666666666666668,
+        "lines": 98.66666666666667,
+        "score": 381606.6666666667
+      },
+      "variance": {
+        "level": 5.185449728701348,
+        "lines": 94.56684878375133,
+        "score": 407487.9088049389
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.05,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 40.666666666666664,
+        "score": 87906.66666666667
+      },
+      "variance": {
+        "level": 0,
+        "lines": 19.136933459209764,
+        "score": 70382.00022417348
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 10,
+      "inaccuracy": 0.05,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 25,
+        "lines": 194.66666666666666,
+        "score": 760393.3333333334
+      },
+      "variance": {
+        "level": 4.320493798938574,
+        "lines": 43.39226761634945,
+        "score": 256293.3269170741
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.3,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 36.666666666666664,
+        "score": 110073.33333333333
+      },
+      "variance": {
+        "level": 0,
+        "lines": 27.764885897278397,
+        "score": 81812.94002513023
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.3,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18.333333333333332,
+        "lines": 88,
+        "score": 244373.33333333334
+      },
+      "variance": {
+        "level": 0.4714045207910317,
+        "lines": 35.10935297989222,
+        "score": 114066.01285610402
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.3,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 22.333333333333332,
+        "lines": 147.66666666666666,
+        "score": 538980
+      },
+      "variance": {
+        "level": 3.0912061651652345,
+        "lines": 59.87394165151388,
+        "score": 284799.12546682206
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.3,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 11.666666666666666,
+        "score": 15833.333333333334
+      },
+      "variance": {
+        "level": 0,
+        "lines": 8.498365855987974,
+        "score": 14461.095701532746
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.3,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 24.666666666666668,
+        "lines": 174.66666666666666,
+        "score": 666213.3333333334
+      },
+      "variance": {
+        "level": 5.312459150169742,
+        "lines": 75.30530452025866,
+        "score": 362488.27340419655
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.2,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 37.333333333333336,
+        "score": 98040
+      },
+      "variance": {
+        "level": 0,
+        "lines": 22.484562605386735,
+        "score": 67483.97735759207
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.2,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 54.666666666666664,
+        "score": 105133.33333333333
+      },
+      "variance": {
+        "level": 0,
+        "lines": 33.9050963065371,
+        "score": 81118.70204966437
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.2,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 19,
+        "lines": 73.66666666666667,
+        "score": 285840
+      },
+      "variance": {
+        "level": 1.4142135623730951,
+        "lines": 60.69230227595222,
+        "score": 225141.62179984993
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.2,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 9.666666666666666,
+        "score": 7726.666666666667
+      },
+      "variance": {
+        "level": 0,
+        "lines": 6.548960901462833,
+        "score": 5286.721311192999
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.2,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 26.333333333333332,
+        "lines": 206.33333333333334,
+        "score": 823173.3333333334
+      },
+      "variance": {
+        "level": 3.7712361663282534,
+        "lines": 34.883934538536344,
+        "score": 138104.90344501007
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.1,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 19.666666666666668,
+        "lines": 110.33333333333333,
+        "score": 278180
+      },
+      "variance": {
+        "level": 2.3570226039551585,
+        "lines": 48.03008316554208,
+        "score": 135078.46707253775
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.1,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 21.666666666666668,
+        "score": 63333.333333333336
+      },
+      "variance": {
+        "level": 0,
+        "lines": 13.767917618708921,
+        "score": 50345.18006279802
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.1,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 19.333333333333332,
+        "lines": 125.66666666666667,
+        "score": 425993.3333333333
+      },
+      "variance": {
+        "level": 1.8856180831641267,
+        "lines": 33.559234529741914,
+        "score": 157551.2160819106
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.1,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 18.333333333333332,
+        "score": 34200
+      },
+      "variance": {
+        "level": 0,
+        "lines": 17.326921891156037,
+        "score": 29714.606957970464
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.1,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 25.666666666666668,
+        "lines": 200,
+        "score": 894146.6666666666
+      },
+      "variance": {
+        "level": 1.699673171197595,
+        "lines": 20.992061991778385,
+        "score": 126610.40750621131
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.05,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 50.666666666666664,
+        "score": 140600
+      },
+      "variance": {
+        "level": 0,
+        "lines": 31.689465477067017,
+        "score": 75489.08265438123
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.05,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 21,
+        "lines": 155.33333333333334,
+        "score": 553266.6666666666
+      },
+      "variance": {
+        "level": 1.4142135623730951,
+        "lines": 15.2825245151302,
+        "score": 49521.96100945743
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.05,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 24.666666666666668,
+        "lines": 151.33333333333334,
+        "score": 673273.3333333334
+      },
+      "variance": {
+        "level": 4.784233364802441,
+        "lines": 101.56224145266236,
+        "score": 456434.1936747898
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.05,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 37.333333333333336,
+        "score": 95380
+      },
+      "variance": {
+        "level": 0,
+        "lines": 27.157974069424906,
+        "score": 100516.04581690759
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 12,
+      "inaccuracy": 0.05,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 24,
+        "lines": 177.66666666666666,
+        "score": 696333.3333333334
+      },
+      "variance": {
+        "level": 4.546060565661952,
+        "lines": 51.77086267604802,
+        "score": 221172.91536010662
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.3,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 28,
+        "score": 58773.333333333336
+      },
+      "variance": {
+        "level": 0,
+        "lines": 16.673332000533065,
+        "score": 39970.910533647955
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.3,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 53,
+        "score": 139586.66666666666
+      },
+      "variance": {
+        "level": 0,
+        "lines": 28.994252303976847,
+        "score": 91381.55077597567
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.3,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 30,
+        "lines": 215.66666666666666,
+        "score": 765206.6666666666
+      },
+      "variance": {
+        "level": 10.23067283548187,
+        "lines": 135.41376919977114,
+        "score": 454889.27072664857
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.3,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 34.666666666666664,
+        "score": 84233.33333333333
+      },
+      "variance": {
+        "level": 0,
+        "lines": 29.009576962712774,
+        "score": 66803.9087346109
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.3,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 20.333333333333332,
+        "lines": 119.33333333333333,
+        "score": 439333.3333333333
+      },
+      "variance": {
+        "level": 2.0548046676563256,
+        "lines": 58.1969835033474,
+        "score": 203026.70453798817
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.2,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 62.333333333333336,
+        "score": 166693.33333333334
+      },
+      "variance": {
+        "level": 0,
+        "lines": 10.873004286866728,
+        "score": 74584.19016267605
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.2,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 19,
+        "lines": 103,
+        "score": 323913.3333333333
+      },
+      "variance": {
+        "level": 1.4142135623730951,
+        "lines": 41.72129751897305,
+        "score": 129041.4965126421
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.2,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 24,
+        "lines": 155,
+        "score": 577760
+      },
+      "variance": {
+        "level": 7.118052168020874,
+        "lines": 102.58979806329022,
+        "score": 384395.5036157421
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.2,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 47,
+        "score": 101333.33333333333
+      },
+      "variance": {
+        "level": 0,
+        "lines": 43.05810028322197,
+        "score": 83991.93982493533
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.2,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 37,
+        "lines": 313.3333333333333,
+        "score": 1168586.6666666667
+      },
+      "variance": {
+        "level": 5.0990195135927845,
+        "lines": 52.63923336152312,
+        "score": 59495.1702988477
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.1,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 18.666666666666668,
+        "score": 67640
+      },
+      "variance": {
+        "level": 0,
+        "lines": 1.8856180831641267,
+        "score": 25396.587697300332
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.1,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 19.333333333333332,
+        "lines": 94.66666666666667,
+        "score": 300026.6666666667
+      },
+      "variance": {
+        "level": 1.8856180831641267,
+        "lines": 60.30109636003497,
+        "score": 205695.44952564107
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.1,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 22.666666666666668,
+        "lines": 143.33333333333334,
+        "score": 392560
+      },
+      "variance": {
+        "level": 6.599663291074443,
+        "lines": 83.39997335464535,
+        "score": 201091.19921070637
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.1,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 37,
+        "score": 76126.66666666667
+      },
+      "variance": {
+        "level": 0,
+        "lines": 39.04698025029166,
+        "score": 71668.93577803117
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.1,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 27.333333333333332,
+        "lines": 187.66666666666666,
+        "score": 727893.3333333334
+      },
+      "variance": {
+        "level": 7.363574011458175,
+        "lines": 114.25215777198939,
+        "score": 415486.06341114367
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.05,
+      "misdrop": 0.03,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 41.333333333333336,
+        "score": 141106.66666666666
+      },
+      "variance": {
+        "level": 0,
+        "lines": 45.68247901426639,
+        "score": 184190.2330623303
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.05,
+      "misdrop": 0.02,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 35,
+        "score": 118560
+      },
+      "variance": {
+        "level": 0,
+        "lines": 16.268579122549905,
+        "score": 63149.39957487059
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.05,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 21.666666666666668,
+        "lines": 116.33333333333333,
+        "score": 462266.6666666667
+      },
+      "variance": {
+        "level": 5.185449728701348,
+        "lines": 88.356600709222,
+        "score": 377266.0636149978
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.05,
+      "misdrop": 0.05,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 18,
+        "lines": 12.333333333333334,
+        "score": 30780
+      },
+      "variance": {
+        "level": 0,
+        "lines": 14.70449666674185,
+        "score": 41398.49594691415
+      }
+    }
+  },
+  {
+    "config": {
+      "inputSpeed": 15,
+      "inaccuracy": 0.05,
+      "misdrop": 0.0025,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 28.333333333333332,
+        "lines": 225,
+        "score": 889520
+      },
+      "variance": {
+        "level": 7.845734863959881,
+        "lines": 84.76241305358565,
+        "score": 367686.4939954508
       }
     }
   }

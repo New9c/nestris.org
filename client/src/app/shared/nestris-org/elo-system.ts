@@ -41,6 +41,11 @@ export function getStartLevelForElo(elo: number) {
     return 18;
 }
 
+export function getLevelCapForElo(elo: number): number | undefined {
+    if (elo < 2200) return undefined; // 1800-2199 are level 18 uncapped, after that is capped
+    return 39;
+}
+
 export interface StartTrophiesOption {
     label: string;
     trophies: number;

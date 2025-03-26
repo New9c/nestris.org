@@ -1,7 +1,7 @@
 import { GlobalState } from "../../global-state";
 import { OCRFrame } from "../../ocr-frame";
 import { OCRState, StateEvent } from "../../ocr-state";
-import { ConsecutivePersistenceStrategy, TimedPersistenceStrategy } from "../../persistence-strategy";
+import { ConsecutivePersistenceStrategy, SingleFramePersistenceStrategy, TimedPersistenceStrategy } from "../../persistence-strategy";
 import { NOISE_THRESHOLD } from "./before-game-state";
 import { OCRStateID } from "../ocr-state-id";
 import { RestartGameEvent } from "../events/restart-game-event";
@@ -9,6 +9,7 @@ import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
 import { Counter } from "src/app/shared/scripts/counter";
 import { RecoveryEvent } from "../events/recovery-event";
 import { SmartGameStatus } from "src/app/shared/tetris/smart-game-status";
+import { OCRConfig } from "../../ocr-state-machine";
 
 export class GameLimboState extends OCRState {
     public override readonly id = OCRStateID.GAME_LIMBO;
@@ -22,6 +23,7 @@ export class GameLimboState extends OCRState {
     public override init() {
 
         this.registerEvent(new RestartGameEvent(this.config, this.globalState, this.textLogger));
+        this.registerEvent(new LinecapEvent(this.config, this.globalState));
         this.registerEvent(new RecoveryEvent(this.globalState, this));
         this.registerEvent(new TimeoutEvent(this.globalState));
         this.registerEvent(new ExitEvent());
@@ -193,5 +195,34 @@ export class TimeoutEvent extends StateEvent {
     override async triggerEvent(ocrFrame: OCRFrame): Promise<OCRStateID | undefined> {
         return OCRStateID.GAME_END;
     }
+}
 
+
+/**
+ * Immediately onto transition into the config's level cap, transition into GAME_END
+ */
+export class LinecapEvent extends StateEvent {
+    public override readonly name = "LinecapEvent";
+    public override readonly persistence = new SingleFramePersistenceStrategy()
+
+    constructor(
+        private readonly config: OCRConfig,
+        private readonly globalState: GlobalState
+    ) { super(); }
+
+
+    protected override async precondition(ocrFrame: OCRFrame): Promise<boolean> {
+
+        // If no level cap is set, this event will not trigger
+        if (!this.config.levelCap) return false;
+
+        // Return whether the level has met or exceeded the cap
+        return (this.globalState.game?.getStatus().level ?? 0) >= this.config.levelCap;
+    }
+
+    // Level cap reached means game over
+    override async triggerEvent(ocrFrame: OCRFrame): Promise<OCRStateID | undefined> {
+        this.globalState.game!.linecapReached();
+        return OCRStateID.GAME_END;
+    }
 }

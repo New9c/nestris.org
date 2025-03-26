@@ -2,8 +2,9 @@
 
     <app-eval-bar *ngIf="showEvalBar" backgroundColor="black" [borderRadius]="5" [ratedMove]="ratedMove" />
 
-    <app-nes-board [scale]="3" [board]="board" [canvasBoard]="canvasBoard" [level]="level ?? 18" [countdown]="countdown" (clickNext)="clickNext.emit()"
-            [gameOver]="gameOver" [gameOverShowNext]="gameOverShowNext" [animateOpacity]="true" [defaultOpacity]="dimmed ? 0.4 : 1" [enginePiece]="enginePiece" />
+    <app-nes-board [scale]="3" [board]="board" [canvasBoard]="canvasBoard" [level]="level ?? 18" (clickNext)="clickNext.emit()"
+        [countdown]="countdown === COUNTDOWN_LINECAP_REACHED ? 'linecap reached' : countdown"  [lowerCountdown]="countdown === COUNTDOWN_LINECAP_REACHED"
+        [gameOver]="gameOver" [gameOverShowNext]="gameOverShowNext" [animateOpacity]="true" [defaultOpacity]="(dimmed || countdown === COUNTDOWN_LINECAP_REACHED) ? 0.4 : 1" [enginePiece]="enginePiece" />
 
 
     <div class="panels">

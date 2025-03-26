@@ -21,6 +21,7 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
 
     constructor(
         startLevel: number,
+        levelCap: number | undefined,
         player1SessionID: UserSessionID,
         player2SessionID: UserSessionID,
         player1TrophyDelta: TrophyDelta, // How much player 1 will gain/lose
@@ -34,6 +35,7 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
             true, // Ranked
             startLevel, // Start level
             0.5, // Winning score: single game decides winner
+            levelCap
         );
     }
 

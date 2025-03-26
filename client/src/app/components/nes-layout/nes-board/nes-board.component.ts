@@ -56,6 +56,7 @@ export class NesBoardComponent implements OnChanges, OnInit, OnDestroy {
   enginePiece$ = new BehaviorSubject<MoveableTetromino | undefined>(undefined);
 
   @Input() countdown?: number | string; // if defined, will be shown as number in center of board
+  @Input() lowerCountdown: boolean = false;
 
   // if hidden, <ng-content> will be displayed instead of board
   @Input() hide: boolean = false;

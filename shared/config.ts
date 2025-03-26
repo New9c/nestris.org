@@ -1,16 +1,14 @@
 export interface BrowserConfig {
     requireOCRVerifier: boolean,
     allowOCRMidGameStart: boolean,
+    allowBotMullen: boolean,
 }
 
 const ProductionConfig: BrowserConfig = {
-    requireOCRVerifier: false,
-    allowOCRMidGameStart: false,
+    requireOCRVerifier: true, // should be true
+    allowOCRMidGameStart: false, // should be false
+    allowBotMullen: false, // should be false
 }
 
-const OCRMidGameTestConfig: BrowserConfig = {
-    requireOCRVerifier: false,
-    allowOCRMidGameStart: true
-}
 
 export const CONFIG = ProductionConfig;

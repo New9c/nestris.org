@@ -9,7 +9,6 @@ import { getQuest, QuestCategory } from "src/app/shared/nestris-org/quest-system
 import { OcrGameService } from "../ocr/ocr-game.service";
 import { Platform } from "src/app/shared/models/platform";
 import { OCRStateID } from "src/app/ocr/state-machine/ocr-states/ocr-state-id";
-import { CONFIG } from "src/app/config";
 import { InRoomStatus, InRoomStatusMessage } from "src/app/shared/network/json-message";
 import { ServerPlayer } from "./server-player";
 import { WebsocketService } from "../websocket.service";
@@ -22,6 +21,7 @@ import { ServerRestartWarningService } from "../server-restart-warning.service";
 import { NotificationService } from "../notification.service";
 import { NotificationType } from "src/app/shared/models/notifications";
 import { Router } from "@angular/router";
+import { CONFIG } from "src/app/shared/config";
 
 export enum SoloClientState {
     BEFORE_GAME_MODAL = 'BEFORE_GAME_MODAL',
@@ -181,9 +181,9 @@ export class SoloClientRoom extends ClientRoom {
         // Start the game
         if (delay) {
             this.platformInterface.resetGameData();
-            setTimeout(() => this.emulator.startGame(startLevel, true, undefined, this, countdown), 1000);
+            setTimeout(() => this.emulator.startGame(startLevel, true, undefined, undefined, this, countdown), 1000);
         }
-        else this.emulator.startGame(startLevel, true, undefined, this, countdown);
+        else this.emulator.startGame(startLevel, true, undefined, undefined, this, countdown);
     }
 
     public getSoloState$(): Observable<SoloClientState> {

@@ -10,7 +10,7 @@ import { RoomAbortError, RoomConsumer } from "./room-consumer";
 import { NotificationType } from "../../../shared/models/notifications";
 import { OnlineUserActivityType } from "../../../shared/models/online-activity";
 import { DBUser, LoginMethod } from "../../../shared/models/db-user";
-import { getEloChange, getStartLevelForElo } from "../../../shared/nestris-org/elo-system";
+import { getEloChange, getLevelCapForElo, getStartLevelForElo } from "../../../shared/nestris-org/elo-system";
 import { Platform } from "../../../shared/models/platform";
 import { DBQuery } from "../../database/db-query";
 import { RankedAbortConsumer } from "./ranked-abort-consumer";
@@ -432,21 +432,22 @@ export class RankedQueueConsumer extends EventConsumer {
         // Calculate start level
         const lowerElo = Math.min(dbUser1.trophies, dbUser2.trophies);
         const startLevel = getStartLevelForElo(lowerElo);
+        const levelCap = getLevelCapForElo(lowerElo);
 
         // Send the message that an opponent has been found to both users
         const player1League = getLeagueFromIndex(dbUser1.league);
         const player2League = getLeagueFromIndex(dbUser2.league);
         this.users.sendToUserSession(user1.sessionID, new FoundOpponentMessage(
-            user2.username, user2.trophies, player2League, player1TrophyDelta, startLevel
+            user2.username, user2.trophies, player2League, player1TrophyDelta, startLevel, levelCap
         ));
         this.users.sendToUserSession(user2.sessionID, new FoundOpponentMessage(
-            user1.username, user1.trophies, player1League, player2TrophyDelta, startLevel
+            user1.username, user1.trophies, player1League, player2TrophyDelta, startLevel, levelCap
         ));
 
         console.log(`Matched users ${user1.username} and ${user2.username} with trophies ${user1.trophies} and ${user2.trophies}and delta ${player1TrophyDelta.trophyGain}/${player1TrophyDelta.trophyLoss} and ${player2TrophyDelta.trophyGain}/${player2TrophyDelta.trophyLoss}`);
 
         // Wait for client-side animations
-        await sleep(5500);
+        await sleep(6000);
 
         // Temporarily reset the activities of the users before adding them to the multiplayer room
         this.users.resetUserActivity(user1.userid);
@@ -459,7 +460,7 @@ export class RankedQueueConsumer extends EventConsumer {
         try {
             if (match.aborted) throw new RoomAbortError(match.aborteeUserid!, 'Left room');
 
-            const room = new RankedMultiplayerRoom(startLevel, user1ID, user2ID, player1TrophyDelta, player2TrophyDelta, user1.platform, user2.platform);
+            const room = new RankedMultiplayerRoom(startLevel, levelCap, user1ID, user2ID, player1TrophyDelta, player2TrophyDelta, user1.platform, user2.platform);
             await EventConsumerManager.getInstance().getConsumer(RoomConsumer).createRoom(room);
         } catch (error) {
 

@@ -22,6 +22,9 @@ export async function simulateBot(startLevel: number, config: AIConfig) {
         let spawnPlacement = MoveableTetromino.fromSpawnPose(current);
         if (spawnPlacement.intersectsBoard(board)) break;
 
+        // Check for linecap
+        if (status.level >= 39) break;
+
         // Make placement
         const { isMisdrop, isInaccuracy } = bot.randomError(status.level);
         const placement = await bot.computePlacement(board, current, next, status.level, status.lines, bot.generateInputFrameTimeline(), isInaccuracy, false);
@@ -107,9 +110,9 @@ const defaultHyperparams: Hyperparameters = {
 };
 
 const defaultHyperparams2: Hyperparameters = {
-    inputSpeeds: [InputSpeed.HZ_14],
+    inputSpeeds: [InputSpeed.HZ_15, 20],
     inaccuracies: [0.01],
-    misdrops: [0.0005],
+    misdrops: [0.001, 0.0005],
     levels: [18],
     simulationsPerConfig: 3,
 };

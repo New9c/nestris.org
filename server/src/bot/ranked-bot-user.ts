@@ -10,7 +10,7 @@ import { EmulatorGameState } from "../../shared/emulator/emulator-game-state";
 import { GymRNG } from "../../shared/tetris/piece-sequence-generation/gym-rng";
 import { CurrentlyPressedKeys, KeyManager } from "../../shared/emulator/currently-pressed-keys";
 import { TimeDelta } from "../../shared/scripts/time-delta";
-import { GameAbbrBoardPacket, GameCountdownPacket, GameEndPacket, GameFullBoardPacket, GamePlacementPacket, GamePlacementSchema, GameStartPacket, PacketOpcode, StackRabbitPlacementPacket } from "../../shared/network/stream-packets/packet";
+import { COUNTDOWN_LINECAP_REACHED, GameAbbrBoardPacket, GameCountdownPacket, GameEndPacket, GameFullBoardPacket, GamePlacementPacket, GamePlacementSchema, GameStartPacket, PacketOpcode, StackRabbitPlacementPacket } from "../../shared/network/stream-packets/packet";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { BinaryEncoder } from "../../shared/network/binary-codec";
 import { RoomConsumer } from "../online-users/event-consumers/room-consumer";
@@ -24,6 +24,7 @@ import { PacketDisassembler } from "../../shared/network/stream-packets/packet-d
 import { SmartGameStatus } from "../../shared/tetris/smart-game-status";
 import { MultiplayerRoom } from "../room/multiplayer-room";
 import { Keybind } from "../../shared/emulator/keybinds";
+import { CONFIG } from "../../shared/config";
 
 const BEFORE_GAME_MESSAGE = [
     "glhf",
@@ -281,7 +282,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
 
         // Initialize the game state with the room's seed and start level
         const rng = new GymRNG(this.roomState.currentSeed);
-        const state = new EmulatorGameState(roomState.startLevel, rng, 3, false);
+        const state = new EmulatorGameState(roomState.startLevel, roomState.levelCap, rng, 3, false);
 
         // Initialize the key manager
         const keyManager = new KeyManager();
@@ -334,7 +335,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
             if (topoutMs === null && opponentTopoutScore !== null && state.getStatus().score > opponentTopoutScore) {
                 topoutMs = Date.now();
             }
-            const allowTopout = (topoutMs !== null && (Date.now() - topoutMs) / 1000 > mullenSeconds);
+            const allowTopout = (topoutMs !== null && (Date.now() - topoutMs) / 1000 > mullenSeconds) && !CONFIG.allowBotMullen;
         
             // calculate how many frames to advance based on time elapsed to maintain 60fps
             const diff = performance.now() - epoch;
@@ -344,7 +345,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
             // Advance as many frames as needed to catch up to current time
             let gameOver = false;
             for (let i = 0; i < frameAmount; i++) {
-                gameOver = this.advanceEmulatorState(state, keyManager, placementAI, timeDelta, packetBatcher, allowTopout);
+                gameOver = this.advanceEmulatorState(state, keyManager, placementAI, timeDelta, packetBatcher, allowTopout, roomState.levelCap);
                 if (gameOver) break;
             }
             if (gameOver) break;
@@ -376,7 +377,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
      * @param allowTopout If topout allowed, do not send any more inputs
      * @returns True if the game is over, false otherwise
      */
-    private advanceEmulatorState(state: EmulatorGameState, keyManager: KeyManager, placementAI: PlacementAI, timeDelta: TimeDelta, packetBatcher: PacketBatcher, allowTopout: boolean): boolean {
+    private advanceEmulatorState(state: EmulatorGameState, keyManager: KeyManager, placementAI: PlacementAI, timeDelta: TimeDelta, packetBatcher: PacketBatcher, allowTopout: boolean, levelCap?: number): boolean {
 
         // Store previous state to compare with new state
         const previousBoard = state.getDisplayBoard();
@@ -438,7 +439,14 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
                     board: currentBoard,
                 }));
             }
+        }
 
+        // If reached linecap, halt
+        if (state.isReachedLevelCap()) {
+            packetBatcher.sendPacket(new GameCountdownPacket().toBinaryEncoder({
+                delta: timeDelta.getDelta(),
+                countdown: COUNTDOWN_LINECAP_REACHED,
+            }));
         }
 
         const topout = state.isToppedOut();

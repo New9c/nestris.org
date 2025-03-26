@@ -53,6 +53,7 @@ export class EmulatorGameState {
 
     // whether game is over
     private toppedOut = false;
+    private reachedLevelCap: boolean = false;
 
     // current DAS charge
     private currentDAS = 0;
@@ -77,6 +78,7 @@ export class EmulatorGameState {
 
     constructor(
         public readonly startLevel: number,
+        public readonly levelCap: number | undefined,
         private readonly rng: RNG,
         private countdown: number = 3, // how many seconds of countdown before game starts
         private readonly storeHistory: boolean = true // whether to store history for game summary (requires more memory)
@@ -94,7 +96,7 @@ export class EmulatorGameState {
     }
     
     copy(): EmulatorGameState {
-        const copy = new EmulatorGameState(this.startLevel, this.rng.copy(), this.countdown);
+        const copy = new EmulatorGameState(this.startLevel, this.levelCap, this.rng.copy(), this.countdown);
         copy.isolatedBoard = this.isolatedBoard.copy();
         copy.status = new MemoryGameStatus(this.storeHistory, this.status.startLevel, this.status.lines, this.status.score, this.status.level);
         copy.droughtCounter = this.droughtCounter.copy();
@@ -179,6 +181,10 @@ export class EmulatorGameState {
         return this.toppedOut;
     }
 
+    isReachedLevelCap(): boolean {
+        return this.reachedLevelCap;
+    }
+
     getActivePiece(): MoveableTetromino {
         return this.activePiece;
     }
@@ -257,6 +263,13 @@ export class EmulatorGameState {
 
     private spawnNewPiece() {
 
+        // If linecap, game over
+        if (this.levelCap && this.status.level >= this.levelCap) {
+            this.toppedOut = true;
+            this.reachedLevelCap = true;
+            return;
+        }
+
         // reset gravity counter. not 0 because gravity is not applied on first frame
         this.gravityCounter = 1;
 
@@ -276,9 +289,7 @@ export class EmulatorGameState {
         // if piece is illegal, game over
         if (this.activePiece.intersectsBoard(this.isolatedBoard)) {
             this.toppedOut = true;
-            this.activePiece.blitToBoard(this.isolatedBoard);
             console.log("topped out");
-            this.isolatedBoard.print();
         }
     }
 
@@ -424,7 +435,7 @@ export class EmulatorGameState {
 
         // only update DAS/translation/rotation if piece is active (not during lock)
         if (this.placementFrameCount > 0) {
-            this.handleTranslate(pressedKeys);
+            if (!pressedKeys.isPressed(Keybind.PUSHDOWN)) this.handleTranslate(pressedKeys);
             this.handleRotate(pressedKeys);
         }
         

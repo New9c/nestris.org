@@ -42,7 +42,8 @@
         </div>
 
         <div class="lower-container">
-            <p>Level {{foundOpponent.startLevel}} start</p>
+            <p *ngIf="!foundOpponent.levelCap">Level {{foundOpponent.startLevel}} start</p>
+            <p *ngIf="foundOpponent.levelCap">Level {{foundOpponent.startLevel}} start, capped at {{foundOpponent.levelCap}}</p>
         </div>
 
     </div>

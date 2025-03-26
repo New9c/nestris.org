@@ -1,6 +1,6 @@
 import { PacketSender } from "../util/packet-sender";
 import { DEFAULT_POLLED_GAME_DATA, GameDisplayData } from "../../shared/tetris/game-display-data";
-import { GameAbbrBoardPacket, GameCountdownPacket, GameEndPacket, GameFullBoardPacket, GameFullStatePacket, GameFullStateSchema, GamePlacementPacket, GameRecoveryPacket, GameRecoverySchema, GameStartPacket } from "../../shared/network/stream-packets/packet";
+import { COUNTDOWN_LINECAP_REACHED, GameAbbrBoardPacket, GameCountdownPacket, GameEndPacket, GameFullBoardPacket, GameFullStatePacket, GameFullStateSchema, GamePlacementPacket, GameRecoveryPacket, GameRecoverySchema, GameStartPacket } from "../../shared/network/stream-packets/packet";
 import { TetrominoType } from "../../shared/tetris/tetromino-type";
 import { TetrisBoard } from "../../shared/tetris/tetris-board";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
@@ -247,7 +247,7 @@ export class OCRGameState {
     linecapReached() {
         this.packetSender?.bufferPacket(new GameCountdownPacket().toBinaryEncoder({
             delta: this.timeDelta.getDelta(),
-            countdown: 15,
+            countdown: COUNTDOWN_LINECAP_REACHED,
         }));
     }
 

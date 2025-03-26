@@ -9,7 +9,7 @@ import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { OCRVerifier } from '../ocr-verifier';
 import { OcrGameService } from 'src/app/services/ocr/ocr-game.service';
-import { CONFIG } from 'src/app/config';
+import { CONFIG } from 'src/app/shared/config';
 
 
 export enum CalibrationStep {

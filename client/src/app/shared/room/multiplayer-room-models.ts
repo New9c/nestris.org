@@ -66,6 +66,7 @@ export interface MultiplayerRoomState extends RoomState {
 
     // Immutable
     startLevel: number;
+    levelCap?: number, // if this level is reached, game stops
     ranked: boolean;
     winningScore: number;
     players: {[PlayerIndex.PLAYER_1]: PlayerInfo, [PlayerIndex.PLAYER_2]: PlayerInfo};
