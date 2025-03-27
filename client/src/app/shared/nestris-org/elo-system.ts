@@ -17,7 +17,7 @@ function expectedScore(playerElo: number, opponentElo: number) {
  * @returns The K-factor for the player
  */
 function getKFactor(numMatches: number) {
-    return 300 / (numMatches + 2) + 40;
+    return 300 / (numMatches + 2) + 35;
 }
 
 /**
