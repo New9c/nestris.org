@@ -298,7 +298,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         const state = this.getRoomState();
 
         // If a player left before starting game, abort
-        if (!this.gamePlayers[playerIndex].isInGame() && roomState.points.length === 0) {
+        if (this.gamePlayers[playerIndex].getTopoutScore() === null && !this.gamePlayers[playerIndex].isInGame() && roomState.points.length === 0) {
             state.status = MultiplayerRoomStatus.ABORTED;
 
             const rankedAbortConsumer = EventConsumerManager.getInstance().getConsumer(RankedAbortConsumer);
