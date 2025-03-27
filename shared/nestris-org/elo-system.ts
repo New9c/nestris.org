@@ -17,7 +17,7 @@ function expectedScore(playerElo: number, opponentElo: number) {
  * @returns The K-factor for the player
  */
 function getKFactor(numMatches: number) {
-    return 300 / (numMatches + 2.5) + 30;
+    return 300 / (numMatches + 2) + 40;
 }
 
 /**
@@ -44,7 +44,7 @@ export function getStartLevelForElo(elo: number) {
 export function getLevelCapForElo(elo: number): number | undefined {
     if (elo < 2200) return undefined; // 1800-2199 are level 18 uncapped, after that is capped
     return 39;
-}
+1}
 
 export interface StartTrophiesOption {
     label: string;
