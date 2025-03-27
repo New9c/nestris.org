@@ -1,5 +1,6 @@
 import { ActivityType } from "../../../shared/models/activity";
 import { QuestCategory } from "../../../shared/nestris-org/quest-system";
+import { xpOnPuzzleSolve } from "../../../shared/nestris-org/xp-system";
 import { DBPuzzle } from "../../../shared/puzzles/db-puzzle";
 import { PuzzleRating } from "../../../shared/puzzles/puzzle-rating";
 import { RatedPuzzleResult, RatedPuzzleSubmission, UnsolvedRatedPuzzle } from "../../../shared/puzzles/rated-puzzle";
@@ -437,7 +438,7 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
         const newElo = activePuzzle.data.startElo + (isCorrect ? activePuzzle.data.eloGain : -activePuzzle.data.eloLoss);
 
         // Calculate the xp gained for the user, which is 1 xp for every 200 elo gained
-        const xpGained = isCorrect ? Math.floor(newElo / 200) + 1 : 0;
+        const xpGained = isCorrect ? xpOnPuzzleSolve(newElo) : 0;
 
         const previousHighestElo = (await DBUserObject.get(userid)).highest_puzzle_elo;
         
