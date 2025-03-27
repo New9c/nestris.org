@@ -19,7 +19,7 @@ export class TvRoomComponent extends MultiplayerComponent {
   }
 
   showBoardText(state: MultiplayerRoomState, index: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2): string | undefined {
-    if (state.players[index].leftRoom && state.status === MultiplayerRoomStatus.IN_GAME) return "RESIGNED";
+    if (state.players[index].leftRoom && state.status === MultiplayerRoomStatus.IN_GAME) return "LEFT ROOM";
     if (state.status === MultiplayerRoomStatus.BEFORE_GAME) {
       if (state.ready[index]) return 'READY';
       if (state.lastGameWinner === null) return 'NOT READY';
