@@ -161,9 +161,9 @@ class QueueUser {
 
         if (queueSeconds < 2) return TrophyRange.fromDelta(this.trophies, 100);
         if (queueSeconds < 4) return TrophyRange.fromDelta(this.trophies, 200);
-        if (queueSeconds < 6) return TrophyRange.fromDelta(this.trophies, 400);
-        if (queueSeconds < 10) return TrophyRange.fromDelta(this.trophies, 600);
-        if (queueSeconds < 20) return TrophyRange.fromDelta(this.trophies, 1000);
+        if (queueSeconds < 10) return TrophyRange.fromDelta(this.trophies, 400);
+        if (queueSeconds < 20) return TrophyRange.fromDelta(this.trophies, 600);
+        if (queueSeconds < 30) return TrophyRange.fromDelta(this.trophies, 1000);
         return new TrophyRange(null, null);
     }
 
