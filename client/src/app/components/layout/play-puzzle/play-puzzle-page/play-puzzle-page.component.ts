@@ -1,18 +1,14 @@
 import { ChangeDetectionStrategy, Component, Injector, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subject, map } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { PuzzleSubmission } from 'src/app/models/puzzles/puzzle';
 import { NotificationService } from 'src/app/services/notification.service';
-import { WebsocketService } from 'src/app/services/websocket.service';
-import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { EloMode } from '../elo-rating/elo-rating.component';
-import { NotificationAutohide, NotificationType } from 'src/app/shared/models/notifications';
+import { NotificationType } from 'src/app/shared/models/notifications';
 import { PuzzleRating } from 'src/app/shared/puzzles/puzzle-rating';
-import { FetchService } from 'src/app/services/fetch.service';
 import { MeService } from 'src/app/services/state/me.service';
-import { DBPuzzle } from 'src/app/shared/puzzles/db-puzzle';
 import { decodePuzzle } from 'src/app/shared/puzzles/encode-puzzle';
 import { PuzzleStrategyType } from './puzzle-states/puzzle-strategy-type';
 import { EloChange, EngineMove, PuzzleSolution, PuzzleStrategy, UnsolvedPuzzle } from './puzzle-states/puzzle-strategy';
@@ -79,6 +75,7 @@ interface PuzzleState {
   isRetry: boolean,
   solution?: PuzzleSolution, // undefined if not yet submitted or still loading
   submission?: PuzzleSubmission, // undefined if not yet submitted
+  xpGained?: number,
   submissionIndex?: number, // number from -1 to 4 indicating which engine move corresponds to the user's submission
   comment?: string, // comment to display to the user after submitting
 }
@@ -244,12 +241,13 @@ export class PlayPuzzlePageComponent implements OnInit {
 
     // If this is retrying, do not resubmit the puzzle
     let solution: PuzzleSolution;
+    let xpGained: number | undefined = undefined;
     if (currentState.isRetry) {
       if (!currentState.solution) throw new Error('Puzzle solution is undefined when retrying puzzle');
       solution = currentState.solution;
     } else {
       // Submit the puzzle based on the strategy
-      solution = await this.strategy.submitPuzzle(currentState.data.puzzleID, submission);
+      ({ solution, xpGained } = await this.strategy.submitPuzzle(currentState.data.puzzleID, submission));
       console.log("puzzle solution", solution);
     }
 
@@ -279,7 +277,7 @@ export class PlayPuzzlePageComponent implements OnInit {
     if (isCorrect) this.sound.play(SoundEffect.NOTES_UP_HIGH);
     else this.sound.play(SoundEffect.INCORRECT);
 
-    this.state$.next({ id: PuzzleStateID.SOLUTION, isRetry: currentState.isRetry, data: currentState.data, solution, submission, submissionIndex, comment });
+    this.state$.next({ id: PuzzleStateID.SOLUTION, isRetry: currentState.isRetry, data: currentState.data, solution, xpGained, submission, submissionIndex, comment });
   }
 
   // Go back to solving state but keep the same puzzle and solution as retry

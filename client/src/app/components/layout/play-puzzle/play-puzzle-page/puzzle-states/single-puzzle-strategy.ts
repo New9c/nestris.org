@@ -30,21 +30,23 @@ export class SinglePuzzleStrategy extends PuzzleStrategy {
   }
 
   // Calculate engine moves client-side and return them
-  public async submitPuzzle(puzzleID: string, submission: PuzzleSubmission): Promise<PuzzleSolution> {
-
+  public async submitPuzzle(puzzleID: string, submission: PuzzleSubmission): Promise<{
+    solution: PuzzleSolution,
+    xpGained?: number
+  }> {
     
     try {
       // Try to fetch the puzzle by id, if it exists, to get the guesses
       const dbPuzzle = await this.fetchService.fetch<DBPuzzle>(Method.GET, `/api/v2/rated-puzzle/get/${puzzleID}`);
       console.log("Fetched puzzle solution from db");
-      return decodePuzzleSolution(dbPuzzle);
+      return { solution: decodePuzzleSolution(dbPuzzle)};
     } catch {
       // Fetch failure probably means puzzle doesn't exist in database. As fallback, use WASM engine, defaulting guesses to 0
       console.log("Failed to fetch puzzle solution from db, using WASM engine fallback");
-      return {
+      return { solution : {
         rating: PuzzleRating.UNRATED,
-        moves: await computeEngineMoves(this.stackrabbitService, puzzleID, 18)
-      }
+        moves: await computeEngineMoves(this.stackrabbitService, puzzleID, 18),
+      }}
     }
     
 

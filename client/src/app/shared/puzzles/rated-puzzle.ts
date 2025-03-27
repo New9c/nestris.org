@@ -18,4 +18,5 @@ export interface RatedPuzzleResult {
     puzzle: DBPuzzle; // the puzzle that was solved
     isCorrect: boolean; // true if the solution was correct
     newElo: number; // the user's new elo after solving the puzzle
+    xpGained: number;
 }

@@ -7,6 +7,7 @@ import { WebsocketService } from "src/app/services/websocket.service";
 import { RatedPuzzleResult, RatedPuzzleSubmission, UnsolvedRatedPuzzle } from "src/app/shared/puzzles/rated-puzzle";
 import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
 import { decodePuzzleSolution } from "./decode-puzzle-solution";
+import { xpOnPuzzleSolve } from "src/app/shared/nestris-org/xp-system";
 
 export class RatedPuzzleStrategy extends PuzzleStrategy {
   public readonly type = PuzzleStrategyType.RATED;
@@ -47,7 +48,10 @@ export class RatedPuzzleStrategy extends PuzzleStrategy {
   }
 
   // Submit the user's solution to the server and return the engine's recommendations
-  public override async submitPuzzle(puzzleID: string, submission: PuzzleSubmission): Promise<PuzzleSolution> {
+  public override async submitPuzzle(puzzleID: string, submission: PuzzleSubmission): Promise<{
+    solution: PuzzleSolution,
+    xpGained?: number
+  }> {
 
     const ratedPuzzleSubmission: RatedPuzzleSubmission = {
       puzzleID: puzzleID,
@@ -57,14 +61,17 @@ export class RatedPuzzleStrategy extends PuzzleStrategy {
     };
 
     // Submit the user's solution to the server
-    const { puzzle: dbPuzzle, newElo } = await this.fetchService.fetch<RatedPuzzleResult>(Method.POST, `/api/v2/rated-puzzle/submit`, ratedPuzzleSubmission);
+    const { puzzle: dbPuzzle, newElo, xpGained } = await this.fetchService.fetch<RatedPuzzleResult>(Method.POST, `/api/v2/rated-puzzle/submit`, ratedPuzzleSubmission);
     this.currentPuzzle = dbPuzzle;
 
     // update the user's elo history
     this.eloHistory.push(newElo);
 
     // Convert dbPuzzle to puzzle solution
-    return decodePuzzleSolution(dbPuzzle);
+    return {
+      solution: decodePuzzleSolution(dbPuzzle),
+      xpGained,
+    };
   }
 
   public getRatedPuzzle(): DBPuzzle {

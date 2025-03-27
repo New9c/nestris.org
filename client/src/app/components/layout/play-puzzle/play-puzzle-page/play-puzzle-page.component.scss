@@ -136,12 +136,22 @@ header {
 .puzzle-header h1 {
     color: #FFF;
     text-align: center;
-    font-family: Montserrat;
+    font-family: $main-font;
     font-size: 20px;
     font-style: normal;
     font-weight: 800;
     line-height: normal;
     margin: 0;
+}
+
+.puzzle-header p {
+  font-family: $main-font;
+  font-size: 15px;
+  font-weight: 500;
+  font-style: italic;
+  margin: 0;
+  padding: 0;
+  transform: translateY(0.5px);
 }
 
 .correct .puzzle-header h1 {

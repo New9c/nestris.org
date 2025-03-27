@@ -473,7 +473,8 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
         return {
             puzzle: dbPuzzle,
             isCorrect,
-            newElo
+            newElo,
+            xpGained
         }
     }
 

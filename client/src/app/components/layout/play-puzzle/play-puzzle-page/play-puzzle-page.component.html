@@ -65,6 +65,8 @@
                             >
     
                             <h1>{{state.id === State.SOLVING ? (state.isRetry ? 'Retry Puzzle' : strategy.displayName) : (state.submissionIndex === 0 ? "Correct" : "Incorrect")}}</h1>
+
+                            <p *ngIf="state.xpGained as xpGained">+{{xpGained}} XP</p>
                         </div>
                         
                         <ng-container *ngIf="!state.isRetry">
