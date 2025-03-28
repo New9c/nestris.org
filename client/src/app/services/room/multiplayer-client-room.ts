@@ -134,7 +134,7 @@ export class MultiplayerClientRoom extends ClientRoom {
 
         // If player, set a timeout to be ready. On expire, abort
         if (this.myIndex !== null) {
-            this.readyTimer = new Timer(20, () => this.sendClientRoomEvent({type: MultiplayerRoomEventType.ABORT}));
+            this.readyTimer = new Timer(30, () => this.sendClientRoomEvent({type: MultiplayerRoomEventType.ABORT}));
         }
     }
 
