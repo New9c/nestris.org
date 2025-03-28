@@ -81,6 +81,7 @@ import { AIConfig } from './src/bot/placement-ai';
 import { SpectateRoomRoute } from './src/routes/room/spectate-room-route';
 import { SpectateRoomOfUserRoute } from './src/routes/room/spectate-room-of-user-route';
 import { DelayedCounter, RankedAbortConsumer } from './src/online-users/event-consumers/ranked-abort-consumer';
+import { SmartGameStatus } from './shared/tetris/smart-game-status';
 
 // Load environment variables
 require('dotenv').config();

@@ -1,5 +1,5 @@
 import { getLeagueFromIndex } from "../../../shared/nestris-org/league-system";
-import { FoundOpponentMessage, NumQueuingPlayersMessage, RedirectMessage, SendPushNotificationMessage } from "../../../shared/network/json-message";
+import { FoundOpponentMessage, NumQueuingPlayersMessage, RankedStats, RedirectMessage, SendPushNotificationMessage } from "../../../shared/network/json-message";
 import { TrophyDelta } from "../../../shared/room/multiplayer-room-models";
 import { sleep } from "../../../shared/scripts/sleep";
 import { DBUserObject } from "../../database/db-objects/db-user";
@@ -12,7 +12,7 @@ import { OnlineUserActivityType } from "../../../shared/models/online-activity";
 import { DBUser, LoginMethod } from "../../../shared/models/db-user";
 import { getEloChange, getLevelCapForElo, getStartLevelForElo } from "../../../shared/nestris-org/elo-system";
 import { Platform } from "../../../shared/models/platform";
-import { DBQuery } from "../../database/db-query";
+import { Database, DBQuery } from "../../database/db-query";
 import { RankedAbortConsumer } from "./ranked-abort-consumer";
 
 export class QueueError extends Error {}
@@ -21,23 +21,65 @@ export class UserUnavailableToJoinQueueError extends QueueError {}
 const MIN_BOT_MATCH_SECONDS = 10;
 
 /**
- * Select last 50 matches
- * Take all the your scores in games that you lost. Call that set A. 
- * Take all the opponents scores for games you won. Filter only to scores above median(A). Call that set B
- * Final result is median(A U B)
+ * Performance: the median of your scores in your last 50 ranked matches,
+ *      excluding games where you win and score less than your median
+ * Aggression: average Tetris rate over last 50 ranked games , weighted by lines cleared
+ * Consistency: a weighted average of consistency score of last 50 ranked games,
+ *      where a) for losses, score is (lines reached / lines needed to reach kill screen)
+ *      capped at 1, with average weight 1, and b) for wins the score is 1,
+ *      with average weight (lines reached / lines needed to reach kill screen )
  */
-export class PerformanceScoreQuery extends DBQuery<number> {
+export class RankedStatsQuery extends DBQuery<{
+    performance: number, // score
+    aggression: number, // percent as a number from 0-100
+    consistency: number, // percent as a number from 0-100
+}> {
     
     public override query = `
         WITH recent_games AS (
-            -- Select the last 50 type = 1 games
-            SELECT (data->>'myScore')::INTEGER AS my_score,
-                (data->>'opponentScore')::INTEGER AS opponent_score
-            FROM activities
-            WHERE userid = $1
-            AND data->>'type' = '1'
-            ORDER BY created_at DESC
+            -- Select the last 50 type = 1 games with additional game info from games table
+            SELECT 
+                (a.data->>'myScore')::numeric AS my_score,
+                (a.data->>'opponentScore')::numeric AS opponent_score,
+                a.data->>'myGameID' AS game_id,
+                g.tetris_rate,
+                g.end_lines,
+                g.start_level,
+                CASE 
+                    WHEN g.start_level IN (6, 9) THEN 290
+                    WHEN g.start_level = 12 THEN 260
+                    WHEN g.start_level IN (15, 18) THEN 230
+                    ELSE NULL
+                END AS lines_to_kill_screen
+            FROM activities a
+            LEFT JOIN games g ON g.id = a.data->>'myGameID'
+            WHERE a.userid = $1
+            AND a.data->>'type' = '1'
+            AND g.tetris_rate IS NOT NULL
+            AND g.start_level IN (6, 9, 12, 15, 18)
+            ORDER BY a.created_at DESC
             LIMIT 50
+        ),
+        consistency_calculation AS (
+            SELECT 
+                my_score,
+                opponent_score,
+                tetris_rate,
+                end_lines,
+                lines_to_kill_screen,
+                CASE 
+                    WHEN my_score < opponent_score THEN 
+                        -- For losses: (lines reached / lines to kill screen), capped at 1
+                        LEAST(end_lines * 1.0 / lines_to_kill_screen, 1.0)
+                    ELSE 
+                        -- For wins: 1 with weight of (lines reached / lines to kill screen)
+                        1.0
+                END AS consistency_score,
+                CASE 
+                    WHEN my_score < opponent_score THEN 1.0 -- Average weight 1 for losses
+                    ELSE end_lines * 1.0 / lines_to_kill_screen -- Weight based on progress for wins
+                END AS consistency_weight
+            FROM recent_games
         ),
         median_m AS (
             -- Compute M: the median score from the last 50 games
@@ -46,14 +88,30 @@ export class PerformanceScoreQuery extends DBQuery<number> {
         ),
         filtered_games AS (
             -- Filter out games where user won but scored less than M
-            SELECT my_score
-            FROM recent_games, median_m
+            SELECT 
+                my_score, 
+                tetris_rate, 
+                end_lines,
+                consistency_score,
+                consistency_weight
+            FROM consistency_calculation, median_m
             WHERE my_score < opponent_score -- Lost games (always included)
             OR my_score >= M              -- Won games with at least M points
+        ),
+        performance_metrics AS (
+            -- Calculate weighted average Tetris rate and consistency
+            SELECT 
+                (SELECT M FROM median_m) AS original_median,
+                percentile_cont(0.5) WITHIN GROUP (ORDER BY my_score) AS final_median,
+                SUM(tetris_rate * end_lines) * 1.0 / NULLIF(SUM(end_lines), 0) AS weighted_avg_tetris_rate,
+                SUM(consistency_score * consistency_weight) / SUM(consistency_weight) AS weighted_consistency
+            FROM filtered_games
         )
-        -- Compute final median from the filtered set
-        SELECT (SELECT M FROM median_m) AS original_median, percentile_cont(0.5) WITHIN GROUP (ORDER BY my_score) AS final_median
-        FROM filtered_games;
+        SELECT 
+            final_median AS performance, 
+            ROUND(weighted_avg_tetris_rate, 1) AS aggression,
+            ROUND(weighted_consistency * 100, 1) AS consistency
+        FROM performance_metrics;
     `;
     public override warningMs = null;
 
@@ -61,8 +119,13 @@ export class PerformanceScoreQuery extends DBQuery<number> {
         super([userid])
     };
     
-    public override parseResult(resultRows: any[]): number {
-        return resultRows[0].final_median ?? 0;
+    public override parseResult(resultRows: any[]) {
+        const stats = resultRows[0];
+        return {
+            performance: parseInt(stats.performance ?? 0),
+            aggression: parseFloat(stats.aggression ?? 0),
+            consistency: parseFloat(stats.consistency ?? 0),
+        }
     }
 }
 
@@ -142,6 +205,7 @@ class QueueUser {
         public readonly username: string,
         public readonly sessionID: string,
         public readonly trophies: number,
+        public readonly highscore: number,
         public readonly matchesPlayed: number,
         public readonly platform: Platform | null, // What player is playing on, or null if bot
     ) {}
@@ -247,7 +311,7 @@ export class RankedQueueConsumer extends EventConsumer {
         const dbUser = await DBUserObject.get(userid);
 
         // Add user to the queue, maintaining earliest-joined-first order
-        this.queue.push(new QueueUser(userid, dbUser.username, sessionID, dbUser.trophies, dbUser.matches_played, platform));
+        this.queue.push(new QueueUser(userid, dbUser.username, sessionID, dbUser.trophies, dbUser.highest_score, dbUser.matches_played, platform));
 
         // Send the number of players in the queue to all users in the queue
         this.sendNumQueuingPlayers();
@@ -434,14 +498,20 @@ export class RankedQueueConsumer extends EventConsumer {
         const startLevel = getStartLevelForElo(lowerElo);
         const levelCap = getLevelCapForElo(lowerElo);
 
+        const getStats = async (user: DBUser): Promise<RankedStats> => {
+            const { performance, aggression, consistency } = await Database.query(RankedStatsQuery, user.userid);
+            return { highscore: user.highest_score, performance, aggression, consistency };
+        }
+        const [user1Stats, user2Stats] = await Promise.all([getStats(dbUser1), getStats(dbUser2)]);
+
         // Send the message that an opponent has been found to both users
         const player1League = getLeagueFromIndex(dbUser1.league);
         const player2League = getLeagueFromIndex(dbUser2.league);
         this.users.sendToUserSession(user1.sessionID, new FoundOpponentMessage(
-            user2.username, user2.trophies, player2League, player1TrophyDelta, startLevel, levelCap
+            user2.username, user2.trophies, player2League, player1TrophyDelta, startLevel, levelCap, user1Stats, user2Stats
         ));
         this.users.sendToUserSession(user2.sessionID, new FoundOpponentMessage(
-            user1.username, user1.trophies, player1League, player2TrophyDelta, startLevel, levelCap
+            user1.username, user1.trophies, player1League, player2TrophyDelta, startLevel, levelCap, user2Stats, user1Stats
         ));
 
         console.log(`Matched users ${user1.username} and ${user2.username} with trophies ${user1.trophies} and ${user2.trophies}and delta ${player1TrophyDelta.trophyGain}/${player1TrophyDelta.trophyLoss} and ${player2TrophyDelta.trophyGain}/${player2TrophyDelta.trophyLoss}`);

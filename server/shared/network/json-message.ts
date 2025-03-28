@@ -203,6 +203,13 @@ export class NumQueuingPlayersMessage extends JsonMessage {
     }
 }
 
+export interface RankedStats {
+    highscore: number,
+    performance: number,
+    aggression: number,
+    consistency: number,
+}
+
 // sent from server to client to indicate that a match has been found
 export class FoundOpponentMessage extends JsonMessage {
     constructor(
@@ -211,7 +218,9 @@ export class FoundOpponentMessage extends JsonMessage {
         public readonly opponentLeague: League,
         public readonly trophyDelta: TrophyDelta,
         public readonly startLevel: number,
-        public readonly levelCap: number | undefined
+        public readonly levelCap: number | undefined,
+        public readonly myStats: RankedStats,
+        public readonly opponentStats: RankedStats,
     ) {
         super(JsonMessageType.FOUND_OPPONENT)
     }
