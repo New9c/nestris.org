@@ -25,6 +25,7 @@ export class SRPlacementAI extends PlacementAI {
         lines: number,
         inputFrameTimeline: string,
         isInaccuracy: boolean,
+        isMistake: boolean,
         isFirst: boolean,
     ): Promise<AIPlacement> {
 
@@ -60,9 +61,10 @@ export class SRPlacementAI extends PlacementAI {
             }
         }
 
-        // If inaccuracy, pick move closest to some random amount lower than bestEval
-        if (isInaccuracy) {
-            const targetEval = bestEval - randomInt(3, 6);
+        // If inaccuracy or mistake, pick move closest to some random amount lower than bestEval
+        if (isInaccuracy || isMistake) {
+            const diff = isMistake ? randomInt(5, 10)  : randomInt(3, 5);
+            const targetEval = bestEval - diff;
             let closestPlacement = stackrabbit.nextBox[0];
             for (let placement of stackrabbit.nextBox) {
                 if (Math.abs(placement.score - targetEval) < Math.abs(closestPlacement.score - targetEval)) {

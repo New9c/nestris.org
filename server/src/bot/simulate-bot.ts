@@ -1,5 +1,5 @@
 import { InputSpeed } from "../../shared/models/input-speed";
-import { average, standardDeviation } from "../../shared/scripts/math";
+import { average, median, standardDeviation } from "../../shared/scripts/math";
 import GameStatus from "../../shared/tetris/game-status";
 import MoveableTetromino from "../../shared/tetris/moveable-tetromino";
 import { SmartGameStatus } from "../../shared/tetris/smart-game-status";
@@ -26,8 +26,8 @@ export async function simulateBot(startLevel: number, config: AIConfig) {
         if (status.level >= 39) break;
 
         // Make placement
-        const { isMisdrop, isInaccuracy } = bot.randomError(status.level);
-        const placement = await bot.computePlacement(board, current, next, status.level, status.lines, bot.generateInputFrameTimeline(), isInaccuracy, false);
+        const { isMisdrop, isInaccuracy, isMistake } = bot.randomError(status.level);
+        const placement = await bot.computePlacement(board, current, next, status.level, status.lines, bot.generateInputFrameTimeline(), isInaccuracy, isMistake, false);
         
         let finalPlacement: MoveableTetromino;
         if (!placement.placement || isMisdrop) {
@@ -73,9 +73,9 @@ export async function simulateBotAveraged(startLevel: number, config: AIConfig, 
 
     return {
         average: new GameStatus(
-            average(games.map(game => game.level)),
-            average(games.map(game => game.lines)),
-            average(games.map(game => game.score))
+            median(games.map(game => game.level)),
+            median(games.map(game => game.lines)),
+            median(games.map(game => game.score))
         ),
         variance: new GameStatus(
             standardDeviation(games.map(game => game.level)),
@@ -86,15 +86,10 @@ export async function simulateBotAveraged(startLevel: number, config: AIConfig, 
     
 }
 
-export async function runBotSimulations() {
-    const config: AIConfig = { inputSpeed: InputSpeed.HZ_10, inaccuracy: 0.3, misdrop: 0.01 };
-  const stats = await simulateBotAveraged(18, config, 3);
-  console.log(config, stats);
-}
-
 type Hyperparameters = {
     inputSpeeds: InputSpeed[];
     inaccuracies: number[];
+    mistakes: number[],
     misdrops: number[];
     levels: number[];
 
@@ -102,34 +97,51 @@ type Hyperparameters = {
 };
 
 const defaultHyperparams: Hyperparameters = {
-    inputSpeeds: [InputSpeed.HZ_6, InputSpeed.HZ_8, InputSpeed.HZ_10, InputSpeed.HZ_12, InputSpeed.HZ_14],
-    inaccuracies: [0.3, 0.1, 0.01],
-    misdrops: [0.05, 0.03, 0.01, 0.005, 0.001, 0.0005],
+    inputSpeeds: [InputSpeed.HZ_6, InputSpeed.HZ_8, InputSpeed.HZ_10, InputSpeed.HZ_12, InputSpeed.HZ_14, InputSpeed.HZ_17, InputSpeed.HZ_20],
+    inaccuracies: [0.5, 0.3, 0.1],
+    mistakes: [0.3, 0.2, 0.1, 0.05],
+    misdrops: [0.05, 0.03, 0.01, 0.005, 0.001],
     levels: [18],
-    simulationsPerConfig: 5,
+    simulationsPerConfig: 3,
 };
+
+// input_speeds = [6, 8, 10, 12, 14, 17, 20]
+// inaccuracies = [0.5, 0.3, 0.1]
+// mistakes = [0.3, 0.2, 0.1, 0.05]
+// misdrops = [0.05, 0.03, 0.01, 0.005, 0.001]
 
 const defaultHyperparams2: Hyperparameters = {
     inputSpeeds: [InputSpeed.HZ_15, 20],
     inaccuracies: [0.01],
+    mistakes: [0.2],
     misdrops: [0.001, 0.0005],
     levels: [18],
     simulationsPerConfig: 3,
 };
 
 
-export async function testBotHyperparameters(hyperparams: Hyperparameters = defaultHyperparams2) {
+export async function testBotHyperparameters(hyperparams: Hyperparameters = defaultHyperparams) {
     const results = [];
 
     for (const inputSpeed of hyperparams.inputSpeeds) {
         for (const inaccuracy of hyperparams.inaccuracies) {
-            for (const misdrop of hyperparams.misdrops) {
-                for (const level of hyperparams.levels) {
-                    const config: AIConfig = { inputSpeed, inaccuracy, misdrop };
-                    const stats = await simulateBotAveraged(level, config, hyperparams.simulationsPerConfig);
-                    
-                    results.push({ config: Object.assign({}, config, {startLevel: level}), stats });
-                    console.log(`Config:`, config, `Results:`, stats);
+            for (const mistake of hyperparams.mistakes) {
+                for (const misdrop of hyperparams.misdrops) {
+                    for (const level of hyperparams.levels) {
+
+
+                        // Don't allow slow bots that don't misdrop much, because this results in boring lineout bots
+                        if (inputSpeed <= InputSpeed.HZ_8 && misdrop <= 0.01) continue;
+
+                        // don't allow fast bots that misdrop a lot, not realistic
+                        if (inputSpeed >= InputSpeed.HZ_14 && misdrop > 0.01) continue;
+
+                        const config: AIConfig = { inputSpeed, inaccuracy, mistake, misdrop };
+                        const stats = await simulateBotAveraged(level, config, hyperparams.simulationsPerConfig);
+                        
+                        results.push({ config: Object.assign({}, config, {startLevel: level}), stats });
+                        console.log(`Config:`, config, `Results:`, stats);
+                    }
                 }
             }
         }

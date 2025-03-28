@@ -76,7 +76,7 @@ import { GlobalChatConsumer } from './src/online-users/event-consumers/global-ch
 import { GetRelativeRanksRoute } from './src/routes/leaderboard/get-relative-ranks';
 import { SetStartingTrophiesRoute } from './src/routes/user/set-starting-trophies-route';
 import { registerSRBots } from './src/bot/sr-bots';
-import { runBotSimulations, simulateBot, simulateBotAveraged, testBotHyperparameters } from './src/bot/simulate-bot';
+import { simulateBot, simulateBotAveraged, testBotHyperparameters } from './src/bot/simulate-bot';
 import { AIConfig } from './src/bot/placement-ai';
 import { SpectateRoomRoute } from './src/routes/room/spectate-room-route';
 import { SpectateRoomOfUserRoute } from './src/routes/room/spectate-room-of-user-route';

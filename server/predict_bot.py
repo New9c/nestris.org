@@ -23,10 +23,11 @@ for d in data:
     config = d['config']
     input_speed = config['inputSpeed']  # Default to 0 if inputSpeed is not found
     inaccuracy = config['inaccuracy']
+    mistake = config['mistake']
     misdrop = config['misdrop']
     
     # Add the features and target (score) to X and y
-    X.append([input_speed, inaccuracy, misdrop])
+    X.append([input_speed, inaccuracy, mistake, misdrop])
     y.append(d['stats']['average']['score'])
 
 # Convert lists to numpy arrays
@@ -56,36 +57,72 @@ print(f"Mean Squared Error on Test Set: {mse}")
 def trophies_from_score(score):
     if score <= 0:
         raise ValueError("Score must be greater than zero for trophies calculation.")
-    return 3.5 * math.pow(score, 0.5)
+    return 3.05 * math.pow(score, 0.5)
 
-def predict_score(input_speed, inaccuracy, misdrop):
+def predict_score(input_speed, inaccuracy, mistake, misdrop):
     # Predict the score using the trained model
-    features = np.array([[input_speed, inaccuracy, misdrop]])
+    features = np.array([[input_speed, inaccuracy, mistake, misdrop]])
     features_poly = poly.transform(features)  # Apply polynomial transformation
     predicted_score = ridge_model.predict(features_poly)
     
     # Get the score
     return predicted_score[0]
 
+# remove percentage of bots
+def remove_percentage(bots, percentage):
+    count_to_remove = round(len(bots) * percentage)
+    if count_to_remove == 0 or len(bots) <= 1:
+        return bots
+
+    result = bots[:]
+
+    for _ in range(count_to_remove):
+        min_disruption_index = 1  # Avoid first and last element
+        min_disruption = float('inf')
+
+        for j in range(1, len(result) - 1):
+            prev_gap = result[j]["trophies"] - result[j - 1]["trophies"]
+            next_gap = result[j + 1]["trophies"] - result[j]["trophies"]
+            new_gap = result[j + 1]["trophies"] - result[j - 1]["trophies"]  # After removal
+
+            disruption = abs(new_gap - prev_gap) + abs(new_gap - next_gap)
+
+            if disruption < min_disruption:
+                min_disruption = disruption
+                min_disruption_index = j
+
+        result.pop(min_disruption_index)
+
+    return result
+
 # Function to generate all configurations, calculate the scores and trophies, and write to TypeScript file
 def generate_bot_configs_and_write_to_file():
     # Define the possible values for each parameter
-    input_speeds = [6, 8, 10, 12, 15, 20]
-    inaccuracies = [0.3, 0.2, 0.1, 0.01]
-    misdrops = [0.05, 0.03, 0.01, 0.005, 0.001, 0.0005]
+    input_speeds = [6, 8, 10, 12, 14, 17, 20]
+    inaccuracies = [0.5, 0.3, 0.1]
+    mistakes = [0.3, 0.2, 0.1, 0.05]
+    misdrops = [0.05, 0.03, 0.01, 0.005, 0.001]
 
 
     # Generate all permutations of the configurations
-    bot_configs = list(itertools.product(input_speeds, inaccuracies, misdrops))
+    bot_configs = list(itertools.product(input_speeds, inaccuracies, mistakes, misdrops))
     
     bots = []
 
     # Process each configuration, predict the score and trophies, and filter out non-positive scores
     for config in bot_configs:
-        input_speed, inaccuracy, misdrop = config
+        input_speed, inaccuracy, mistake, misdrop = config
+
+        # Don't allow slow bots that don't misdrop much, because this results in boring lineout bots
+        if input_speed <= 8 and misdrop <= 0.01:
+            continue
+
+        # don't allow fast bots that misdrop a lot, not realistic
+        if input_speed >= 14 and misdrop > 0.01:
+            continue
 
         # Get the score and calculate trophies
-        score = predict_score(input_speed, inaccuracy, misdrop)
+        score = predict_score(input_speed, inaccuracy, mistake, misdrop)
         
         if score <= 0:
             continue  # Skip bots with non-positive scores
@@ -104,6 +141,7 @@ def generate_bot_configs_and_write_to_file():
             "trophies": round(trophies),
             "speed": f"InputSpeed.HZ_{int(input_speed)}",  # Format as HZ_<speed>
             "inaccuracy": inaccuracy,
+            "mistake" : mistake,
             "misdrop": misdrop,
             "botIDs": [bot_id]
         }
@@ -112,6 +150,7 @@ def generate_bot_configs_and_write_to_file():
     
     # Sort bots by trophies in ascending order
     bots = sorted(bots, key=lambda bot: bot['trophies'])
+    bots = remove_percentage(bots, 0.4)
 
     print("num bots:", len(bots))
 
@@ -119,7 +158,7 @@ def generate_bot_configs_and_write_to_file():
     with open("generated_bots.txt", "w") as f:
         f.write(f"const bots: BotType[] = [\n")
         for bot in bots:
-            f.write(f"    {{ trophies: {bot['trophies']}, speed: {bot['speed']}, inaccuracy: {bot['inaccuracy']}, misdrop: {bot['misdrop']}, botIDs: {bot['botIDs']} }},\n")
+            f.write(f"    {{ trophies: {bot['trophies']}, speed: {bot['speed']}, inaccuracy: {bot['inaccuracy']}, mistake: {bot['mistake']}, misdrop: {bot['misdrop']}, botIDs: {bot['botIDs']} }},\n")
         f.write(f"];\n")
 
     #messagebox.showinfo("Success", "Bot configurations have been written to generated_bots.txt.")
@@ -149,7 +188,6 @@ def generate_bot_configs():
 # generate_button = tk.Button(window, text="Generate Bots and Write to File", command=generate_bot_configs)
 # generate_button.grid(row=3, column=0, columnspan=2)
 
-print(predict_score(14, 0.1, 0.005))
 generate_bot_configs()
 # # Start the Tkinter event loop
 # window.mainloop()

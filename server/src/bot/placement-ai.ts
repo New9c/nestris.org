@@ -22,6 +22,7 @@ export interface AIPlacement {
 export interface AIConfig {
     inputSpeed: InputSpeed;
     inaccuracy: number; // inaccuracy chance per placement
+    mistake: number; // mistake chance per placement
     misdrop: number; // misdrop chance per placement
 }
 
@@ -61,6 +62,7 @@ export abstract class PlacementAI {
         lines: number,
         inputFrameTimeline: string,
         isInaccuracy: boolean,
+        isMistake: boolean,
         isFirst: boolean,
     ): Promise<AIPlacement>;
 
@@ -71,17 +73,18 @@ export abstract class PlacementAI {
      */
     protected abstract computeShiftMap(inputFrameTimeline: string, lockPlacement: MoveableTetromino, isMisdrop: boolean): ShiftMap;
 
-    public randomError(level: number): { isMisdrop: boolean, isInaccuracy: boolean } {
+    public randomError(level: number): { isMisdrop: boolean, isMistake: boolean, isInaccuracy: boolean } {
 
-        let multiplier: number = 1;
+        let multiplier: number = 0.75;
         let gravity = getGravity(level);
-        if (gravity === 3) multiplier = 1.5;
+        if (gravity === 3) multiplier = 1;
         else if (gravity === 2) multiplier = 2;
-        else if (gravity === 1) multiplier = 2;
+        else if (gravity === 1) multiplier = 2.5;
 
         const isMisdrop = Math.random() < this.config.misdrop * multiplier;
-        const isInaccuracy = !isMisdrop && Math.random() < this.config.inaccuracy * multiplier;
-        return { isMisdrop, isInaccuracy };
+        const isMistake = !isMisdrop && Math.random() < this.config.mistake * multiplier;
+        const isInaccuracy = !isMisdrop && !isMistake && Math.random() < this.config.inaccuracy * multiplier;
+        return { isMisdrop, isMistake, isInaccuracy };
     }
 
     /**
@@ -103,10 +106,10 @@ export abstract class PlacementAI {
         // Create the initial placement result with default of no shifts
         this.placements.set(index, { inputFrameTimeline, shiftMap: null, computed: false });
 
-        const { isMisdrop, isInaccuracy } = this.randomError(level);
+        const { isMisdrop, isInaccuracy, isMistake } = this.randomError(level);
 
         // Compute the placement for this position
-        this.computePlacement(board, current, next, level, lines, inputFrameTimeline, isInaccuracy, index === 0).then(move => {
+        this.computePlacement(board, current, next, level, lines, inputFrameTimeline, isInaccuracy, isMistake, index === 0).then(move => {
 
             // Update the placement with the computed shifts
             const placement = this.placements.get(index);
