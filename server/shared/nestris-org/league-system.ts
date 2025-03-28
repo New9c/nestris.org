@@ -28,7 +28,7 @@ export const LEAGUE_NAMES = {
     [League.BETTA_4]: "Betta IV",
     [League.BETTA_5]: "Betta V",
     [League.RUBY_1]: "Ruby I",
-    [League.RUBY_2]: "Ruby IV",
+    [League.RUBY_2]: "Ruby II",
     [League.RUBY_3]: "Ruby III",
     [League.RUBY_4]: "Ruby IV",
     [League.RUBY_5]: "Ruby V",
