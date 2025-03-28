@@ -113,7 +113,7 @@ export class GameLimboState extends OCRState {
                 this.predictedScore = ocrScore;
                 console.log("new score", this.predictedScore, "full read");
             }
-        } else if (scoreFromLineClears(4) % 1600000 < 1000000) {
+        } else if (scoreFromLineClears(4) % 1600000 < 1000000 && this.globalState.game!.profile.isMaxoutCapped !== true) {
             // Can read full 6 digits, plus rollover
             let rolloverScore = (await ocrFrame.getScore(false))!;
             if (rolloverScore !== -1) {
@@ -123,7 +123,7 @@ export class GameLimboState extends OCRState {
                     console.log("new score", this.predictedScore, "full read with rollover");
                 }
             }
-        } else if (this.predictedLevel < 80) {
+        } else if (this.predictedLevel < 80 && this.globalState.game!.profile.isMaxoutCapped !== true) {
             // Use mod calculations to figure out new score from the last 5 digits of score ocr
             let modScore = (await ocrFrame.getScore(true))!;
             if (modScore !== -1) {
