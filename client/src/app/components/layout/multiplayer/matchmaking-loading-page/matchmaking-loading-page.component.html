@@ -21,11 +21,11 @@
 
         <div class="upper-container"></div>
 
-        <div class="found-opponent" >
+        <div class="found-opponent bounded" >
             <div class="player left" *ngIf="(me$ | async) as me">
-                <app-league-icon [league]="me.league" [height]="250" />
+                <app-league-icon [league]="me.league" [height]="220" />
                 <p class="username">{{me.username}}</p>
-                <app-trophies [trophies]="me.trophies" [size]="30" />
+                <app-trophies [trophies]="me.trophies" [size]="25" />
             </div>
             <div class="versus">
                 <img src="./assets/img/misc-icons/vs.svg" />
@@ -33,17 +33,26 @@
                     <app-trophies [trophies]="'+' + foundOpponent.trophyDelta.trophyGain" [size]="30" [reverse]="true" color="#58D774" />
                     <app-trophies [trophies]="foundOpponent.trophyDelta.trophyLoss" [nonnegative]="false" [size]="30" [reverse]="true" color="#F15757" />
                 </div>
+
+                <p *ngIf="!foundOpponent.levelCap">Level {{foundOpponent.startLevel}} start</p>
+                <p *ngIf="foundOpponent.levelCap">Level {{foundOpponent.startLevel}} start, capped at {{foundOpponent.levelCap}}</p>
             </div>
             <div class="player right">
-                <app-league-icon [league]="foundOpponent.opponentLeague" [height]="250" [flipped]="true" />
+                <app-league-icon [league]="foundOpponent.opponentLeague" [height]="220" [flipped]="true" />
                 <p class="username">{{foundOpponent.opponentName}}</p>
-                <app-trophies [trophies]="foundOpponent.opponentTrophies" [size]="30" />
+                <app-trophies [trophies]="foundOpponent.opponentTrophies" [size]="25" />
             </div>
         </div>
 
+        <div class="ranked-stats bounded">
+            <app-ranked-stat label="Highscore" [isPercent]="false" [myValue]="foundOpponent.myStats.highscore" [opponentValue]="foundOpponent.opponentStats.highscore" />
+            <app-ranked-stat label="Performance" [isPercent]="false" [myValue]="foundOpponent.myStats.performance" [opponentValue]="foundOpponent.opponentStats.performance" />
+            <app-ranked-stat label="Survival" [isPercent]="true" [myValue]="foundOpponent.myStats.consistency" [opponentValue]="foundOpponent.opponentStats.consistency" />
+            <app-ranked-stat label="Efficiency" [isPercent]="true" [myValue]="foundOpponent.myStats.aggression" [opponentValue]="foundOpponent.opponentStats.aggression" />
+        </div>
+
         <div class="lower-container">
-            <p *ngIf="!foundOpponent.levelCap">Level {{foundOpponent.startLevel}} start</p>
-            <p *ngIf="foundOpponent.levelCap">Level {{foundOpponent.startLevel}} start, capped at {{foundOpponent.levelCap}}</p>
+            
         </div>
 
     </div>

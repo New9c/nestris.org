@@ -97,11 +97,13 @@
     margin: 0;
 }
 
-.found-opponent {
+.bounded {
     justify-self: center;
     width: 80vw;
     max-width: 1100px;
+}
 
+.found-opponent {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -126,7 +128,7 @@
 .username {
     font-family: $main-font;
     font-weight: 700;
-    font-size: 30px;
+    font-size: 25px;
     color: white;
     margin: 0;
     margin-bottom: 5px;
@@ -137,8 +139,6 @@
     flex-direction: column;
     align-items: center;
     gap: 20px;
-
-    transform: translateY(-20px);
 }
 
 .versus-trophies {
@@ -203,30 +203,59 @@
 .versus {
     opacity: 0;
     animation: opacityEnter 1s ease forwards 1.3s;
+    transform: translateY(10px);
 }
 
-
-.upper-container {
-    flex-grow: 1;
-}
-
-.lower-container {
-    flex-grow: 1;
-
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    opacity: 0;
-    animation: opacityEnter 1s ease forwards 2.8s;
-}
-
-.lower-container p {
+.versus p {
     font-family: $main-font;
     font-weight: 700;
-    font-size: 40px;
+    font-size: 25px;
     color: white;
     margin: 0;
     text-wrap: nowrap;
+    margin-top: 20px;
+}
+
+.upper-container, .lower-container {
+    flex-grow: 1;
+}
+
+@keyframes zoomToSize {
+    from {
+        height: 0;
+    }
+    to {
+        height: 50vh;
+    }
+}
+
+.ranked-stats {
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+    row-gap: 1.2vh;
+    
+    padding-top: 30px;
+
+    height: 0;
+    animation: zoomToSize 1s ease-in-out forwards 4s;
+}
+
+app-ranked-stat {
+    opacity: 0;
+}
+
+app-ranked-stat:nth-child(1) {
+    animation: opacityEnter 1s ease forwards 5s;
+}
+
+app-ranked-stat:nth-child(2) {
+    animation: opacityEnter 1s ease forwards 5.5s;
+}
+
+app-ranked-stat:nth-child(3) {
+    animation: opacityEnter 1s ease forwards 6s;
+}
+
+app-ranked-stat:nth-child(4) {
+    animation: opacityEnter 1s ease forwards 6.5s;
 }

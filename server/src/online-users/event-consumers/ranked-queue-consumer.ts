@@ -517,7 +517,7 @@ export class RankedQueueConsumer extends EventConsumer {
         console.log(`Matched users ${user1.username} and ${user2.username} with trophies ${user1.trophies} and ${user2.trophies}and delta ${player1TrophyDelta.trophyGain}/${player1TrophyDelta.trophyLoss} and ${player2TrophyDelta.trophyGain}/${player2TrophyDelta.trophyLoss}`);
 
         // Wait for client-side animations
-        await sleep(6000);
+        await sleep(13000);
 
         // Temporarily reset the activities of the users before adding them to the multiplayer room
         this.users.resetUserActivity(user1.userid);

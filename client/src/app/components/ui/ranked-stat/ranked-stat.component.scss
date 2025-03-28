@@ -1,0 +1,60 @@
+@import "../../../../styles.scss";
+
+.stat {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 100px 1fr 100px;
+    align-items: center;
+    
+    border: 1.5px solid white;
+    border-radius: 10px;
+
+    padding-inline: 30px;
+}
+
+.stat.win {
+    color: $ui-green-color;
+    border-color: $ui-green-color;
+    background-color: adjust-color($color: $ui-green-color, $alpha: -0.95);
+}
+
+.stat.tie {
+    color: $ui-orange-color;
+    border-color: $ui-orange-color;
+    background-color: adjust-color($color: $ui-orange-color, $alpha: -0.95);
+}
+
+.stat.lose {
+    color: $ui-red-color;
+    border-color: $ui-red-color;
+    background-color: adjust-color($color: $ui-red-color, $alpha: -0.95);
+}
+
+h1 {
+    font-family: $main-font;
+    font-weight: 700;
+    font-size: 21px;
+    opacity: 0.7;
+    padding: 0;
+    margin: 0;
+
+    text-align: center;
+}
+
+p {
+    font-family: $main-font;
+    font-weight: 700;
+    font-size: 25px;
+    padding: 0;
+    margin: 0;
+}
+
+p.left {
+    text-align: left;
+}
+
+p.right {
+    text-align: right;
+}

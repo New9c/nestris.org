@@ -255,7 +255,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
 
         // Randomly send a message before the game starts
         const message = getRandomMessage(BEFORE_GAME_MESSAGE);
-        if (Math.random() < 0.2) this.sendJsonMessageToServer(new ChatMessage(this.username, message));
+        //if (Math.random() < 0.2) this.sendJsonMessageToServer(new ChatMessage(this.username, message));
 
         // Wait a random amount of time before sending the 'READY' signal
         await sleepWithTimeout(randomInt(2000, 5000), leftRoom$, error);
@@ -473,7 +473,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
         const message = getRandomMessage(AFTER_GAME_MESSAGE);
         if (Math.random() < 0.2) {
             await sleep(randomInt(2000, 4000));
-            this.sendJsonMessageToServer(new ChatMessage(this.username, message));
+            //this.sendJsonMessageToServer(new ChatMessage(this.username, message));
         }
 
         // Wait a random amount of time

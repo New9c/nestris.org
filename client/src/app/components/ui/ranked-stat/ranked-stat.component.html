@@ -1,0 +1,5 @@
+<div class="stat" [ngClass]="{'win' : myValue > opponentValue, 'tie' : myValue === opponentValue, 'lose' : myValue < opponentValue}">
+    <p class="left">{{getValueString(myValue)}}</p>
+    <h1>{{label}}</h1>
+    <p class="right">{{getValueString(opponentValue)}}</p>
+</div>

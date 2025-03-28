@@ -117,6 +117,7 @@ import { ClickSoundDirective } from './directives/click-sound.directive';
 import { TvComponent } from './components/tv/tv.component';
 import { TvRoomComponent } from './components/tv/tv-room/tv-room.component';
 import { ExpandComponent } from './components/ui/expand/expand.component';
+import { RankedStatComponent } from './components/ui/ranked-stat/ranked-stat.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -270,6 +271,7 @@ const customNotifierOptions: NotifierOptions = {
     TvComponent,
     TvRoomComponent,
     ExpandComponent,
+    RankedStatComponent,
   ],
   imports: [
     BrowserModule,

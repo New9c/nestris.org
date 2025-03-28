@@ -54,16 +54,8 @@ import { RequestRatedPuzzleRoute } from './src/routes/puzzles/request-rated-puzz
 import { SubmitRatedPuzzleRoute } from './src/routes/puzzles/submit-rated-puzzle-route';
 import { GlobalStatConsumer } from './src/online-users/event-consumers/global-stat-consumer';
 import { GetGlobalStatRoute } from './src/routes/misc/get-global-stat-route';
-import { getTopMovesHybrid, testStackrabbit } from './src/scripts/stackrabbit';
-import { TetrisBoard } from './shared/tetris/tetris-board';
-import { TetrominoType } from './shared/tetris/tetromino-type';
-import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from './shared/models/input-speed';
-import { generateRandomUsername } from './src/authentication/username-generation';
 import { BotManager } from './src/bot/bot-manager';
-import { BotUser } from './src/bot/bot-user';
-import { RankedBotUser } from './src/bot/ranked-bot-user';
 import { OnlineUserCacheConsumer } from './src/online-users/event-consumers/online-user-cache-consumer';
-import { TestUserCache } from './src/online-user-cache/test-user-cache';
 import { GetScoreHistogramRoute } from './src/routes/user-stats/get-score-histogram-route';
 import { QuestConsumer } from './src/online-users/event-consumers/quest-consumer';
 import { GetUserRoute } from './src/routes/user/get-user-route';
@@ -76,12 +68,10 @@ import { GlobalChatConsumer } from './src/online-users/event-consumers/global-ch
 import { GetRelativeRanksRoute } from './src/routes/leaderboard/get-relative-ranks';
 import { SetStartingTrophiesRoute } from './src/routes/user/set-starting-trophies-route';
 import { registerSRBots } from './src/bot/sr-bots';
-import { simulateBot, simulateBotAveraged, testBotHyperparameters } from './src/bot/simulate-bot';
-import { AIConfig } from './src/bot/placement-ai';
+import { testBotHyperparameters } from './src/bot/simulate-bot';
 import { SpectateRoomRoute } from './src/routes/room/spectate-room-route';
 import { SpectateRoomOfUserRoute } from './src/routes/room/spectate-room-of-user-route';
-import { DelayedCounter, RankedAbortConsumer } from './src/online-users/event-consumers/ranked-abort-consumer';
-import { SmartGameStatus } from './shared/tetris/smart-game-status';
+import { RankedAbortConsumer } from './src/online-users/event-consumers/ranked-abort-consumer';
 
 // Load environment variables
 require('dotenv').config();
