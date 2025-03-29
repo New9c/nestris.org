@@ -12,6 +12,9 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { AnalyticsService } from 'src/app/services/analytics.service';
+import { ServerStatsService } from 'src/app/services/server-stats.service';
+import { map } from 'rxjs';
+import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
 
 interface SpectateActivity {
   tooltip: string;
@@ -29,11 +32,16 @@ export class FriendElementComponent implements OnInit {
 
   readonly FriendStatus = FriendStatus;
   readonly ButtonColor = ButtonColor;
+  readonly DeploymentEnvironment = DeploymentEnvironment;
 
   spectateActivities!: {[key in OnlineUserActivityType] : SpectateActivity };
   noActivityTooltip!: string;
 
   busyActivities!: {[key in OnlineUserActivityType] : string };
+
+  environment$ = this.serverStatsService.getServerStats$().pipe(
+    map(stats => stats.environment)
+  );
 
   constructor(
     private readonly modalService: ModalManagerService,
@@ -42,6 +50,7 @@ export class FriendElementComponent implements OnInit {
     private readonly fetchService: FetchService,
     private readonly websocketService: WebsocketService,
     private readonly notificationService: NotificationService,
+    private readonly serverStatsService: ServerStatsService,
   ) {}
 
   ngOnInit(): void {
