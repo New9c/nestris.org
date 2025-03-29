@@ -104,7 +104,7 @@ export class RankedStatsQuery extends DBQuery<{
                 (SELECT M FROM median_m) AS original_median,
                 percentile_cont(0.5) WITHIN GROUP (ORDER BY my_score) AS final_median,
                 SUM(tetris_rate * end_lines) * 1.0 / NULLIF(SUM(end_lines), 0) AS weighted_avg_tetris_rate,
-                SUM(consistency_score * consistency_weight) / SUM(consistency_weight) AS weighted_consistency
+                SUM(consistency_score * consistency_weight) / NULLIF(SUM(consistency_weight), 0) AS weighted_consistency
             FROM filtered_games
         )
         SELECT 
