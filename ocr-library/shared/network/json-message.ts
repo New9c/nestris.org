@@ -34,6 +34,7 @@ export enum JsonMessageType {
     QUEST_COMPLETE = 'quest_complete',
     TROPHY_CHANGE = 'trophy_change',
     ON_GLOBAL_CHAT_MESSAGE = 'on_global_chat_message',
+    ANALYTICS_EVENT = 'analytics_event',
 }
 
 export abstract class JsonMessage {
@@ -278,5 +279,15 @@ export class TrophyChangeMessage extends JsonMessage {
         public readonly trophyDelta: number,
     ) {
         super(JsonMessageType.TROPHY_CHANGE)
+    }
+}
+
+export class AnalyticsEventMessage extends JsonMessage {
+    constructor(
+        public readonly userid: string,
+        public readonly event: string,
+        public readonly properties: {[key: string]: any} = {}
+    ) {
+        super(JsonMessageType.ANALYTICS_EVENT)
     }
 }

@@ -73,6 +73,7 @@ import { SpectateRoomRoute } from './src/routes/room/spectate-room-route';
 import { SpectateRoomOfUserRoute } from './src/routes/room/spectate-room-of-user-route';
 import { RankedAbortConsumer } from './src/online-users/event-consumers/ranked-abort-consumer';
 import { MatchInvitationManager } from './src/invitations/match-invitation';
+import { AnalyticsConsumer } from './src/online-users/event-consumers/analytics-consumer';
 
 // Load environment variables
 require('dotenv').config();
@@ -149,6 +150,7 @@ async function main() {
   consumers.registerConsumer(GlobalChatConsumer, {});
   consumers.registerConsumer(ServerRestartWarningConsumer, {});
   consumers.registerConsumer(GlobalStatConsumer, {});
+  consumers.registerConsumer(AnalyticsConsumer, {});
   await consumers.init();
 
   // Initialize OnlineUserCaches

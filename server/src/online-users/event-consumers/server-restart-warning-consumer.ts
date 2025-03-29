@@ -1,3 +1,4 @@
+import { BehaviorSubject } from "rxjs";
 import { ServerRestartWarningMessage } from "../../../shared/network/json-message";
 import { EventConsumer } from "../event-consumer";
 import { OnSessionConnectEvent, OnUserDisconnectEvent } from "../online-user-events";
@@ -7,19 +8,24 @@ import { OnSessionConnectEvent, OnUserDisconnectEvent } from "../online-user-eve
  */
 export class ServerRestartWarningConsumer extends EventConsumer {
 
-    private serverRestartWarning: boolean = false;
+    private _serverRestartWarning$ = new BehaviorSubject<boolean>(false);
+    public serverRestartWarning$ = this._serverRestartWarning$.asObservable();
 
     public override async init() {
-        console.log(`Server restart warning initialized to ${this.serverRestartWarning}`);
+        console.log(`Server restart warning initialized to ${this.isServerRestartWarning()}`);
+    }
+
+    public isServerRestartWarning() {
+        return this._serverRestartWarning$.getValue();
     }
 
     /**
      * Toggle the server restart warning and notify all online users
      */
     public toggleServerRestartWarning() {
-        this.serverRestartWarning = !this.serverRestartWarning;
-        this.users.sendToAllOnlineUsers(new ServerRestartWarningMessage(this.serverRestartWarning));
-        console.log(`Server restart warning set to ${this.serverRestartWarning}`);
+        this._serverRestartWarning$.next(!this.isServerRestartWarning());
+        this.users.sendToAllOnlineUsers(new ServerRestartWarningMessage(this.isServerRestartWarning()));
+        console.log(`Server restart warning set to ${this.isServerRestartWarning()}`);
     }
 
     /**
@@ -27,12 +33,10 @@ export class ServerRestartWarningConsumer extends EventConsumer {
      * @param event The session connect event
      */
     protected override async onSessionConnect(event: OnSessionConnectEvent): Promise<void> {
-        if (this.serverRestartWarning) {
+        if (this.isServerRestartWarning()) {
             this.users.sendToUserSession(event.sessionID, new ServerRestartWarningMessage(true));
         }
     }
 
-    public isServerRestartWarning() {
-        return this.serverRestartWarning;
-    }
+    
 }

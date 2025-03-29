@@ -22,6 +22,7 @@ import { NotificationService } from "../notification.service";
 import { NotificationType } from "src/app/shared/models/notifications";
 import { Router } from "@angular/router";
 import { CONFIG } from "src/app/shared/config";
+import { AnalyticsService } from "../analytics.service";
 
 export enum SoloClientState {
     BEFORE_GAME_MODAL = 'BEFORE_GAME_MODAL',
@@ -41,6 +42,7 @@ export class SoloClientRoom extends ClientRoom {
     readonly restartWarning = this.injector.get(ServerRestartWarningService);
     readonly notifier = this.injector.get(NotificationService);
     readonly router = this.injector.get(Router);
+    readonly analytics = this.injector.get(AnalyticsService);
 
     // The level at which the game starts, persisted across games
     public static startLevel$: BehaviorSubject<number> = new BehaviorSubject(18);
@@ -87,6 +89,8 @@ export class SoloClientRoom extends ClientRoom {
             ).then(
                 user => this.userHighestScore$.next(user.highest_score)
             );
+
+            this.analytics.sendEvent("spectate-solo");
             return;
         }
 
@@ -98,7 +102,8 @@ export class SoloClientRoom extends ClientRoom {
         this.setSoloState(SoloClientState.BEFORE_GAME_MODAL);
 
         // If going into solo mode game and in ocr, start capturing
-        if (this.platformInterface.getPlatform() === Platform.OCR) {
+        const platform = this.platformInterface.getPlatform();
+        if (platform === Platform.OCR) {
 
             this.detectingOCR$.next(true);
 
@@ -117,6 +122,8 @@ export class SoloClientRoom extends ClientRoom {
                 } if (state.id === OCRStateID.GAME_END) this.inGame = false;
             });
         }
+
+        this.analytics.sendEvent("play-solo", { platform: platform });
     }
 
     protected override async onStateUpdate(oldState: SoloRoomState, newState: SoloRoomState): Promise<void> {
@@ -203,6 +210,8 @@ export class SoloClientRoom extends ClientRoom {
         this.ocr.stopGameCapture();
         this.ocrSubscription?.unsubscribe();
         this.packetGroupSubscription?.unsubscribe();
+
+        this.analytics.sendEvent("leave-solo");
     }
 
 }

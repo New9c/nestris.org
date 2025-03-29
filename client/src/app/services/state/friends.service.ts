@@ -7,6 +7,7 @@ import { StateService } from './state.service';
 import { NotificationService } from '../notification.service';
 import { MeService } from './me.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
+import { AnalyticsService } from '../analytics.service';
 
 
 @Injectable({
@@ -26,7 +27,7 @@ export class FriendsService extends StateService<FriendInfo[]>() {
 
   constructor(
     private readonly meService: MeService,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
   ) {
     super([JsonMessageType.FRIEND_UPDATE], "Friends");
   }
@@ -40,7 +41,6 @@ export class FriendsService extends StateService<FriendInfo[]>() {
 
     if (event.data.create) { // If a new friend was added, add friend
       state.push(event.data.create);
-
     } else if (event.data.update) { // If an existing friend was updated, replace specified properties
     
       const friendIndex = state.findIndex(friend => friend.userid === event.userid);

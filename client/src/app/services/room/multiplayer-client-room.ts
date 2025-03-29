@@ -16,6 +16,7 @@ import { Platform } from "src/app/shared/models/platform";
 import { OCRStateID } from "src/app/ocr/state-machine/ocr-states/ocr-state-id";
 import { InRoomStatusMessage } from "src/app/shared/network/json-message";
 import { RoomService } from "./room.service";
+import { AnalyticsService } from "../analytics.service";
 
 export enum OCRStatus {
     NOT_OCR,
@@ -71,6 +72,7 @@ export class MultiplayerClientRoom extends ClientRoom {
     private readonly platform = this.injector.get(PlatformInterfaceService);
     private readonly ocr = this.injector.get(OcrGameService);
     private readonly room = this.injector.get(RoomService);
+    private readonly analytics = this.injector.get(AnalyticsService);
 
     private serverPlayers!: {[PlayerIndex.PLAYER_1]: ServerPlayer, [PlayerIndex.PLAYER_2]: ServerPlayer};
 
@@ -136,6 +138,11 @@ export class MultiplayerClientRoom extends ClientRoom {
         if (this.myIndex !== null) {
             this.readyTimer = new Timer(30, () => this.sendClientRoomEvent({type: MultiplayerRoomEventType.ABORT}));
         }
+
+
+        if (this.myIndex !== null) {
+            this.analytics.sendEvent("play-multiplayer", { ranked: state.ranked, platform: this.platform.getPlatform() });
+        } else this.analytics.sendEvent("spectate-multiplayer");
     }
 
     /**
@@ -249,6 +256,8 @@ export class MultiplayerClientRoom extends ClientRoom {
         this.ocr.stopGameCapture();
         this.ocrStateSubscription?.unsubscribe();
         this.packetGroupSubscription?.unsubscribe();
+
+        this.analytics.sendEvent("leave-multiplayer");
     }
 
 }

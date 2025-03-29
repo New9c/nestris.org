@@ -11,6 +11,7 @@ import { InvitationMode } from 'src/app/shared/network/json-message';
 import { v4 as uuid } from 'uuid';
 import { NotificationService } from 'src/app/services/notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
+import { AnalyticsService } from 'src/app/services/analytics.service';
 
 const MAX_OUTGOING_FRIEND_REQUESTS = 5;
 

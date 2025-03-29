@@ -11,6 +11,7 @@ import { RoomState } from 'src/app/shared/room/room-models';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
+import { AnalyticsService } from 'src/app/services/analytics.service';
 
 interface SpectateActivity {
   tooltip: string;

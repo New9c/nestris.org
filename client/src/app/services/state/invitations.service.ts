@@ -9,6 +9,7 @@ import { NotificationService } from '../notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
 import { BadgeService } from '../badge.service';
 import { TabID } from 'src/app/models/tabs';
+import { AnalyticsService } from '../analytics.service';
 
 export enum InvitationRelationship {
   NO_ACTIVE_INVITATION = "NO_ACTIVE_INVITATION",
@@ -30,7 +31,8 @@ export class InvitationsService extends StateService<Invitation[]>() {
   constructor(
     private readonly meService: MeService,
     private readonly notificationService: NotificationService,
-    private readonly badgeService: BadgeService
+    private readonly badgeService: BadgeService,
+    private readonly analytics: AnalyticsService,
   ) {
     super([JsonMessageType.INVITATION], "Invitations");
 
@@ -151,6 +153,7 @@ export class InvitationsService extends StateService<Invitation[]>() {
    */
   public sendInvitationMessage(mode: InvitationMode, invitation: Invitation): void {
     this.websocketService.sendJsonMessage(new InvitationMessage(mode, invitation));
+    this.analytics.sendEvent("invitation", { mode, type: invitation.type });
   }
 
   /**

@@ -20,6 +20,7 @@ import { PUZZLE_THEME_TEXT } from 'src/app/shared/puzzles/puzzle-theme';
 import { getDisplayKeybind } from 'src/app/components/ui/editable-keybind/editable-keybind.component';
 import { SoundEffect, SoundService } from 'src/app/services/sound.service';
 import { ServerRestartWarningService } from 'src/app/services/server-restart-warning.service';
+import { AnalyticsService } from 'src/app/services/analytics.service';
 
 const RIGHT_ANSWER_COMMENTS = [
   "You got it!",
@@ -129,6 +130,7 @@ export class PlayPuzzlePageComponent implements OnInit {
     private sound: SoundService,
     private me: MeService,
     private restartWarning: ServerRestartWarningService,
+    private analytics: AnalyticsService,
   ) {}
 
 
@@ -154,6 +156,8 @@ export class PlayPuzzlePageComponent implements OnInit {
     }
     this.strategy = strategy;
 
+    this.analytics.sendEvent(mode === PuzzleStrategyType.RATED ? "play-puzzle" : "spectate-puzzle");
+    
     // Fetch the first puzzle
     await this.fetchNextPuzzle();
   }
@@ -306,6 +310,8 @@ export class PlayPuzzlePageComponent implements OnInit {
     if (this.state$.getValue()?.id === PuzzleStateID.SOLVING) {
       await this.submitPuzzle(); // submit puzzle early
     }
+
+    this.analytics.sendEvent("leave-puzzle");
   }
 
 }

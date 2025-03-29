@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { PlatformInterfaceService } from '../platform-interface.service';
 import { VideoCaptureService } from '../ocr/video-capture.service';
 import { RoomService } from './room.service';
+import { AnalyticsService } from '../analytics.service';
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +29,7 @@ export class RankedQueueService {
     private platform: PlatformInterfaceService,
     private videoCapture: VideoCaptureService,
     private roomService: RoomService,
+    private analytics: AnalyticsService,
     private router: Router
   ) {
 
@@ -84,6 +86,8 @@ export class RankedQueueService {
         this.router.navigate(['/online/ranked']);
       }
 
+      this.analytics.sendEvent("join-queue");
+
       return true;
 
     } catch (error) {
@@ -111,6 +115,8 @@ export class RankedQueueService {
 
     // If successful, set isInQueue to false
     this.isInQueue = false;
+
+    this.analytics.sendEvent("leave-queue");
   }
 
 }
