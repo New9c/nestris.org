@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit } from '@angular/core';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { FetchService } from 'src/app/services/fetch.service';
+import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 import { InvitationsService } from 'src/app/services/state/invitations.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
@@ -24,6 +25,7 @@ export class ChallengeComponent implements OnChanges {
   
   constructor(
     private invitationsService: InvitationsService,
+    private platformService: PlatformInterfaceService,
   ) {}
 
   ngOnChanges() {

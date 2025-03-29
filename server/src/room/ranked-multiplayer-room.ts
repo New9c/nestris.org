@@ -26,12 +26,9 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
         player2SessionID: UserSessionID,
         player1TrophyDelta: TrophyDelta, // How much player 1 will gain/lose
         player2TrophyDelta: TrophyDelta, // How much player 2 will gain/lose
-        player1Platform: Platform | null,
-        player2Platform: Platform | null,
     ) {
         super(
             player1SessionID, player2SessionID, player1TrophyDelta, player2TrophyDelta,
-            player1Platform, player2Platform,
             true, // Ranked
             startLevel, // Start level
             0.5, // Winning score: single game decides winner

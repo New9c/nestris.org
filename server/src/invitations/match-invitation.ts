@@ -30,7 +30,7 @@ export class MatchInvitationManager extends InvitationManager<MatchInvitation> {
             new SendPushNotificationMessage(NotificationType.SUCCESS,
                 `${invitation.senderUsername} sent you a friendly challenge!`
             )
-        );
+        );        
     }
 
     /**
@@ -44,7 +44,7 @@ export class MatchInvitationManager extends InvitationManager<MatchInvitation> {
             new SendPushNotificationMessage(NotificationType.SUCCESS, `${invitation.receiverUsername} accepted your friendly challenge!`)
         )
 
-        console.log(`Creating match between ${invitation.senderUsername} and ${invitation.receiverUsername}`);
+        console.log(`Creating match`, invitation);
     }
 
     /**

@@ -143,6 +143,9 @@ export class EmulatorService {
     const next = this.currentState.getNextPieceType();
     this.sendPacket(new GameStartPacket().toBinaryEncoder({level: startLevel, current, next}));
 
+    // send initial countdown
+    this.sendPacket(new GameCountdownPacket().toBinaryEncoder({ delta: this.timeDelta.getDelta(), countdown }));
+
     // send initial board state
     this.sendPacket(new GameAbbrBoardPacket().toBinaryEncoder({
       delta: this.timeDelta.getDelta(),

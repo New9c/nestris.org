@@ -27,7 +27,6 @@ export class ServerPlayer {
     // The constructor initializes the ServerPlayer with a buffer delay (in ms) for the PacketReplayer
     constructor(
       private readonly defaultLevel: number,
-      private readonly platform: Platform | null,
       bufferDelay: number = 300
     ) {
 
@@ -64,8 +63,7 @@ export class ServerPlayer {
  
       if (packet.opcode === PacketOpcode.GAME_START) {
         const gameStart = packet.content as GameStartSchema;
-        const countdown = this.platform === Platform.OCR ? undefined : 3;
-        this.state = new GameState(gameStart.level, gameStart.current, gameStart.next, countdown);
+        this.state = new GameState(gameStart.level, gameStart.current, gameStart.next);
 
       } else if (packet.opcode === PacketOpcode.GAME_RECOVERY) {
         const gameRecovery = packet.content as GameRecoverySchema;

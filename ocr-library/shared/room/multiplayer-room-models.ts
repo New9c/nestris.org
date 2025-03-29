@@ -58,7 +58,6 @@ export interface PlayerInfo {
     trophies: number;
     leftRoom: boolean;
     trophyDelta: TrophyDelta;
-    platform: Platform | null;
 }
 
 export interface MultiplayerRoomState extends RoomState {

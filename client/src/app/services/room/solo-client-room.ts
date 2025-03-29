@@ -73,7 +73,7 @@ export class SoloClientRoom extends ClientRoom {
         // If spectating, only show game screen
         if (event.status === InRoomStatus.SPECTATOR) {
             this.setSoloState(SoloClientState.IN_GAME);
-            this.spectatorPlayer = new ServerPlayer(18, null);
+            this.spectatorPlayer = new ServerPlayer(18);
             this.spectatorBoard$ = this.spectatorPlayer.getBoard$();
             this.spectatorSnapshot$ = this.spectatorPlayer.getSnapshot$();
 

@@ -15,13 +15,12 @@ import { PostRoute, RouteError, UserInfo } from "../route";
  * Route for joining the ranked queue
  */
 export class EnterRankedQueueRoute extends PostRoute {
-    route = "/api/v2/enter-ranked-queue/:sessionid/:platform";
+    route = "/api/v2/enter-ranked-queue/:sessionid";
     authentication = Authentication.USER;
 
     override async post(userInfo: UserInfo | undefined, pathParams: any) {
         
         const sessionID = pathParams.sessionid as string;
-        const platform = pathParams.platform as Platform;
 
         // Make sure sessionID corresponds to the user
         const users = EventConsumerManager.getInstance().getUsers();
@@ -41,11 +40,6 @@ export class EnterRankedQueueRoute extends PostRoute {
             throw new RouteError(400, `You have not picked a starting trophy count`);
         }
 
-        // Make sure platform is valid
-        if (!Object.values(Platform).includes(platform)) {
-            throw new RouteError(400, `Platform ${platform} is not valid`);
-        }
-
         // Make sure not too many aborts
         const rankedAbortConsumer = EventConsumerManager.getInstance().getConsumer(RankedAbortConsumer);
         const suspended = rankedAbortConsumer.suspendedMessage(userInfo!.userid);
@@ -60,7 +54,7 @@ export class EnterRankedQueueRoute extends PostRoute {
         try {
             // Join the ranked queue
             await roomConsumer.freeSession(userInfo!.userid, sessionID);
-            await EventConsumerManager.getInstance().getConsumer(RankedQueueConsumer).joinRankedQueue(sessionID, platform);
+            await EventConsumerManager.getInstance().getConsumer(RankedQueueConsumer).joinRankedQueue(sessionID);
 
         } catch (error) {
             if (error instanceof UserUnavailableToJoinQueueError) {

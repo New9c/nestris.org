@@ -8,6 +8,7 @@ import { MultiplayerComponent } from './multiplayer-component';
 import { Platform } from 'src/app/shared/models/platform';
 import { OCRStatus } from 'src/app/services/room/multiplayer-client-room';
 import { of, switchMap } from 'rxjs';
+import { COUNTDOWN_LINECAP_REACHED } from 'src/app/shared/network/stream-packets/packet';
 
 @Component({
   selector: 'app-multiplayer-room',
@@ -20,6 +21,7 @@ export class MultiplayerRoomComponent extends MultiplayerComponent {
   readonly MultiplayerRoomStatus = MultiplayerRoomStatus;
   readonly Platform = Platform;
   readonly OCRStatus = OCRStatus;
+  readonly COUNTDOWN_LINECAP_REACHED = COUNTDOWN_LINECAP_REACHED;
 
   public ocrStatus$ = this.multiplayerClientRoom.getOCRStatus$();
   public readyTimer = this.multiplayerClientRoom.readyTimer?.timeVisibleAt$(10);

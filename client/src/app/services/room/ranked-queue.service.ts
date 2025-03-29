@@ -76,7 +76,7 @@ export class RankedQueueService {
     // Send a request to join the queue
     const sessionID = this.websocketService.getSessionID();
     try {
-      await this.fetchService.fetch(Method.POST, `/api/v2/enter-ranked-queue/${sessionID}/${this.platform.getPlatform()}`);
+      await this.fetchService.fetch(Method.POST, `/api/v2/enter-ranked-queue/${sessionID}`);
 
       // If successful, set isInQueue to true
       this.isInQueue = true;

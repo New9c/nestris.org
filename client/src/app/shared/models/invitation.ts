@@ -1,3 +1,5 @@
+import { Platform } from "./platform";
+
 export enum InvitationType {
     FRIEND_REQUEST = "FRIEND_REQUEST",
     MATCH_REQUEST = "MATCH_REQUEST",

@@ -111,8 +111,8 @@ export class MultiplayerClientRoom extends ClientRoom {
         // Initialize serverPlayers
         const defaultLevel = state.startLevel;
         this.serverPlayers = {
-            [PlayerIndex.PLAYER_1]: new ServerPlayer(defaultLevel, state.players[PlayerIndex.PLAYER_1].platform),
-            [PlayerIndex.PLAYER_2]: new ServerPlayer(defaultLevel, state.players[PlayerIndex.PLAYER_2].platform),
+            [PlayerIndex.PLAYER_1]: new ServerPlayer(defaultLevel),
+            [PlayerIndex.PLAYER_2]: new ServerPlayer(defaultLevel),
         }
 
         // Initialize my OCRStatus

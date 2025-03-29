@@ -208,7 +208,7 @@ class QueueUser {
         public readonly trophies: number,
         public readonly highscore: number,
         public readonly matchesPlayed: number,
-        public readonly platform: Platform | null, // What player is playing on, or null if bot
+        public readonly isBot: boolean,
     ) {}
 
     /**
@@ -285,7 +285,7 @@ export class RankedQueueConsumer extends EventConsumer {
      * @param platform The platform the player is playing on, or null if bot
      * @throws UserUnavailableToJoinQueueError if the user is unavailable to join the queue
      */
-    public async joinRankedQueue(sessionID: string, platform: Platform | null) {
+    public async joinRankedQueue(sessionID: string) {
 
         // Get userid from sessionid
         const userid = this.users.getUserIDBySessionID(sessionID);
@@ -312,7 +312,8 @@ export class RankedQueueConsumer extends EventConsumer {
         const dbUser = await DBUserObject.get(userid);
 
         // Add user to the queue, maintaining earliest-joined-first order
-        this.queue.push(new QueueUser(userid, dbUser.username, sessionID, dbUser.trophies, dbUser.highest_score, dbUser.matches_played, platform));
+        const isBot = dbUser.login_method === LoginMethod.BOT;
+        this.queue.push(new QueueUser(userid, dbUser.username, sessionID, dbUser.trophies, dbUser.highest_score, dbUser.matches_played, isBot));
 
         // Send the number of players in the queue to all users in the queue
         this.sendNumQueuingPlayers();
@@ -374,7 +375,7 @@ export class RankedQueueConsumer extends EventConsumer {
                 // Check if the users meet the criteria to be matched
                 if (this.canMatch(user1, user2)) {
 
-                    if (user1.platform === null && user2.platform === null) { // If both are bots
+                    if (user1.isBot && user2.isBot) { // If both are bots
 
                         // Don't match bots immediately yet. see if there's bots that have played less matches
                         const numMatches = user1.matchesPlayed + user2.matchesPlayed;
@@ -413,7 +414,7 @@ export class RankedQueueConsumer extends EventConsumer {
         if (user1.userid === user2.userid) return false;
 
         // Bots can match each other if within 200 trophies
-        if (user1.platform === null && user2.platform === null) {
+        if (user1.isBot && user2.isBot) {
             return Math.abs(user1.trophies - user2.trophies) < 200;
         }
 
@@ -422,8 +423,8 @@ export class RankedQueueConsumer extends EventConsumer {
         if (user2.queueElapsedSeconds() < 1) return false;
 
         
-        const hasBot = user1.platform === null || user2.platform === null;
-        const nonBotUsers = [user1, user2].filter(user => user.platform !== null);
+        const hasBot = user1.isBot || user2.isBot;
+        const nonBotUsers = [user1, user2].filter(user => !user.isBot);
         let queueSeconds = Math.min(...nonBotUsers.map(user => user.queueElapsedSeconds()));
 
         // Matching with bot delays the match process by some amount
@@ -543,7 +544,7 @@ export class RankedQueueConsumer extends EventConsumer {
         try {
             if (match.aborted) throw new RoomAbortError(match.aborteeUserid!, 'Left room');
 
-            const room = new RankedMultiplayerRoom(startLevel, levelCap, user1ID, user2ID, player1TrophyDelta, player2TrophyDelta, user1.platform, user2.platform);
+            const room = new RankedMultiplayerRoom(startLevel, levelCap, user1ID, user2ID, player1TrophyDelta, player2TrophyDelta);
             await EventConsumerManager.getInstance().getConsumer(RoomConsumer).createRoom(room);
         } catch (error) {
 

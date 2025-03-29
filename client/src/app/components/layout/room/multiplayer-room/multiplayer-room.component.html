@@ -46,7 +46,7 @@
                     [score]="playerData.score"
                     [trt]="playerData.tetrisRate"
                     [drought]="playerData.droughtCount"
-                    [countdown]="showBoardText(state, playerIndex) ?? playerData.countdown"
+                    [countdown]="showBoardText(state, playerIndex) ?? (playerData.countdown === COUNTDOWN_LINECAP_REACHED ? COUNTDOWN_LINECAP_REACHED : 0)"
                     [gameOverShowNext]="false"
                     [gameOver]="getGameOverMode(state, playerIndex)"
                     [dimmed]="player.leftRoom || state.status === MultiplayerRoomStatus.AFTER_MATCH"

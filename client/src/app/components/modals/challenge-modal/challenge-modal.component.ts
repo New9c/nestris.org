@@ -8,6 +8,7 @@ import { InvitationsService } from 'src/app/services/state/invitations.service';
 import { InvitationMode } from 'src/app/shared/network/json-message';
 import { InvitationType, MatchInvitation } from 'src/app/shared/models/invitation';
 import { v4 as uuid } from 'uuid';
+import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 
 export interface ChallengeModalConfig {
   opponentid: string;
@@ -77,6 +78,7 @@ export class ChallengeModalComponent {
     private invitationService: InvitationsService,
     private websocketService: WebsocketService,
     private modalService: ModalManagerService,
+    private platformService: PlatformInterfaceService,
     private meService: MeService,
   ) {}
 
@@ -101,7 +103,7 @@ export class ChallengeModalComponent {
       receiverUsername: this.config.opponentUsername,
       startLevel: this.getSettingValue(SettingID.START_LEVEL),
       winningScore: this.getSettingValue(SettingID.WINNING_SCORE),
-      levelCap: levelCap
+      levelCap: levelCap,
     }
 
     console.log("match invitation", invitation);

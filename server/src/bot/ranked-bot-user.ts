@@ -206,7 +206,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
     private async handleFindMatch(timeoutSeconds: number): Promise<boolean> {
 
         // Join the ranked queue as a bot
-        this.queueConsumer.joinRankedQueue(this.sessionID, null);
+        this.queueConsumer.joinRankedQueue(this.sessionID);
         console.log(`Bot ${this.username} joined the ranked queue, waiting for room...`);
 
         const timeout$ = new Subject<boolean>();
