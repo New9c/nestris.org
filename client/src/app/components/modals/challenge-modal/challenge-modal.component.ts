@@ -13,6 +13,22 @@ export interface ChallengeModalConfig {
   opponentUsername: string;
 }
 
+export enum SettingID {
+  WINNING_SCORE,
+  START_LEVEL,
+  LINECAP,
+}
+
+export interface Setting {
+  id: SettingID,
+  label: string;
+  currentValue: any;
+  allValues: any[];
+  valueStrings?: {[key in any]: string};
+}
+
+const NO_CAP = 'None';
+
 @Component({
   selector: 'app-challenge-modal',
   templateUrl: './challenge-modal.component.html',
@@ -26,19 +42,40 @@ export class ChallengeModalComponent {
 
   readonly ButtonColor = ButtonColor;
 
-  winningScore: number = 2;
-  winningScoreTabs = [1, 2, 3];
-  winningScoreStrings = {
-    1: 'First to 1',
-    2: 'First to 2',
-    3: 'First to 3'
-  }
+  readonly settings: Setting[] = [
+
+    {
+      id: SettingID.WINNING_SCORE,
+      label: "Match duration",
+      currentValue: 2,
+      allValues: [1, 2, 3],
+      valueStrings: {
+        1: 'First to 1',
+        2: 'First to 2',
+        3: 'First to 3'
+      }
+    },
+
+    {
+      id: SettingID.START_LEVEL,
+      label: "Start level",
+      currentValue: 18,
+      allValues: [6, 9, 12, 15, 18, 19, 29],
+    },
+
+    {
+      id: SettingID.LINECAP,
+      label: "Level cap",
+      currentValue: NO_CAP,
+      allValues: [NO_CAP, 29, 39, 49],
+    },
+
+  ];
 
   constructor(
     private fetchService: FetchService,
     private websocketService: WebsocketService,
     private modalService: ModalManagerService,
-    private friendsService: FriendsService,
     private meService: MeService,
   ) {}
 
@@ -49,6 +86,9 @@ export class ChallengeModalComponent {
     const sessionID = this.websocketService.getSessionID();
     if (!userID || !username || !sessionID) return; // if not logged in, do nothing
 
+    let levelCap = this.getSettingValue(SettingID.LINECAP);
+    if (levelCap === NO_CAP) levelCap = undefined;
+
     // set challenge parameters
     const challenge: Challenge = {
       senderid: userID,
@@ -56,11 +96,12 @@ export class ChallengeModalComponent {
       senderSessionID: sessionID,
       receiverid: this.config.opponentid,
       receiverUsername: this.config.opponentUsername,
-      startLevel: 18,
-      rated: false,
-      winningScore: this.winningScore,
-      isRematch: false
+      startLevel: this.getSettingValue(SettingID.START_LEVEL),
+      winningScore: this.getSettingValue(SettingID.WINNING_SCORE),
+      levelCap: levelCap
     }
+
+    console.log("challenge", challenge);
 
     // send challenge to server. if successful, close modal
     const { success, error } = await this.fetchService.fetch<{
@@ -73,6 +114,12 @@ export class ChallengeModalComponent {
       this.error$.next(error ?? "Unknown error occured. Please try again later.");
     }
     
+  }
+
+  private getSettingValue(id: SettingID) {
+    const setting = this.settings.find(setting => setting.id === id);
+    if (setting === undefined) throw new Error("Setting not found");
+    return setting.currentValue;
   }
 
 }

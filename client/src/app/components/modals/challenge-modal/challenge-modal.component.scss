@@ -1,13 +1,16 @@
 @import "../../../../styles.scss";
 
 .modal {
-  width: 500px;
+  width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 
 h1 {
-  font-family: Montserrat;
-  font-size: 30px;
+  font-family: $main-font;
+  font-size: 25px;
   font-style: normal;
   font-weight: 600;
   line-height: normal;
@@ -15,16 +18,50 @@ h1 {
   text-wrap: nowrap;
 }
 
+h2 {
+  font-family: $main-font;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: center;
+  text-wrap: pretty;
+  padding: 0;
+  margin: 0;
+  width: 80%;
+}
+
+h3 {
+  font-family: $main-font;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+  text-align: center;
+  text-wrap: no-wrap;
+  padding: 0;
+  margin: 0;
+}
+
 .content {
   height: 100px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 10px;
+  gap: 15px;
+  padding-block: 25px;
+}
+
+.setting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
 .buttons {
   display: flex;
+  width: 100%;
+  box-sizing: border-box;
   flex-direction: row;
   justify-content: flex-end;
   gap: 10px;
@@ -35,4 +72,8 @@ h1 {
   color: red;
   font-size: 12px;
   text-wrap: nowrap;
+}
+
+app-tab-selector {
+  zoom: 0.75;
 }

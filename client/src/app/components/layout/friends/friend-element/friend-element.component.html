@@ -24,8 +24,8 @@
 
                 <app-solid-button icon="./assets/img/tab-icons/profile.svg" [color]="ButtonColor.GREY" tooltip="View profile" tooltipDirection="right" (smartClick)="viewProfile()"/>
                     
-            <!-- <app-solid-button icon="./assets/img/button-icons/challenge.svg" [color]="ButtonColor.GREY" [disabled]="true" tooltip="Coming soon!"
-                /> -->
+            <app-solid-button icon="./assets/img/button-icons/challenge.svg" [color]="ButtonColor.GREY" [disabled]="!friendInfo.isOnline"
+                 [tooltip]="friendInfo.isOnline ? ('Challenge ' + friendInfo.username + ' to a match!') : friendInfo.username + ' is not online'" tooltipDirection="right" (smartClick)="sendChallenge()" />
             <app-solid-button icon="./assets/img/puzzle-button-icons/delete.svg" class="delete" [color]="ButtonColor.GREY" (smartClick)="endFriendship()" tooltip="Remove friend" tooltipDirection="right" />
         </ng-container>
         

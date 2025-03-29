@@ -10,8 +10,6 @@ export interface Challenge {
   receiverid: string, // userid of the receiver
   receiverUsername: string, // username of the receiver
   startLevel: number, // the level to start the game at
-  rated: boolean, // whether the game is rated
   winningScore: number, // the score to win the game
-  isRematch: boolean, // whether this challenge is a rematch
-
+  levelCap?: number, // if this level is reached, game ends
 }

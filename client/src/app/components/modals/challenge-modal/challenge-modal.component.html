@@ -1,10 +1,18 @@
 <div class="modal">
 
   <h1>Challenge {{config.opponentUsername}}</h1>
+  
+  <h2>Battle your rivals to your heart's content and challenge friends to a customizable unranked match! </h2>
 
   <div class="content">
-    <app-tab-selector [tabs]="winningScoreTabs" [(selectedTab)]="winningScore" [tabStrings]="winningScoreStrings" />
+
+    <div class="setting" *ngFor="let setting of settings">
+      <h3>{{setting.label}}</h3>
+      <app-tab-selector [tabs]="setting.allValues" [(selectedTab)]="setting.currentValue" [tabStrings]="setting.valueStrings" />
+    </div>
+    
   </div>
+
 
   <div class="buttons">
     <p class="error">{{(error$ | async)}}</p>

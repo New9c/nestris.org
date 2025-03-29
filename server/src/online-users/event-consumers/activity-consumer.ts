@@ -22,6 +22,7 @@ class GetActivitiesForUserQuery extends DBQuery<TimestampedActivity[]> {
         FROM activities
         WHERE userid = $1
         ORDER BY created_at DESC
+        LIMIT 500
     `;
 
     public override readonly warningMs = null;
