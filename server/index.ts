@@ -150,7 +150,7 @@ async function main() {
   consumers.registerConsumer(GlobalChatConsumer, {});
   consumers.registerConsumer(ServerRestartWarningConsumer, {});
   consumers.registerConsumer(GlobalStatConsumer, {});
-  consumers.registerConsumer(AnalyticsConsumer, {});
+  consumers.registerConsumer(AnalyticsConsumer, { enabled: NODE_ENV !== DeploymentEnvironment.DEV });
   await consumers.init();
 
   // Initialize OnlineUserCaches
@@ -217,6 +217,7 @@ async function main() {
   const bots = new BotManager();
   //bots.registerBot(new RankedBotUser('bot2', 2000, {aiConfig : { inputSpeed: InputSpeed.HZ_10 }}));
   if (NODE_ENV !== DeploymentEnvironment.DEV) registerSRBots(bots);
+  //registerSRBots(bots);
   await bots.init();
 
   if (NODE_ENV === DeploymentEnvironment.DEV && false) {

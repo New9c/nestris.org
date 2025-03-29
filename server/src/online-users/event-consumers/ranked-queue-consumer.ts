@@ -358,6 +358,12 @@ export class RankedQueueConsumer extends EventConsumer {
      */
     private findMatches() {
 
+        let newestBots: {
+            bot1: QueueUser,
+            bot2: QueueUser,
+            numMatches: number
+        } | undefined;
+
         // We find matches by iterating through the queue earliest-joined-first
         // and trying to match each user with another user in the queue
         for (let i = 0; i < this.queue.length; i++) {
@@ -368,15 +374,32 @@ export class RankedQueueConsumer extends EventConsumer {
                 // Check if the users meet the criteria to be matched
                 if (this.canMatch(user1, user2)) {
 
-                    // if so, match the users. This will also remove the users from the queue
-                    this.match(user1, user2);
+                    if (user1.platform === null && user2.platform === null) { // If both are bots
 
-                    // Find any other matches that can be made
-                    this.findMatches();
-                    return;
+                        // Don't match bots immediately yet. see if there's bots that have played less matches
+                        const numMatches = user1.matchesPlayed + user2.matchesPlayed;
+                        if (newestBots === undefined || numMatches > newestBots.numMatches) {
+                            newestBots = {
+                                bot1: user1,
+                                bot2: user2,
+                                numMatches: numMatches
+                            }
+                        }
+
+                    } else { // At least one is not a bot
+                        // Match users. This will also remove the users from the queue
+                        this.match(user1, user2);
+                    }
                 }
             }
         }
+
+        // Match bots if there is a valid pair, no ongoing matches and server is not about to restart
+        const roomConsumer = EventConsumerManager.getInstance().getConsumer(RoomConsumer);
+        const ongoingMatchCount = roomConsumer.getRoomCount(room => room instanceof RankedMultiplayerRoom);
+        if (EventConsumerManager.getInstance().getConsumer(ServerRestartWarningConsumer).isServerRestartWarning()) return;
+        if (this.matches.length > 0 || ongoingMatchCount > 0) return;
+        if (newestBots) this.match(newestBots.bot1, newestBots.bot2);
     }
 
     /**
@@ -389,25 +412,9 @@ export class RankedQueueConsumer extends EventConsumer {
         // Check if the users are not the same
         if (user1.userid === user2.userid) return false;
 
-        // Bots cannot match each other
+        // Bots can match each other if within 200 trophies
         if (user1.platform === null && user2.platform === null) {
-            const roomConsumer = EventConsumerManager.getInstance().getConsumer(RoomConsumer);
-            const ongoingMatchCount = roomConsumer.getRoomCount(room => room instanceof RankedMultiplayerRoom);
-
-            // Cannot match if server is about to restart
-            if (EventConsumerManager.getInstance().getConsumer(ServerRestartWarningConsumer).isServerRestartWarning()) {
-                return false;
-            }
-
-            if (
-                this.matches.length === 0 && // no matches that just paired
-                ongoingMatchCount === 0 && // no ongoing matches
-                Math.abs(user1.trophies - user2.trophies) < 200 // trophies within 200
-            ) {
-                return true;
-            }
-
-            return false;
+            return Math.abs(user1.trophies - user2.trophies) < 200;
         }
 
         // If either player has not been in the queue for at least one second, they cannot be matched

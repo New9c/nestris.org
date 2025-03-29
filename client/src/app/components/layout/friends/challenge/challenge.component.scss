@@ -32,9 +32,15 @@
 
 p {
   font-family: $main-font;
-  font-size: 12px;
+  font-size: 13px;
   font-style: normal;
   font-weight: 500;
   line-height: normal;
   margin-left: 15px;
+}
+
+p.info {
+  font-size: 13px;
+  font-weight: 400;
+  opacity: 0.8;
 }

@@ -34,7 +34,8 @@
                     <app-trophies [trophies]="foundOpponent.trophyDelta.trophyLoss" [nonnegative]="false" [size]="30" [reverse]="true" color="#F15757" />
                 </div>
 
-                <p *ngIf="!foundOpponent.levelCap">Level {{foundOpponent.startLevel}} start</p>
+                <p *ngIf="!foundOpponent.levelCap && foundOpponent.startLevel < 18">Level {{foundOpponent.startLevel}} start</p>
+                <p *ngIf="!foundOpponent.levelCap && foundOpponent.startLevel >= 18">Level {{foundOpponent.startLevel}} start, uncapped</p>
                 <p *ngIf="foundOpponent.levelCap">Level {{foundOpponent.startLevel}} start, capped at {{foundOpponent.levelCap}}</p>
             </div>
             <div class="player right">

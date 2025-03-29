@@ -49,9 +49,9 @@ export class ChallengeModalComponent {
       id: SettingID.WINNING_SCORE,
       label: "Match duration",
       currentValue: 2,
-      allValues: [1, 2, 3],
+      allValues: [0.5, 2, 3],
       valueStrings: {
-        1: 'First to 1',
+        0.5: 'One game',
         2: 'First to 2',
         3: 'First to 3'
       }
