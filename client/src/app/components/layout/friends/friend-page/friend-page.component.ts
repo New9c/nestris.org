@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { FriendsService } from 'src/app/services/state/friends.service';
 import { InvitationsService } from 'src/app/services/state/invitations.service';
@@ -7,7 +7,7 @@ import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { LoginMethod } from 'src/app/shared/models/db-user';
 import { FriendInfo } from 'src/app/shared/models/friends';
-import { Invitation, InvitationType } from 'src/app/shared/models/invitation';
+import { Invitation, InvitationType, MatchInvitation } from 'src/app/shared/models/invitation';
 
 enum FriendSort {
   HIGHSCORE = 0,
@@ -32,7 +32,8 @@ export class FriendPageComponent {
   
   public friendSort$ = new BehaviorSubject<FriendSort>(FriendSort.HIGHSCORE);
   
-  public requests$ = this.invitationsService.getInvitationsOfType$(InvitationType.FRIEND_REQUEST);
+  public friendInvitations$ = this.invitationsService.getInvitationsOfType$(InvitationType.FRIEND_REQUEST);
+  public matchInvitations$ = this.invitationsService.getInvitationsOfType$(InvitationType.MATCH_REQUEST) as Observable<MatchInvitation[]>;
 
   constructor(
     public friendsService: FriendsService,
@@ -78,8 +79,7 @@ export class FriendPageComponent {
    * Sort first by incoming -> outgoing, then by the username
    * @param requests 
    */
-  sortFriendRequests(requests: Invitation[] | null): Invitation[] {
-
+  sortInvitations(requests: Invitation[] | null): Invitation[] {
     if (requests == null) return [];
 
     // Sort first by username
@@ -91,7 +91,10 @@ export class FriendPageComponent {
       if (b.receiverID === this.meService.getUserIDSync()) return 1;
       return 0;
     });
+  }
 
+  asMatchInvitation(invitation: Invitation) {
+    return invitation as MatchInvitation;
   }
 
 }

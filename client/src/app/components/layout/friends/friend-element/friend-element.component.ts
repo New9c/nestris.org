@@ -32,6 +32,8 @@ export class FriendElementComponent implements OnInit {
   spectateActivities!: {[key in OnlineUserActivityType] : SpectateActivity };
   noActivityTooltip!: string;
 
+  busyActivities!: {[key in OnlineUserActivityType] : string };
+
   constructor(
     private readonly modalService: ModalManagerService,
     private readonly friendsService: FriendsService,
@@ -47,6 +49,13 @@ export class FriendElementComponent implements OnInit {
       [OnlineUserActivityType.MULTIPLAYER] : { canSpectate: true, tooltip: `Watch ${this.friendInfo.username}'s ranked match!` },
       [OnlineUserActivityType.QUEUEING] : { canSpectate: false, tooltip: `${this.friendInfo.username} is currently queuing` },
       [OnlineUserActivityType.PUZZLES] : { canSpectate: false, tooltip: `${this.friendInfo.username} is solving a puzzle` }
+    };
+
+    this.busyActivities = {
+      [OnlineUserActivityType.SOLO] : `${this.friendInfo.username} is busy playing a solo game!`,
+      [OnlineUserActivityType.MULTIPLAYER] : `${this.friendInfo.username} is busy playing a ranked match!`,
+      [OnlineUserActivityType.QUEUEING] : `${this.friendInfo.username} is busy queuing for a ranked match!`,
+      [OnlineUserActivityType.PUZZLES] : `${this.friendInfo.username} is busy solving a puzzle!`
     };
 
     this.noActivityTooltip = `${this.friendInfo.username} is currently idle`;

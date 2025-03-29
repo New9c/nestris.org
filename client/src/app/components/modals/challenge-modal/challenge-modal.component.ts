@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ButtonColor } from '../../ui/solid-button/solid-button.component';
-import { FriendsService } from 'src/app/services/state/friends.service';
 import { ModalManagerService } from 'src/app/services/modal-manager.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
-import { Challenge } from 'src/app/shared/models/challenge';
-import { FetchService, Method } from 'src/app/services/fetch.service';
 import { MeService } from 'src/app/services/state/me.service';
+import { InvitationsService } from 'src/app/services/state/invitations.service';
+import { InvitationMode } from 'src/app/shared/network/json-message';
+import { InvitationType, MatchInvitation } from 'src/app/shared/models/invitation';
+import { v4 as uuid } from 'uuid';
 
 export interface ChallengeModalConfig {
   opponentid: string;
@@ -73,7 +74,7 @@ export class ChallengeModalComponent {
   ];
 
   constructor(
-    private fetchService: FetchService,
+    private invitationService: InvitationsService,
     private websocketService: WebsocketService,
     private modalService: ModalManagerService,
     private meService: MeService,
@@ -90,30 +91,23 @@ export class ChallengeModalComponent {
     if (levelCap === NO_CAP) levelCap = undefined;
 
     // set challenge parameters
-    const challenge: Challenge = {
-      senderid: userID,
+    const invitation: MatchInvitation = {
+      type: InvitationType.MATCH_REQUEST,
+      invitationID: uuid(),
+      senderID: userID,
       senderUsername: username,
       senderSessionID: sessionID,
-      receiverid: this.config.opponentid,
+      receiverID: this.config.opponentid,
       receiverUsername: this.config.opponentUsername,
       startLevel: this.getSettingValue(SettingID.START_LEVEL),
       winningScore: this.getSettingValue(SettingID.WINNING_SCORE),
       levelCap: levelCap
     }
 
-    console.log("challenge", challenge);
+    console.log("match invitation", invitation);
 
-    // send challenge to server. if successful, close modal
-    const { success, error } = await this.fetchService.fetch<{
-      success: boolean, error?: string
-    }>(Method.POST, '/api/v2/send-challenge', { challenge });
-
-    if (success) {
-      this.modalService.hideModal();
-    } else {
-      this.error$.next(error ?? "Unknown error occured. Please try again later.");
-    }
-    
+    this.invitationService.createInvitation(invitation);
+    this.modalService.hideModal();
   }
 
   private getSettingValue(id: SettingID) {

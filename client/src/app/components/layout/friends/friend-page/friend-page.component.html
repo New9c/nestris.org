@@ -23,14 +23,12 @@
 
 <app-add-friend-modal *ngIf="showAddFriendDialog$ | async" [visibility$]="showAddFriendDialog$" />
 
-<div class="friends-list">
-    <!-- <ng-container *ngIf="friendsService.getChallenges$() | async as challenges">
-        <app-challenge *ngFor="let challenge of challenges"
-            [challenge]="challenge"
-        />
-    </ng-container> -->
-    <ng-container *ngIf="sortFriendRequests(requests$ | async) as requests">
-        <app-friend-request *ngFor="let request of requests" [request]="request" [myID]="(meService.getUserID$() | async)!" />
+<div class="friends-list" *ngIf="(meService.getUserID$() | async) as myID">
+    <ng-container *ngIf="sortInvitations(matchInvitations$ | async) as invitations">
+        <app-challenge *ngFor="let invitation of invitations" [invitation]="asMatchInvitation(invitation)" [myID]="myID" />
+    </ng-container>
+    <ng-container *ngIf="sortInvitations(friendInvitations$ | async) as invitations">
+        <app-friend-request *ngFor="let invitation of invitations" [request]="invitation" [myID]="myID" />
     </ng-container>
     <ng-container *ngIf="sortFriends(friendsService.get$() | async, (friendSort$ | async) ?? FriendSort.HIGHSCORE) as friendsInfo">
         <app-friend-element *ngFor="let friendInfo of friendsInfo" [friendInfo]="friendInfo" />

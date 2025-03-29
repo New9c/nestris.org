@@ -31,4 +31,8 @@ export class ServerRestartWarningConsumer extends EventConsumer {
             this.users.sendToUserSession(event.sessionID, new ServerRestartWarningMessage(true));
         }
     }
+
+    public isServerRestartWarning() {
+        return this.serverRestartWarning;
+    }
 }

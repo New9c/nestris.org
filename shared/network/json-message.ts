@@ -1,9 +1,8 @@
-import { Challenge } from "../models/challenge"
 import { DBUser } from "../models/db-user"
 import { NotificationType } from "../models/notifications"
 import { ClientRoomEvent, RoomInfo, RoomState } from "../room/room-models"
 import { League } from "../nestris-org/league-system";
-import { TrophyDelta, XPDelta } from "../room/multiplayer-room-models"
+import { TrophyDelta } from "../room/multiplayer-room-models"
 import { FriendInfo, FriendInfoUpdate } from "../models/friends";
 import { Invitation, InvitationCancellationReason } from "../models/invitation";
 import { QuestID } from "../nestris-org/quest-system";

@@ -72,6 +72,7 @@ import { testBotHyperparameters } from './src/bot/simulate-bot';
 import { SpectateRoomRoute } from './src/routes/room/spectate-room-route';
 import { SpectateRoomOfUserRoute } from './src/routes/room/spectate-room-of-user-route';
 import { RankedAbortConsumer } from './src/online-users/event-consumers/ranked-abort-consumer';
+import { MatchInvitationManager } from './src/invitations/match-invitation';
 
 // Load environment variables
 require('dotenv').config();
@@ -157,6 +158,7 @@ async function main() {
   // Initialize InvitationManagers
   const invitationConsumer = consumers.getConsumer(InvitationConsumer);
   invitationConsumer.registerInvitationManager(FriendInvitationManager);
+  invitationConsumer.registerInvitationManager(MatchInvitationManager);
 
 
   // Initialize leaderboards
@@ -212,7 +214,7 @@ async function main() {
 
   const bots = new BotManager();
   //bots.registerBot(new RankedBotUser('bot2', 2000, {aiConfig : { inputSpeed: InputSpeed.HZ_10 }}));
-  registerSRBots(bots);
+  //registerSRBots(bots);
   await bots.init();
 
   if (NODE_ENV === DeploymentEnvironment.DEV && false) {

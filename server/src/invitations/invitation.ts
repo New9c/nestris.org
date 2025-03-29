@@ -95,7 +95,7 @@ export abstract class InvitationManager<I extends Invitation = Invitation> {
      * @param user2ID The userid of the second user. Order does not matter.
      * @returns The invitation between the two users, or undefined if there is none.
      */
-    private getInvitationByUsers(user1ID: string, user2ID: string): I | undefined {
+    protected getInvitationByUsers(user1ID: string, user2ID: string): I | undefined {
 
         // Check if user1 has invited user2.
         const user1Invitations = this.invitationsBySender.get(user1ID);
@@ -252,7 +252,7 @@ export abstract class InvitationManager<I extends Invitation = Invitation> {
         this.removeInvitation(invitation);
 
         // Hook for when an invitation is cancelled.
-        await this.onCancelInvitation(invitation);
+        await this.onCancelInvitation(invitation, reason);
 
         // Send the cancelled invitation to both users.
         this.users.sendToUser(invitation.senderID, new InvitationMessage(InvitationMode.CANCEL, invitation, reason));
@@ -282,7 +282,7 @@ export abstract class InvitationManager<I extends Invitation = Invitation> {
     /**
      * Hook for when an invitation is cancelled.
      */
-    protected async onCancelInvitation(invitation: I): Promise<void> {}
+    protected async onCancelInvitation(invitation: I, reason: InvitationCancellationReason): Promise<void> {}
 
 
     // ------------ Hooks to be called from InvitationConsumer ------------

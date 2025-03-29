@@ -129,7 +129,7 @@ export class AddFriendModalComponent implements OnInit {
         }
 
         // Create the friend request invitation and send it to the potential friend
-        this.invitationsService.sendInvitationMessage(InvitationMode.CREATE, {
+        this.invitationsService.createInvitation({
           type: InvitationType.FRIEND_REQUEST,
           invitationID: uuid(),
           senderID: myID,

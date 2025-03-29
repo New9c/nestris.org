@@ -25,3 +25,11 @@ export enum InvitationCancellationReason {
     SENDER_CANCEL = "SENDER_CANCEL",
     RECEIVER_DECLINE = "RECEIVER_DECLINE",
 }
+
+// MATCH_REQUEST invitation sent by a user to a friend
+export interface MatchInvitation extends Invitation {
+    type: InvitationType.MATCH_REQUEST;
+    winningScore: number;
+    startLevel: number;
+    levelCap?: number;
+}

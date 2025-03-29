@@ -14,6 +14,7 @@ import { getEloChange, getLevelCapForElo, getStartLevelForElo } from "../../../s
 import { Platform } from "../../../shared/models/platform";
 import { Database, DBQuery } from "../../database/db-query";
 import { RankedAbortConsumer } from "./ranked-abort-consumer";
+import { ServerRestartWarningConsumer } from "./server-restart-warning-consumer";
 
 export class QueueError extends Error {}
 export class UserUnavailableToJoinQueueError extends QueueError {}
@@ -392,6 +393,11 @@ export class RankedQueueConsumer extends EventConsumer {
         if (user1.platform === null && user2.platform === null) {
             const roomConsumer = EventConsumerManager.getInstance().getConsumer(RoomConsumer);
             const ongoingMatchCount = roomConsumer.getRoomCount(room => room instanceof RankedMultiplayerRoom);
+
+            // Cannot match if server is about to restart
+            if (EventConsumerManager.getInstance().getConsumer(ServerRestartWarningConsumer).isServerRestartWarning()) {
+                return false;
+            }
 
             if (
                 this.matches.length === 0 && // no matches that just paired
