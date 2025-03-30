@@ -1,5 +1,5 @@
 import { Component, HostListener, OnDestroy } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, debounceTime, filter, map, Subscription } from 'rxjs';
 import { getDisplayKeybind } from 'src/app/components/ui/editable-keybind/editable-keybind.component';
 import { ButtonColor } from 'src/app/components/ui/solid-selector/solid-selector.component';
 import { FetchService, Method } from 'src/app/services/fetch.service';
@@ -49,6 +49,45 @@ class DropdownSetting extends Setting {
   ) { super() }
 }
 
+class ParagraphSetting extends Setting {
+
+  // if null, not edited yet
+  private readonly paragraph$ = new BehaviorSubject<string | null>(null);
+
+  public maxChars$ = this.paragraph$.pipe(
+    map(paragraph => paragraph === null ? null : this.maxChars - paragraph.length)
+  );
+  public maxCharsRed$ = this.maxChars$.pipe(
+    map(maxChars => maxChars === null ? false : maxChars < 0)
+  );
+
+  constructor(
+    private readonly component: SettingsPageComponent,
+    public readonly key: string,
+    public readonly label: string,
+    public readonly maxChars: number,
+    public readonly description?: string,
+  ) {
+    super();
+
+    // Send changes in paragraph
+    this.component.subscriptions.push(this.paragraph$.pipe(
+      filter(paragraph => paragraph !== null && paragraph.length <= this.maxChars),
+      debounceTime(200)
+    ).subscribe(paragraph => {
+      console.log("send", paragraph);
+      this.component.setAttribute(undefined, this.key, paragraph);
+    }))
+  }
+
+  edit(event: Event) {
+    const newParagraph = (event.target as HTMLTextAreaElement).value;
+    this.paragraph$.next(newParagraph);
+  }
+
+  
+}
+
 
 @Component({
   selector: 'app-settings-page',
@@ -57,13 +96,24 @@ class DropdownSetting extends Setting {
 })
 export class SettingsPageComponent implements OnDestroy {
 
+  public readonly subscriptions: Subscription[] = [];
+
   isBooleanSetting = (setting: Setting) => (setting instanceof BooleanSetting) ? (setting as BooleanSetting) : null;
   isDropdownSetting = (setting: Setting) => (setting instanceof DropdownSetting) ? (setting as DropdownSetting) : null;
   isKeybindSetting = (setting: Setting) => (setting instanceof KeybindSetting) ? (setting as KeybindSetting) : null;
+  isParagraphSetting = (setting: Setting) => (setting instanceof ParagraphSetting) ? (setting as ParagraphSetting) : null;
 
   readonly tabs: Tab[] = [
     new Tab('Profile', [
-
+      new Category('Identity', [
+        new ParagraphSetting(
+          this,
+          'about_me',
+          'About me',
+          300,
+          'Give your profile page a little flair with a little something about you!'
+        )
+      ])
     ]),
     new Tab('Gameplay', [
       new Category('Friends', [
@@ -127,8 +177,6 @@ export class SettingsPageComponent implements OnDestroy {
     private fetchService: FetchService,
     private gamepadService: GamepadService,
   ) {
-
-
     this.gamepadSubscription = this.gamepadService.onPress().subscribe((button: string) => {
       this.onKeyDown(button);
     });
@@ -136,6 +184,8 @@ export class SettingsPageComponent implements OnDestroy {
 
   ngOnDestroy() {
     this.gamepadSubscription.unsubscribe();
+
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   getAttribute(user: any, key: string) {
@@ -143,8 +193,8 @@ export class SettingsPageComponent implements OnDestroy {
     return user[key];
   }
 
-  async setAttribute(user: any, attribute: string, value: any) {
-    if (user[attribute] === undefined) throw new Error(`User does not have attribute ${attribute}`);
+  async setAttribute(user: any | undefined, attribute: string, value: any) {
+    if (user !== undefined && user[attribute] === undefined) throw new Error(`User does not have attribute ${attribute}`);
     console.log(`Setting ${attribute} to ${value}`);
 
     await this.fetchService.fetch(Method.POST, "/api/v2/update-attribute", { attribute, value });
@@ -233,6 +283,12 @@ export class SettingsPageComponent implements OnDestroy {
     // Set the keybind
     this.setAttribute(user, activeKey, key);
     this.activeKey$.next(null);
+  }
+
+  maxChars(user: any, setting: ParagraphSetting) {
+    const attribute = this.getAttribute(user, setting.key);
+    const length = attribute ? attribute.length : 0;
+    return setting.maxChars - length;
   }
 
 }

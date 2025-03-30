@@ -157,7 +157,8 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             keybind_puzzle_rot_left: 'Z',
             keybind_puzzle_rot_right: 'X',
 
-            quest_progress: []
+            quest_progress: [],
+            about_me: null,
         };
     }
 

@@ -54,6 +54,7 @@ CREATE TABLE "public"."users" (
     "keybind_puzzle_rot_right" text NOT NULL,
 
     "quest_progress" int4[] NOT NULL DEFAULT '{}',
+    "about_me" text,
 
     PRIMARY KEY ("userid")
 );

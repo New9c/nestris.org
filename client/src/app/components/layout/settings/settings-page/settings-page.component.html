@@ -41,6 +41,22 @@
                         <app-editable-keybind [keybind]="getAttribute(me, setting.key)" (click)="editKeybind(setting.key)"
                             (setKeybind)="setAttribute(me, setting.key, $event)" />
                     </div>
+
+                    <div *ngIf="isParagraphSetting(setting) as setting" class="paragraph-setting"> 
+                        <div class="label">
+                            <p>{{setting.label}}</p>
+                            <p *ngIf="setting.description" class="description">{{setting.description}}</p>
+                        </div>
+                        <!-- <app-slide-toggle [checked]="getAttribute(me, setting.key)" (setChecked)="setAttribute(me, setting.key, $event)" /> -->
+                         <div class="textarea-container" [ngClass]="{'red' : setting.maxCharsRed$ | async}">
+                            <textarea [defaultValue]="getAttribute(me, setting.key)" (input)="setting.edit($event)">
+                                
+                            </textarea>
+                            <p class="max-chars">
+                                {{(setting.maxChars$ | async)}}
+                            </p>
+                         </div>
+                    </div>
     
                 </ng-container>
 

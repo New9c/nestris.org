@@ -68,6 +68,7 @@ export interface DBUser {
   keybind_puzzle_rot_right: string,
 
   quest_progress: number[],
+  about_me: string | null,
 }
 
 export interface DBUserWithOnlineStatus extends DBUser {
@@ -124,4 +125,5 @@ export const DBUserAttributes = [
   'keybind_puzzle_rot_right',
 
   'quest_progress',
+  'about_me',
 ];
