@@ -198,7 +198,7 @@ export class MultiplayerClientRoom extends ClientRoom {
             } else {
 
                 // Start OCR game
-                const config: OCRConfig = { startLevel: newState.startLevel, seed: newState.currentSeed, multipleGames: false };
+                const config: OCRConfig = { startLevel: newState.startLevel, seed: newState.currentSeed, multipleGames: false, levelCap: newState.levelCap };
                 const stateObservable$ = this.ocr.startGameCapture(config, this.platform, true);
                 if (!stateObservable$) throw new Error(`Game capture already started`);
 
