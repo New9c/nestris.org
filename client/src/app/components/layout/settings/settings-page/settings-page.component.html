@@ -3,9 +3,9 @@
 
     <div class="panels" *ngIf="currentTab$ | async as currentTab">
         <div class="menu panel">
-            <div class="tab">
-                <p></p>
-            </div>
+            <button class="tab" *ngFor="let tab of tabs" [ngClass]="{'selected' : currentTab === tab}" (click)="currentTab$.next(tab)">
+                <p>{{tab.name}}</p>
+            </button>
         </div>
         <div class="main panel" *ngIf="me$ | async as me">
             <h1 class="tab-name">{{currentTab.name}}</h1>

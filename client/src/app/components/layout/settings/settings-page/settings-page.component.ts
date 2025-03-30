@@ -5,7 +5,6 @@ import { ButtonColor } from 'src/app/components/ui/solid-selector/solid-selector
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { GamepadService } from 'src/app/services/gamepad.service';
 import { MeService } from 'src/app/services/state/me.service';
-import { capitalize } from 'src/app/util/misc';
 
 
 abstract class Setting {
@@ -63,12 +62,15 @@ export class SettingsPageComponent implements OnDestroy {
   isKeybindSetting = (setting: Setting) => (setting instanceof KeybindSetting) ? (setting as KeybindSetting) : null;
 
   readonly tabs: Tab[] = [
-    new Tab('General', [
+    new Tab('Profile', [
+
+    ]),
+    new Tab('Gameplay', [
       new Category('Friends', [
         new BooleanSetting('enable_receive_friend_requests', 'Allow people to send me friend requests'),
         new BooleanSetting('notify_on_friend_online', 'Notify me when friends go online'),
       ]),
-      new Category('Gameplay', [
+      new Category('Games', [
         new BooleanSetting(
           'disable_midgame_quests',
           'Disable mid-game quest popups',
@@ -88,7 +90,9 @@ export class SettingsPageComponent implements OnDestroy {
       new Category('Sound', [
         new BooleanSetting('enable_sound', 'Play sound effects'),
       ]),
-      new Category('Emulator Keybinds', [
+    ]),
+    new Tab('Keybinds', [
+      new Category('Games', [
         new KeybindSetting('keybind_emu_start', 'Start'),
         new KeybindSetting('keybind_emu_up', 'Up'),
         new KeybindSetting('keybind_emu_down', 'Down'),
@@ -99,7 +103,7 @@ export class SettingsPageComponent implements OnDestroy {
         new KeybindSetting('keybind_emu_reset', 'Restart'),
         
       ]),
-      new Category('Puzzle Keybinds', [
+      new Category('Puzzles', [
         new KeybindSetting('keybind_puzzle_rot_left', 'Rotate Left'),
         new KeybindSetting('keybind_puzzle_rot_right', 'Rotate Right'),
       ]),

@@ -5,11 +5,12 @@
     flex-direction: column;
     gap: 10px;
 
-    max-height: 90dvh;
+    max-height: 85dvh;
     overflow-y: scroll;
 
-    margin-inline: -5px;
-    padding-inline: 5px;
+    //margin-inline: -5px;
+    margin-block: 20px;
+    margin-inline: 20px;
 }
 
 .bot {
