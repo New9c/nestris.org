@@ -73,5 +73,10 @@ export class MultiplayerRoomComponent extends MultiplayerComponent {
       this.multiplayerClientRoom.showAfterMatchModal();
     }
   }
+  
+  winningScoreLabel(score: number) {
+    if (score === 0.5) return 'One game';
+    return `First to ${score}`;
+  }
 
 }

@@ -61,3 +61,5 @@
 </div>
 
 <app-xp-status *ngIf="(multiplayerState$ | async)?.ranked && !isSpectator()" />
+
+<p *ngIf="(multiplayerState$ | async) as state" class="match-info">{{state.ranked ? 'Ranked' : 'Unranked'}} • {{winningScoreLabel(state.winningScore)}} • {{state.levelCap ? 'Level ' + state.levelCap + ' cap' : 'Uncapped'}}</p>

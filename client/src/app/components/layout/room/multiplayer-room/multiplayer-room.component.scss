@@ -126,3 +126,16 @@ app-xp-status {
 .board-text p {
     font-size: 21px;
 }
+
+.match-info {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    font-family: $main-font;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+}
