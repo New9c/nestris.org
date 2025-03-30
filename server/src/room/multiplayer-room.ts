@@ -358,7 +358,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
     protected override async onSpectatorJoin(sessionID: string): Promise<void> {
         setTimeout(
             () => bothPlayerIndicies.forEach(playerIndex => this.gamePlayers[playerIndex].onSpectatorJoin(sessionID)),
-            200 // slight delay for client to get ready and hopefully avoid race conditions. there are some deeper problems here.
+            100 // slight delay for client to get ready and hopefully avoid race conditions. there are some deeper problems here.
         )
         
     }
