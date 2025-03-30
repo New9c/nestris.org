@@ -152,6 +152,12 @@ export class MultiplayerClientRoom extends ClientRoom {
         return this.myIndex;
     }
 
+    public getOpponentIndex(): PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2 | null {
+        if (this.myIndex === null) return null;
+        if (this.myIndex === PlayerIndex.PLAYER_1) return PlayerIndex.PLAYER_2;
+        return PlayerIndex.PLAYER_1;
+    }
+
     public getSnapshotForPlayer$(playerIndex: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2): Observable<GameStateSnapshotWithoutBoard> {
         return this.serverPlayers[playerIndex].getSnapshot$();
     }

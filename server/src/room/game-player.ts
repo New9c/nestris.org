@@ -156,6 +156,7 @@ export class GamePlayer {
             const gameStart = (packet.content as GameStartSchema);
             this.gameState = new GameState(gameStart.level, gameStart.current, gameStart.next);
 
+            this.topoutScore = null;
             this.hasAtLeastOnePlacement = false;
 
             this.consecBestPlacements.reset();

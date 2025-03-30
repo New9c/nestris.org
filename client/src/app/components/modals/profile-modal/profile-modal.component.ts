@@ -87,6 +87,9 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
     this.originalUrl = this.config?.originalUrl ?? this.location.path();
     this.setURL(`user/${this.userid}`);
 
+    if (this.userid === this.meService.getUserIDSync()) this.analytics.sendEvent("view-my-profile");
+    else this.analytics.sendEvent("view-other-profile");
+
     this.sound.play(SoundEffect.NOTES_UP_LOW);
   }
 

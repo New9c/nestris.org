@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostListener } from '@angular/core';
 import { RoomService } from 'src/app/services/room/room.service';
-import { calculateScoreForPlayer, MultiplayerRoomState, PlayerIndex, pointWinner } from 'src/app/shared/room/multiplayer-room-models';
+import { calculateScoreForPlayer, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex, pointWinner } from 'src/app/shared/room/multiplayer-room-models';
 import { MultiplayerComponent } from '../../multiplayer-room/multiplayer-component';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { Router } from '@angular/router';
@@ -36,7 +36,10 @@ export class MultiplayerAfterMatchModalComponent extends MultiplayerComponent {
   }
 
   getMatchText(state: MultiplayerRoomState): string {
-    if (state.matchWinner === null) return 'Match Aborted';
+    if (state.matchWinner === null) {
+      const abortedUsername = state.players[PlayerIndex.PLAYER_1].leftRoom ? state.players[PlayerIndex.PLAYER_1].username : state.players[PlayerIndex.PLAYER_2].username;
+      return `Aborted by ${abortedUsername}`
+    }
     if (state.matchWinner === PlayerIndex.DRAW) return 'Draw';
     if (state.matchWinner === this.getColorIndex("blue")) return 'Victory';
     return 'Defeat';
@@ -65,6 +68,14 @@ export class MultiplayerAfterMatchModalComponent extends MultiplayerComponent {
     if (event.key === me.keybind_emu_start) {
       this.playNewMatch();
     }
+  }
+
+  disableNextMatch(state: MultiplayerRoomState): boolean {
+    if (state.ranked) return false; // if ranked, always can go to next match
+    if (state.status === MultiplayerRoomStatus.ABORTED) return true;
+    const opponentIndex = this.multiplayerClientRoom.getOpponentIndex();
+    if (opponentIndex === null) return true;
+    return state.players[opponentIndex].leftRoom; // if not left room, can rematch
   }
 
 

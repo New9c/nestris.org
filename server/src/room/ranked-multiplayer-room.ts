@@ -28,11 +28,12 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
         player2TrophyDelta: TrophyDelta, // How much player 2 will gain/lose
     ) {
         super(
-            player1SessionID, player2SessionID, player1TrophyDelta, player2TrophyDelta,
+            player1SessionID, player2SessionID,
             true, // Ranked
             startLevel, // Start level
             0.5, // Winning score: single game decides winner
-            levelCap
+            levelCap,
+            player1TrophyDelta, player2TrophyDelta,
         );
     }
 
@@ -51,7 +52,7 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
         this.iterateGamePlayers(async (player, playerIndex) => {
 
             // Calculate trophy change
-            const trophyDelta = playerIndex === PlayerIndex.PLAYER_1 ? this.player1TrophyDelta : this.player2TrophyDelta;
+            const trophyDelta = playerIndex === PlayerIndex.PLAYER_1 ? this.player1TrophyDelta! : this.player2TrophyDelta!;
             let trophyChange;
             if (state.matchWinner === PlayerIndex.DRAW) trophyChange = Math.round((trophyDelta.trophyGain + trophyDelta.trophyLoss) / 2);
             else if (state.matchWinner === playerIndex) trophyChange = trophyDelta.trophyGain;

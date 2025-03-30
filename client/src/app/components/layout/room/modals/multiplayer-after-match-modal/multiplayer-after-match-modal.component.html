@@ -35,7 +35,7 @@
         </div>
         <div class="buttons">
             <app-solid-button label="Exit" [color]="ButtonColor.RED" (click)="exit()" />
-            <app-solid-button label="Play" [color]="ButtonColor.GREEN" [action]="playNewMatch.bind(this)" />
+            <app-solid-button [disabled]="disableNextMatch(state)" [label]="state.ranked ? 'New match' : disableNextMatch(state) ? 'Opponent left room' : 'Rematch'" [color]="ButtonColor.GREEN" [action]="playNewMatch.bind(this)" />
         </div>
     </div>
 </div>

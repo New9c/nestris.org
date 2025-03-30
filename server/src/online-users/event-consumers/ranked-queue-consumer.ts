@@ -560,7 +560,6 @@ export class RankedQueueConsumer extends EventConsumer {
             [user1ID, user2ID].forEach(user => {
                 this.users.sendToUserSession(user.sessionID, new RedirectMessage("/"));
             });
-            
         }
         
         // Remove match from list

@@ -217,7 +217,7 @@ async function main() {
   const bots = new BotManager();
   //bots.registerBot(new RankedBotUser('bot2', 2000, {aiConfig : { inputSpeed: InputSpeed.HZ_10 }}));
   //if (NODE_ENV !== DeploymentEnvironment.DEV) registerSRBots(bots);
-  registerSRBots(bots);
+  //registerSRBots(bots);
   await bots.init();
 
   if (NODE_ENV === DeploymentEnvironment.DEV && false) {
