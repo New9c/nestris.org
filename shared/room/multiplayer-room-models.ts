@@ -56,6 +56,7 @@ export interface PlayerInfo {
     username: string;
     sessionID: string;
     trophies: number;
+    highscore: number;
     leftRoom: boolean;
     trophyDelta?: TrophyDelta;
 }
@@ -75,6 +76,7 @@ export interface MultiplayerRoomState extends RoomState {
     currentSeed: string;
     lastGameWinner: PlayerIndex | null; // null if before first game
     matchWinner: PlayerIndex | null; // null if match is ongoing
+    aborter: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2 | null;
     wonByResignation: boolean;
 
     ready: {[PlayerIndex.PLAYER_1]: boolean, [PlayerIndex.PLAYER_2]: boolean};

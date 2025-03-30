@@ -1,5 +1,5 @@
 import { InvitationCancellationReason, InvitationType, MatchInvitation } from "../../shared/models/invitation";
-import { NotificationType } from "../../shared/models/notifications";
+import { NotificationAutohide, NotificationType } from "../../shared/models/notifications";
 import { SendPushNotificationMessage } from "../../shared/network/json-message";
 import { errorHandler } from "../errors/error-handler";
 import { EventConsumerManager } from "../online-users/event-consumer";
@@ -25,7 +25,8 @@ export class MatchInvitationManager extends InvitationManager<MatchInvitation> {
         this.users.sendToUserSession(
             invitation.senderSessionID,
             new SendPushNotificationMessage(NotificationType.SUCCESS,
-                `Sent a friendly challenge to ${invitation.receiverUsername}!`
+                `Sent a friendly challenge to ${invitation.receiverUsername}!`,
+                NotificationAutohide.SHORT
             )
         );
 
@@ -33,7 +34,8 @@ export class MatchInvitationManager extends InvitationManager<MatchInvitation> {
         this.users.sendToUser(
             invitation.receiverID,
             new SendPushNotificationMessage(NotificationType.SUCCESS,
-                `${invitation.senderUsername} sent you a friendly challenge!`
+                `${invitation.senderUsername} sent you a friendly challenge!`,
+                NotificationAutohide.SHORT
             )
         );        
     }
@@ -47,7 +49,11 @@ export class MatchInvitationManager extends InvitationManager<MatchInvitation> {
 
         this.users.sendToUserSession(
             invitation.senderSessionID,
-            new SendPushNotificationMessage(NotificationType.SUCCESS, `${invitation.receiverUsername} accepted your friendly challenge!`)
+            new SendPushNotificationMessage(
+                NotificationType.SUCCESS,
+                `${invitation.receiverUsername} accepted your friendly challenge!`,
+                NotificationAutohide.SHORT
+            )
         )
 
         try {

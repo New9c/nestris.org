@@ -44,7 +44,8 @@ export class ChallengeModalComponent {
 
   readonly ButtonColor = ButtonColor;
 
-  readonly settings: Setting[] = [
+  // Static so that settings can be saved through session
+  static readonly settings: Setting[] = [
 
     {
       id: SettingID.WINNING_SCORE,
@@ -78,9 +79,12 @@ export class ChallengeModalComponent {
     private invitationService: InvitationsService,
     private websocketService: WebsocketService,
     private modalService: ModalManagerService,
-    private platformService: PlatformInterfaceService,
     private meService: MeService,
   ) {}
+
+  get settings() {
+    return ChallengeModalComponent.settings;
+  }
 
   async challenge() {
 

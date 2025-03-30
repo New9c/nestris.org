@@ -27,6 +27,7 @@ export class MultiplayerAfterMatchModalComponent extends MultiplayerComponent {
   readonly calculateScoreForPlayer = calculateScoreForPlayer;
   readonly pointWinner = pointWinner;
   readonly ButtonColor = ButtonColor;
+  readonly MultiplayerRoomStatus = MultiplayerRoomStatus;
 
 
   getPointText(index: PlayerIndex): string {
@@ -37,7 +38,7 @@ export class MultiplayerAfterMatchModalComponent extends MultiplayerComponent {
 
   getMatchText(state: MultiplayerRoomState): string {
     if (state.matchWinner === null) {
-      const abortedUsername = state.players[PlayerIndex.PLAYER_1].leftRoom ? state.players[PlayerIndex.PLAYER_1].username : state.players[PlayerIndex.PLAYER_2].username;
+      const abortedUsername = state.players[state.aborter!].username;
       return `Aborted by ${abortedUsername}`
     }
     if (state.matchWinner === PlayerIndex.DRAW) return 'Draw';
@@ -45,13 +46,21 @@ export class MultiplayerAfterMatchModalComponent extends MultiplayerComponent {
     return 'Defeat';
   }
 
-  async playNewMatch() {
+  async playNewMatch(state: MultiplayerRoomState) {
 
-    // Leave the room
+    if (state.ranked) {
+      // Leave the room
     await this.roomService.leaveRoom();
 
     // Join the queue
     await this.queueService.joinQueue();
+
+    } else {
+      // Send rematch offer
+      this.multiplayerClientRoom.sendReadyEvent();
+    }
+
+    
   }
 
   async exit() {
@@ -66,16 +75,19 @@ export class MultiplayerAfterMatchModalComponent extends MultiplayerComponent {
     if (!me) return;
 
     if (event.key === me.keybind_emu_start) {
-      this.playNewMatch();
+      this.playNewMatch(this.multiplayerClientRoom.getState<MultiplayerRoomState>());
     }
   }
 
   disableNextMatch(state: MultiplayerRoomState): boolean {
     if (state.ranked) return false; // if ranked, always can go to next match
-    if (state.status === MultiplayerRoomStatus.ABORTED) return true;
     const opponentIndex = this.multiplayerClientRoom.getOpponentIndex();
     if (opponentIndex === null) return true;
     return state.players[opponentIndex].leftRoom; // if not left room, can rematch
+  }
+
+  amReady(state: MultiplayerRoomState): boolean {
+    return state.ready[this.multiplayerClientRoom.getMyIndex()!];
   }
 
 

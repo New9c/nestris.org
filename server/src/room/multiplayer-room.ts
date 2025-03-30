@@ -91,13 +91,14 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
     private async getInfoForPlayer(playerIndex: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2): Promise<PlayerInfo> {
 
         const userid = this.gamePlayers[playerIndex].userid;
-        const trophies = (await DBUserObject.get(userid)).trophies;
+        const user = await DBUserObject.get(userid);
 
         return {
             userid: this.gamePlayers[playerIndex].userid,
             username: this.gamePlayers[playerIndex].username,
             sessionID: this.gamePlayers[playerIndex].sessionID,
-            trophies: trophies,
+            trophies: user.trophies,
+            highscore: user.highest_score,
             leftRoom: false,
             trophyDelta: playerIndex === PlayerIndex.PLAYER_1 ? this.player1TrophyDelta : this.player2TrophyDelta,
         };
@@ -123,6 +124,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
             currentSeed: GymRNG.generateRandomSeed(),
             lastGameWinner: null,
             matchWinner: null,
+            aborter: null,
             wonByResignation: false,
             ready: { [PlayerIndex.PLAYER_1]: false, [PlayerIndex.PLAYER_2]: false },
             status: MultiplayerRoomStatus.BEFORE_GAME,
@@ -184,22 +186,34 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
 
             // Update the room state when a player is ready
             case MultiplayerRoomEventType.READY:
-                if (state.status === MultiplayerRoomStatus.BEFORE_GAME && !state.ready[playerIndex]) {
+
+                if (!state.ready[playerIndex] && [MultiplayerRoomStatus.BEFORE_GAME, MultiplayerRoomStatus.AFTER_MATCH].includes(state.status)) {
                     state.ready[playerIndex] = true;
                     this.updateRoomState(state);
 
-                    // If both players are ready, start game after a short delay
+                    // If both players are ready
                     if (state.ready[PlayerIndex.PLAYER_1] && state.ready[PlayerIndex.PLAYER_2]) {
-                        setTimeout(() => {
-                            this.updateRoomState(Object.assign({}, state, { status: MultiplayerRoomStatus.IN_GAME }));
-                        }, 1000);
+
+                        // From BEFORE_GAME, start game after a short delay
+                        if (state.status === MultiplayerRoomStatus.BEFORE_GAME) {
+                            setTimeout(() => {
+                                this.updateRoomState(Object.assign({}, state, { status: MultiplayerRoomStatus.IN_GAME }));
+                            }, 1000);
+                        }
+
+                        // If AFTER_MATCH, this means that both players want to rematch. Reset and restart
+                        else if (state.status == MultiplayerRoomStatus.AFTER_MATCH) {
+                            setTimeout(async () => {
+                                this.updateRoomState(await this.initRoomState());
+                            }, 500);
+                        }
                     }
                 }
                 break;
             
             // Trigger abort
             case MultiplayerRoomEventType.ABORT:
-                await this.onPlayerLeave(userid, sessionID);
+                await this.onPlayerLeave(userid, sessionID, false);
                 return;
         }
     }
@@ -253,7 +267,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
 
         } else if (this.players[PlayerIndex.PLAYER_1].leftRoom || this.players[PlayerIndex.PLAYER_2].leftRoom) {
             
-            await this.endMatchEarly(state);
+            await this.endMatchEarly(state, this.players[PlayerIndex.PLAYER_1].leftRoom ? PlayerIndex.PLAYER_2 : PlayerIndex.PLAYER_1);
 
         } else {
             // Match is ongoing
@@ -265,14 +279,12 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         this.updateRoomState(state);
     }
 
-    private async endMatchEarly(state: MultiplayerRoomState) {
+    private async endMatchEarly(state: MultiplayerRoomState, matchWinner: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2) {
         // If match was not over but a player left the room, end the match early by resignation
         state.wonByResignation = true;
 
         // Match winner is the player that did not leave the room
-        if (this.players[PlayerIndex.PLAYER_1].leftRoom && this.players[PlayerIndex.PLAYER_2].leftRoom) state.matchWinner = PlayerIndex.DRAW;
-        else if (this.players[PlayerIndex.PLAYER_1].leftRoom) state.matchWinner = PlayerIndex.PLAYER_2;
-        else state.matchWinner = PlayerIndex.PLAYER_1;
+        state.matchWinner = matchWinner;
 
         // End the match
         state.status = MultiplayerRoomStatus.AFTER_MATCH;
@@ -286,18 +298,22 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
      * @param sessionID 
      * @returns 
      */
-    protected override async onPlayerLeave(userid: string, sessionID: string): Promise<void> {
+    protected override async onPlayerLeave(userid: string, sessionID: string, leftRoom: boolean = true): Promise<void> {
         const roomState = this.getRoomState();
         const playerIndex = this.getPlayerIndex(sessionID);
+        console.log("player", userid, "left", playerIndex);
 
-        // Update multiplayer room state with player leaving
-        roomState.players[playerIndex].leftRoom = true;
+        if (leftRoom) roomState.players[playerIndex].leftRoom = true;
 
         // If match already ended, do nothing
-        if (roomState.status === MultiplayerRoomStatus.AFTER_MATCH) {
+        if ([MultiplayerRoomStatus.AFTER_MATCH, MultiplayerRoomStatus.ABORTED].includes(roomState.status)) {
             this.updateRoomState(roomState);
             return;
         }
+
+        // Update multiplayer room state with player leaving
+        if (roomState.aborter === null) roomState.aborter = playerIndex;
+        
 
         // If a player left while not in game
         if (this.gamePlayers[playerIndex].getTopoutScore() === null && !this.gamePlayers[playerIndex].isInGame() && roomState.points.length === 0) {
@@ -308,7 +324,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
             rankedAbortConsumer.onAbort(userid, sessionID);
         } else if (!this.gamePlayers[PlayerIndex.PLAYER_1].isInGame() && !this.gamePlayers[PlayerIndex.PLAYER_2].isInGame()) {
             // If neither in game, end match with victor as the user who didn't leave
-            await this.endMatchEarly(roomState);
+            await this.endMatchEarly(roomState, this.getOtherPlayerIndex(playerIndex));
         }
     
         // Send updated room state to client

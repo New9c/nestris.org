@@ -1,5 +1,5 @@
 import { DBUser } from "../models/db-user"
-import { NotificationType } from "../models/notifications"
+import { NotificationAutohide, NotificationType } from "../models/notifications"
 import { ClientRoomEvent, RoomInfo, RoomState } from "../room/room-models"
 import { League } from "../nestris-org/league-system";
 import { TrophyDelta } from "../room/multiplayer-room-models"
@@ -94,6 +94,7 @@ export class SendPushNotificationMessage extends JsonMessage {
     constructor(
         public readonly notificationType: NotificationType,
         public readonly message: string,
+        public readonly autohide: NotificationAutohide = NotificationAutohide.LONG
     ) {
         super(JsonMessageType.SEND_PUSH_NOTIFICATION)
     }

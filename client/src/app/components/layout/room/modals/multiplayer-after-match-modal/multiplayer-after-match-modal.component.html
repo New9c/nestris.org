@@ -10,7 +10,7 @@
         <div class="content" [ngStyle]="{opacity : state.matchWinner === null ? 0 : 1}">
             <div class="players">
                 <div class="player" *ngFor="let playerIndex of getPlayerIndices()" [ngClass]="getIndexColor(playerIndex)">
-                    <h1>{{state.players[playerIndex].username + ((state.wonByResignation && state.matchWinner !== playerIndex) ? ' (Aborted)' : '')}}</h1>
+                    <h1>{{state.players[playerIndex].username + (state.aborter === playerIndex ? ' (Aborted)' : '')}}</h1>
                 </div>
             </div>
             <div class="game-container" *ngFor="let point of state.points" [ngClass]="getIndexColorWithTie(pointWinner(point))">
@@ -35,7 +35,9 @@
         </div>
         <div class="buttons">
             <app-solid-button label="Exit" [color]="ButtonColor.RED" (click)="exit()" />
-            <app-solid-button [disabled]="disableNextMatch(state)" [label]="state.ranked ? 'New match' : disableNextMatch(state) ? 'Opponent left room' : 'Rematch'" [color]="ButtonColor.GREEN" [action]="playNewMatch.bind(this)" />
+            <app-solid-button [disabled]="disableNextMatch(state)" [label]="state.ranked ? 'New match' : disableNextMatch(state) ? 'Opponent left room' : amReady(state) ? 'Waiting for opponent...' : 'Rematch'"
+                [loading]="!disableNextMatch(state) && amReady(state)"
+                [color]="ButtonColor.GREEN" [action]="playNewMatch.bind(this, state)" />
         </div>
     </div>
 </div>

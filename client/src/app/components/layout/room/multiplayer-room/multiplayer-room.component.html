@@ -1,7 +1,8 @@
 <div class="multiplayer-background" *ngIf="(multiplayerState$ | async) as state">
     <div class="side" *ngFor="let playerIndex of getPlayerIndices()" [ngClass]="getIndexColor(playerIndex)">
         <div class="player" *ngIf="state.players[playerIndex] as player">
-            <app-game-header [username]="player.username + (state.status === MultiplayerRoomStatus.ABORTED ? ' (Aborted)' : '')" [userid]="player.userid" [trophies]="player.trophies" [rated]="state.ranked"
+            <app-game-header [username]="player.username + (state.aborter === playerIndex ? ' (Aborted)' : '')" [userid]="player.userid"
+            [trophies]="player.trophies" [rated]="state.ranked" [highscore]="state.ranked ? undefined : player.highscore"
             [score]="getScore(state, playerIndex)" [color]="getIndexColor(playerIndex)" />
 
             <!-- Show client gameplay directly if it's the player's board -->
@@ -17,6 +18,7 @@
                     [countdown]="showBoardText(state, playerIndex, ocrStatus$ | async) ?? myData.countdown"
                     [gameOverShowNext]="!isSpectator()"
                     [gameOver]="getGameOverMode(state, playerIndex)"
+                    [dimmed]="state.status === MultiplayerRoomStatus.AFTER_MATCH || state.status === MultiplayerRoomStatus.BEFORE_GAME"
                     (clickNext)="clickNext(state)"
                     />
 
@@ -49,7 +51,7 @@
                     [countdown]="showBoardText(state, playerIndex) ?? (playerData.countdown === COUNTDOWN_LINECAP_REACHED ? COUNTDOWN_LINECAP_REACHED : 0)"
                     [gameOverShowNext]="false"
                     [gameOver]="getGameOverMode(state, playerIndex)"
-                    [dimmed]="player.leftRoom || state.status === MultiplayerRoomStatus.AFTER_MATCH"
+                    [dimmed]="player.leftRoom || state.status === MultiplayerRoomStatus.AFTER_MATCH || state.status === MultiplayerRoomStatus.BEFORE_GAME"
                     />                    
             </ng-container>
 

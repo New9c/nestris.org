@@ -24,7 +24,9 @@ export class MultiplayerRoomComponent extends MultiplayerComponent {
   readonly COUNTDOWN_LINECAP_REACHED = COUNTDOWN_LINECAP_REACHED;
 
   public ocrStatus$ = this.multiplayerClientRoom.getOCRStatus$();
-  public readyTimer = this.multiplayerClientRoom.readyTimer?.timeVisibleAt$(10);
+  public readyTimer = this.multiplayerClientRoom.readyTimer$.pipe(
+    switchMap(timer => timer ? timer.timeVisibleAt$(10) : of(null))
+  );
   public ocrTimer = this.multiplayerClientRoom.ocrTimer$.pipe(
     switchMap(timer => timer ? timer.timeVisibleAt$(5) : of(null))
   );

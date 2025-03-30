@@ -17,6 +17,13 @@
     margin-bottom: 5px;
 }
 
+.stats {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
 .has-id .profile-container:hover {
     cursor: pointer;
     opacity: 0.8;

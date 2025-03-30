@@ -126,6 +126,7 @@ export class ServerPlayer {
      * Resets the game state of the player to the default state.
      */
     public resetSnapshot() {
+      this.board$.next(new TetrisBoard());
       this.snapshot$.next(this.getDefaultSnapshot());
     }
   

@@ -3,7 +3,7 @@ import { RoomModal } from "src/app/components/layout/room/room/room.component";
 import { BehaviorSubject, map, Observable, of, Subscription, switchMap } from "rxjs";
 import { EmulatorService } from "../emulator/emulator.service";
 import { PlatformInterfaceService } from "../platform-interface.service";
-import { MultiplayerRoomEventType, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex } from "src/app/shared/room/multiplayer-room-models";
+import { bothPlayerIndicies, MultiplayerRoomEventType, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex } from "src/app/shared/room/multiplayer-room-models";
 import { ServerPlayer } from "./server-player";
 import { WebsocketService } from "../websocket.service";
 import { PacketGroup } from "src/app/shared/network/stream-packets/packet";
@@ -84,7 +84,7 @@ export class MultiplayerClientRoom extends ClientRoom {
 
     private ocrStatus$ = new BehaviorSubject<OCRStatus>(OCRStatus.NOT_OCR);
 
-    public readyTimer?: Timer; // Timer to get ready
+    public readyTimer$ = new BehaviorSubject<Timer | undefined>(undefined); // Timer to get ready
     public ocrTimer$ = new BehaviorSubject<Timer | undefined>(undefined); // Timer to start ocr game after in_game start
 
     public override async init(event: InRoomStatusMessage): Promise<void> {
@@ -134,9 +134,9 @@ export class MultiplayerClientRoom extends ClientRoom {
             packetGroup.packets.forEach(packet => this.serverPlayers[playerIndex].onReceivePacket(packet));
         });
 
-        // If player, set a timeout to be ready. On expire, abort
-        if (this.myIndex !== null) {
-            this.readyTimer = new Timer(30, () => this.sendClientRoomEvent({type: MultiplayerRoomEventType.ABORT}));
+        // If player and ranked, set a timeout to be ready. On expire, abort
+        if (this.myIndex !== null && state.ranked) {
+            this.readyTimer$.next(new Timer(40, () => this.sendClientRoomEvent({type: MultiplayerRoomEventType.ABORT})));
         }
 
 
@@ -169,9 +169,9 @@ export class MultiplayerClientRoom extends ClientRoom {
     protected override async onStateUpdate(oldState: MultiplayerRoomState, newState: MultiplayerRoomState): Promise<void> {
 
         // If client goes from not ready to ready, reset game
-        for (const pi of [PlayerIndex.PLAYER_1, PlayerIndex.PLAYER_2]) {
-            const playerIndex = pi as PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2;
+        bothPlayerIndicies.forEach(playerIndex => {
             if (!oldState.ready[playerIndex] && newState.ready[playerIndex]) {
+                console.log("player", playerIndex, "ready");
                 this.serverPlayers[playerIndex].resetSnapshot();
 
                 // Reset game data if client is the player
@@ -188,7 +188,8 @@ export class MultiplayerClientRoom extends ClientRoom {
                     })
                 }
             }
-        }
+        })
+        
 
         // If client is a player, and going from BEFORE_GAME -> IN_GAME, start game
         if (this.myIndex !== null && oldState.status === MultiplayerRoomStatus.BEFORE_GAME && newState.status === MultiplayerRoomStatus.IN_GAME) {
@@ -201,21 +202,37 @@ export class MultiplayerClientRoom extends ClientRoom {
                 const stateObservable$ = this.ocr.startGameCapture(config, this.platform, true);
                 if (!stateObservable$) throw new Error(`Game capture already started`);
 
-                // Start timer where user has to start game before it expires
-                this.ocrTimer$.next(new Timer(10, () => {
+                // If ranked, start timer where user has to start game before it expires
+                if (newState.ranked) this.ocrTimer$.next(new Timer(10, () => {
                     this.sendClientRoomEvent({type: MultiplayerRoomEventType.ABORT});
                     this.ocr.stopGameCapture();
                 }));
 
                 this.ocrStateSubscription = stateObservable$.subscribe((state) => {
                     if (state.id === OCRStateID.PIECE_DROPPING) {
-                        if (this.ocrTimer$.getValue()!.secondsLeft) this.ocrTimer$.getValue()!.stop();
+                        if (this.ocrTimer$.getValue()?.secondsLeft) this.ocrTimer$.getValue()?.stop();
                         this.ocrStatus$.next(OCRStatus.OCR_IN_GAME);
                     }
                     if (state.id === OCRStateID.GAME_END) {
                         this.ocrStatus$.next(OCRStatus.OCR_AFTER_GAME);
                     }
                 })
+            }
+        }
+
+        // If going back to before game, reset
+        if (oldState.status !== MultiplayerRoomStatus.BEFORE_GAME && newState.status === MultiplayerRoomStatus.BEFORE_GAME) {
+            
+            this.emulator.stopGame(true);
+            this.ocr.stopGameCapture();
+            this.ocrStateSubscription?.unsubscribe();
+
+            if (this.myIndex !== null && newState.ranked) {
+                this.readyTimer$.next(new Timer(30, () => this.sendClientRoomEvent({type: MultiplayerRoomEventType.ABORT})));
+            }
+
+            if (this.myIndex !== null && this.platform.getPlatform() === Platform.OCR) {
+                this.ocrStatus$.next(OCRStatus.OCR_BEFORE_GAME);
             }
         }
 
@@ -232,13 +249,22 @@ export class MultiplayerClientRoom extends ClientRoom {
         if (oldState.status !== MultiplayerRoomStatus.AFTER_MATCH && newState.status === MultiplayerRoomStatus.ABORTED) {
             this.showAfterMatchModal();
         }
+
+        // Reset 
+        if (oldState.status === MultiplayerRoomStatus.AFTER_MATCH && newState.status === MultiplayerRoomStatus.BEFORE_GAME) {
+            // hide modal
+            this.modal$.next(null);
+
+            // reset boards
+            bothPlayerIndicies.forEach(playerIndex => this.serverPlayers[playerIndex].resetSnapshot());
+        }
     }
 
     /**
      * Sent when the client is ready to start the game
      */
     public sendReadyEvent() {
-        this.readyTimer?.stop();
+        this.readyTimer$.getValue()?.stop();
         this.sendClientRoomEvent({type: MultiplayerRoomEventType.READY });
     }
 
@@ -248,6 +274,7 @@ export class MultiplayerClientRoom extends ClientRoom {
     public showAfterMatchModal() {
         if (this.myIndex !== null) this.modal$.next(RoomModal.MULTIPLAYER_AFTER_MATCH);
     }
+
 
     public showingAfterMatchModal(): boolean {
         return this.modal$.getValue() === RoomModal.MULTIPLAYER_AFTER_MATCH;

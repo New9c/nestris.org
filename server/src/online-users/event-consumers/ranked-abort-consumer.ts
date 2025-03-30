@@ -36,9 +36,9 @@ export class DelayedCounter {
     }
 }
 
-const ABORT_WARN_COUNT = 3;
-const ABORT_SUSPENSION_COUNT = 5;
-const SUSPENSION_MINUTES = 30; 
+const ABORT_WARN_COUNT = 2;
+const ABORT_SUSPENSION_COUNT = 4;
+const SUSPENSION_MINUTES = 10; 
 
 export class RankedAbortConsumer extends EventConsumer {
 

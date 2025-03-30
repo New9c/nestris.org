@@ -10,6 +10,7 @@ import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.s
 })
 export class GameHeaderComponent {
   @Input() trophies: number = 0;
+  @Input() highscore?: number;
   @Input() username: string = '';
   @Input() userid?: string;
   @Input() score: number = 0;
