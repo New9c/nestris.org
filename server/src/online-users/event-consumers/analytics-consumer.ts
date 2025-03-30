@@ -1,7 +1,7 @@
 import { EventConsumer, EventConsumerManager } from "../event-consumer";
 import { PostHog } from 'posthog-node'
 import { ServerRestartWarningConsumer } from "./server-restart-warning-consumer";
-import { OnSessionConnectEvent, OnSessionJsonMessageEvent } from "../online-user-events";
+import { OnSessionJsonMessageEvent, OnUserConnectEvent } from "../online-user-events";
 import { AnalyticsEventMessage, JsonMessageType } from "../../../shared/network/json-message";
 import { DBUserObject } from "../../database/db-objects/db-user";
 import { LoginMethod } from "../../../shared/models/db-user";
@@ -39,15 +39,16 @@ export class AnalyticsConsumer extends EventConsumer<AnalyticsConfig> {
         }
     }
 
-    protected override async onSessionConnect(event: OnSessionConnectEvent): Promise<void> {
+    protected override async onUserConnect(event: OnUserConnectEvent): Promise<void> {
         if (!this.config.enabled) return;
         
         // Do not track bots
-        if ((await DBUserObject.get(event.userid)).login_method === LoginMethod.BOT) return;
+        const loginMethod = (await DBUserObject.get(event.userid)).login_method;
+        if (loginMethod === LoginMethod.BOT) return;
 
         this.client?.identify({
             distinctId: event.userid,
-            properties: { username: event.username }
+            properties: { username: event.username, anonymous: loginMethod === LoginMethod.GUEST }
         });
     }
 

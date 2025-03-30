@@ -3,6 +3,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { WebsocketService } from './websocket.service';
 import { AnalyticsEventMessage } from '../shared/network/json-message';
 import { MeService } from './state/me.service';
+import { LoginMethod } from '../shared/models/db-user';
 
 @Injectable({
   providedIn: 'root'
@@ -26,12 +27,12 @@ export class AnalyticsService {
 
   public async sendEvent(event: string, properties: {[key: string]: any} = {}) {
     await this.websocket.waitForSignIn();
-    const userid = await this.me.getUserID();
+    const me = await this.me.get();
 
-    console.log("Analytics event", userid, event, properties);
+    console.log("Analytics event", me.username, event, properties);
 
     properties['$session_id'] = this.websocket.getSessionID();
-    this.websocket.sendJsonMessage(new AnalyticsEventMessage(userid, event, properties));
+    this.websocket.sendJsonMessage(new AnalyticsEventMessage(me.userid, event, properties));
   }
 
   public async onSiteLoad() {
