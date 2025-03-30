@@ -153,7 +153,7 @@ export class InvitationsService extends StateService<Invitation[]>() {
    */
   public sendInvitationMessage(mode: InvitationMode, invitation: Invitation): void {
     this.websocketService.sendJsonMessage(new InvitationMessage(mode, invitation));
-    this.analytics.sendEvent("invitation", { mode, type: invitation.type });
+    this.analytics.sendEvent(`${mode}-${invitation.type}-invitation`);
   }
 
   /**

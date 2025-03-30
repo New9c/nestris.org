@@ -8,6 +8,7 @@ import { RatedPuzzleResult, RatedPuzzleSubmission, UnsolvedRatedPuzzle } from "s
 import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
 import { decodePuzzleSolution } from "./decode-puzzle-solution";
 import { xpOnPuzzleSolve } from "src/app/shared/nestris-org/xp-system";
+import { AnalyticsService } from "src/app/services/analytics.service";
 
 export class RatedPuzzleStrategy extends PuzzleStrategy {
   public readonly type = PuzzleStrategyType.RATED;
@@ -17,6 +18,7 @@ export class RatedPuzzleStrategy extends PuzzleStrategy {
 
   private fetchService = this.injector.get(FetchService);
   private websocketService = this.injector.get(WebsocketService);
+  private analyticsService = this.injector.get(AnalyticsService);
 
   private currentPuzzle?: DBPuzzle;
   private startTime = Date.now();
@@ -61,11 +63,13 @@ export class RatedPuzzleStrategy extends PuzzleStrategy {
     };
 
     // Submit the user's solution to the server
-    const { puzzle: dbPuzzle, newElo, xpGained } = await this.fetchService.fetch<RatedPuzzleResult>(Method.POST, `/api/v2/rated-puzzle/submit`, ratedPuzzleSubmission);
+    const { puzzle: dbPuzzle, newElo, xpGained, isCorrect } = await this.fetchService.fetch<RatedPuzzleResult>(Method.POST, `/api/v2/rated-puzzle/submit`, ratedPuzzleSubmission);
     this.currentPuzzle = dbPuzzle;
 
     // update the user's elo history
     this.eloHistory.push(newElo);
+
+    this.analyticsService.sendEvent("play-puzzle", { correct : isCorrect });
 
     // Convert dbPuzzle to puzzle solution
     return {

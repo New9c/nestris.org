@@ -89,6 +89,8 @@ export class OCRGameState {
 
     public readonly profile = new OCRProfile();
 
+    private countdown: number = 0;
+
     constructor(
         private readonly packetSender: PacketSender | undefined,
         public readonly startLevel: number,
@@ -245,6 +247,7 @@ export class OCRGameState {
      * Sending special code countdown = 15 means linecap has been reached, and game will terminate
      */
     linecapReached() {
+        this.countdown = COUNTDOWN_LINECAP_REACHED;
         this.packetSender?.bufferPacket(new GameCountdownPacket().toBinaryEncoder({
             delta: this.timeDelta.getDelta(),
             countdown: COUNTDOWN_LINECAP_REACHED,
@@ -261,7 +264,7 @@ export class OCRGameState {
             score: snapshot.score,
             trt: snapshot.tetrisRate,
             drought: snapshot.droughtCount,
-            countdown: 0,
+            countdown: this.countdown,
         }
     }
 

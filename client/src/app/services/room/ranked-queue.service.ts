@@ -115,8 +115,6 @@ export class RankedQueueService {
 
     // If successful, set isInQueue to false
     this.isInQueue = false;
-
-    this.analytics.sendEvent("leave-queue");
   }
 
 }

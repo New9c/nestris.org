@@ -73,7 +73,29 @@ export class PieceDroppingState extends OCRState {
 
         } else {
             // We didn't find the active piece this frame, so we are forced to send the entire board state
-            const colorBoard = ocrFrame.getColorBoard(this.currentLevel, this.globalState.ocrColor)!;
+            let colorBoard: TetrisBoard;
+
+            // If subtracting isolated board is a perfect substraction, use isolated board colors
+            const binaryBoard = ocrFrame.getBinaryBoard()!;
+            const stableBoard = this.globalState.game!.getStableBoard();
+            if (TetrisBoard.subtract(binaryBoard, stableBoard, true) !== null) {
+
+                // Use the binary board's minos, but derive colors
+                colorBoard = binaryBoard;
+                
+                const activePieceColor = getColorTypeForTetromino(this.globalState.game!.getCurrentType());
+                for (let {x, y, color} of stableBoard.iterateMinos()) {
+                    // If there's a mino in the stable board in the same spot, use the stable board's color
+                    if (color !== ColorType.EMPTY) colorBoard.setAt(x, y, color);
+
+                    // This is probably the active piece,so  set to active piece color
+                    else if (colorBoard.exists(x, y)) colorBoard.setAt(x, y, activePieceColor);
+                }
+            } else {
+                // If not a perfect subtraction. It's likely a line clear situation. Find color type most
+                // similar to the captured color
+                colorBoard = ocrFrame.getColorBoard(this.currentLevel, this.globalState.ocrColor)!;;
+            }
 
             // Update entire board
             this.globalState.game!.setFullBoard(colorBoard);

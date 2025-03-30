@@ -289,8 +289,6 @@ export class MultiplayerClientRoom extends ClientRoom {
         this.ocr.stopGameCapture();
         this.ocrStateSubscription?.unsubscribe();
         this.packetGroupSubscription?.unsubscribe();
-
-        this.analytics.sendEvent("leave-multiplayer");
     }
 
 }
