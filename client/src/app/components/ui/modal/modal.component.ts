@@ -10,6 +10,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class ModalComponent {
   @Input() visibility$: BehaviorSubject<boolean> = new BehaviorSubject(true);
   @Input() showX: boolean = true;
+  @Input() padding: boolean = true;
 
   constructor() {
   }

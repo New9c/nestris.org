@@ -1,11 +1,13 @@
 @import "../../../../styles.scss";
 
 .modal {
+    position: relative;
     background-color: $modal-color;
     border-radius: 15px;
-    padding: 15px;
+}
 
-    position: relative;
+.modal.padding { 
+    padding: 15px;
 }
 
 .x {
