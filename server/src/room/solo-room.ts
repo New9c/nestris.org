@@ -28,7 +28,7 @@ export class SoloRoom extends Room<SoloRoomState> {
 
         const username = SoloRoom.Users.getUserInfo(playerSessionID.userid)!.username;
 
-        this.player = new GamePlayer(SoloRoom.Users, PlayerIndex.PLAYER_1, playerSessionID.userid, username, playerSessionID.sessionID, DBGameType.SOLO, soloXPStrategy);
+        this.player = new GamePlayer(SoloRoom.Users, PlayerIndex.PLAYER_1, playerSessionID.userid, username, playerSessionID.sessionID, DBGameType.SOLO, null, soloXPStrategy);
         
         // Handle solo-room-specific behavior when the game starts
         this.player.onGameStart$().subscribe(async (event: GameStartEvent) => {

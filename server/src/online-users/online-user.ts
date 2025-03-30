@@ -18,7 +18,7 @@ export abstract class OnlineUserSession {
     // Initialize the session with the user
     public init(user: OnlineUser) {
         this.user = user;
-        console.log(`Session ${this.sessionID} created for user ${user.username} (${this.constructor.name})`);
+        //console.log(`Session ${this.sessionID} created for user ${user.username} (${this.constructor.name})`);
 
     }   
 

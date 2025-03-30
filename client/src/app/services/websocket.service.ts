@@ -219,7 +219,7 @@ export class WebsocketService {
 
     // when the websocket connects, send the OnConnectMessage to initiate the handshake
     this.ws.onopen = () => {
-      console.log('Connected to the WebSocket server');
+      console.log('Connected to the WebSocket server at', this.sessionID);
       this.disconnectRetries = 0;
       this.sendJsonMessage(new OnConnectMessage(userid, username, this.sessionID!));
     };

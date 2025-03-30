@@ -490,7 +490,7 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
         if (!activePuzzle || !activePuzzle.data || activePuzzle.sessionID !== event.sessionID) return;
 
         // Submit the puzzle as incorrect
-        console.log(`User ${event.userid} disconnected with active puzzle, submitting as incorrect`);
+        //console.log(`User ${event.userid} disconnected with active puzzle, submitting as incorrect`);
         const duration = clamp((Date.now() - activePuzzle.data.startTime) / 1000, 0, 30);
         await this.submitRatedPuzzle(event.userid, { puzzleID: activePuzzle.data.puzzle.id, seconds: duration });
         

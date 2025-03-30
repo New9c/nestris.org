@@ -47,8 +47,8 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         const player1Username = MultiplayerRoom.Users.getUserInfo(player1SessionID.userid)!.username;
         const player2Username = MultiplayerRoom.Users.getUserInfo(player2SessionID.userid)!.username;
         this.gamePlayers = {
-            [PlayerIndex.PLAYER_1]: new GamePlayer(MultiplayerRoom.Users, PlayerIndex.PLAYER_1, player1SessionID.userid, player1Username, player1SessionID.sessionID, DBGameType.RANKED_MATCH),
-            [PlayerIndex.PLAYER_2]: new GamePlayer(MultiplayerRoom.Users, PlayerIndex.PLAYER_2, player2SessionID.userid, player2Username, player2SessionID.sessionID, DBGameType.RANKED_MATCH),
+            [PlayerIndex.PLAYER_1]: new GamePlayer(MultiplayerRoom.Users, PlayerIndex.PLAYER_1, player1SessionID.userid, player1Username, player1SessionID.sessionID, DBGameType.RANKED_MATCH, startLevel),
+            [PlayerIndex.PLAYER_2]: new GamePlayer(MultiplayerRoom.Users, PlayerIndex.PLAYER_2, player2SessionID.userid, player2Username, player2SessionID.sessionID, DBGameType.RANKED_MATCH, startLevel),
         };
 
         // Reset previousGame when a new game starts
@@ -356,7 +356,11 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
      * @param sessionID SessionID of spectator
      */
     protected override async onSpectatorJoin(sessionID: string): Promise<void> {
-        bothPlayerIndicies.forEach(playerIndex => this.gamePlayers[playerIndex].onSpectatorJoin(sessionID));
+        setTimeout(
+            () => bothPlayerIndicies.forEach(playerIndex => this.gamePlayers[playerIndex].onSpectatorJoin(sessionID)),
+            200 // slight delay for client to get ready and hopefully avoid race conditions. there are some deeper problems here.
+        )
+        
     }
 
 }

@@ -366,11 +366,11 @@ export abstract class Room<T extends RoomState = RoomState> {
         // Add the spectator to the list of spectators
         this.spectators.push(new RoomSpectator(sessionID));
 
-        // Call spectator join hook
-        await this.onSpectatorJoin(sessionID);
-
         // Send a IN_ROOM_STATUS message to the spectator to indicate that they are a spectator in the room
         Room.Users.sendToUserSession(sessionID, new InRoomStatusMessage(InRoomStatus.SPECTATOR, this.roomInfo, this.roomState, isTVMode));
+
+        // Call spectator join hook, which may send room messages to the client. so, this must be after InRoomStatusMessage
+        await this.onSpectatorJoin(sessionID);
 
         // Update the spectator count for all players in the room
         this.sendToAll(new SpectatorCountMessage(this.spectators.length));

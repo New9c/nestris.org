@@ -70,7 +70,7 @@ export class BotUser<Config extends BotConfig = {}> {
         // Get the bot user from the database, or create it if it does not exist
         let botUser = await DBUserObject.getOrNull(this.userid);
         if (!botUser) botUser = await createBotUser(this.userid, this.initialTrophies);
-        else console.log(`Loaded existing bot user ${botUser.username} with ID ${this.userid}`);
+        //else console.log(`Loaded existing bot user ${botUser.username} with ID ${this.userid}`);
         
         // Assert that the user is a bot user
         if (botUser.login_method !== LoginMethod.BOT) {

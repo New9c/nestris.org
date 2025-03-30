@@ -103,7 +103,7 @@ export class MultiplayerClientRoom extends ClientRoom {
         })
 
         // Derive the index of the client in the room, or null if the client is a spectator
-        const mySessionID = await this.websocket.getSessionID();
+        const mySessionID = this.websocket.getSessionID();
         if (state.players[PlayerIndex.PLAYER_1].sessionID === mySessionID) this.myIndex = PlayerIndex.PLAYER_1;
         else if (state.players[PlayerIndex.PLAYER_2].sessionID === mySessionID) this.myIndex = PlayerIndex.PLAYER_2;
         else this.myIndex = null;

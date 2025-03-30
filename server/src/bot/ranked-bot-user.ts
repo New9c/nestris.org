@@ -351,7 +351,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
             if (gameOver) break;
         
             // If more than one frame was executed in a tick cycle, log the number of frames skipped
-            if (frameAmount > 1) console.log("Skipped", frameAmount-1, "frames");
+            //if (frameAmount > 1) console.log("Skipped", frameAmount-1, "frames");
         
             // update the number of frames done for the next calculation of frames to advance
             framesDone = frames;

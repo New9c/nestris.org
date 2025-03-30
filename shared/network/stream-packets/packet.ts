@@ -329,6 +329,7 @@ PACKET_MAP[PacketOpcode.GAME_RECOVERY] = new GameRecoveryPacket();
 // ================================ GAME_COUNTDOWN =================================
 // Timed because board might not be updated while in countdown
 PACKET_CONTENT_LENGTH[PacketOpcode.GAME_COUNTDOWN] = 16;
+export const COUNTDOWN_NOT_IN_GAME = 14; // Sent in recovery packet in countdown attribute to indicate not in game
 export const COUNTDOWN_LINECAP_REACHED = 15; // 15 represents liencap reached
 export interface GameCountdownSchema extends TimedPacketSchema {
   // inherited 12 bit delta in ms

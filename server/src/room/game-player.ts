@@ -1,7 +1,7 @@
 import { Subject, Observable } from "rxjs";
-import { GameState } from "../../shared/game-state-from-packets/game-state";
+import { GameState, GameStateSnapshot } from "../../shared/game-state-from-packets/game-state";
 import { MeMessage } from "../../shared/network/json-message";
-import { PacketContent, PacketOpcode, GameStartSchema, GamePlacementSchema, StackRabbitPlacementSchema, GameRecoverySchema, GameRecoveryPacket } from "../../shared/network/stream-packets/packet";
+import { PacketContent, PacketOpcode, GameStartSchema, GamePlacementSchema, StackRabbitPlacementSchema, GameRecoverySchema, GameRecoveryPacket, COUNTDOWN_NOT_IN_GAME } from "../../shared/network/stream-packets/packet";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { DBUserObject, DBGameEndEvent } from "../database/db-objects/db-user";
 import { CreateGameQuery } from "../database/db-queries/create-game-query";
@@ -17,6 +17,8 @@ import { DBGameType } from "../../shared/models/db-game";
 import { ActivityConsumer } from "../online-users/event-consumers/activity-consumer";
 import { ActivityType, PersonalBestActivity } from "../../shared/models/activity";
 import { PlayerIndex } from "../../shared/room/multiplayer-room-models";
+import { TetrisBoard } from "../../shared/tetris/tetris-board";
+import { TetrominoType } from "../../shared/tetris/tetromino-type";
 
 // Event that is emitted when a game starts
 export interface GameStartEvent {
@@ -101,7 +103,8 @@ export class GamePlayer {
     private gameStart$ = new Subject<GameStartEvent>();
     private gameEnd$ = new Subject<GameEndEvent>();
 
-    private topoutScore: number | null = null;
+    //private topoutScore: number | null = null;
+    private topoutSnapshot: GameStateSnapshot | null = null;
 
     constructor(
         private readonly Users: OnlineUserManager,
@@ -110,6 +113,7 @@ export class GamePlayer {
         public readonly username: string,
         public readonly sessionID: string,
         public readonly type: DBGameType,
+        public readonly startLevel: number | null,
         private readonly xpStrategy: XPStrategy = NO_XP_STRATEGY
     ) {
         this.consecBestPlacements = new ConsecutiveTracker(this.userid, QuestCategory.PERFECTION);
@@ -137,7 +141,19 @@ export class GamePlayer {
         // If in the middle of a game, end the game and save the game state
         if (this.gameState) {
             await this.onGameEnd(this.packets, this.gameState, this.placementEvaluations, true);
-        } else if (this.topoutScore === null) this.topoutScore = 0; // Game didn't even start yet, but player left
+        } else if (this.topoutSnapshot === null) this.topoutSnapshot = { // Game didn't even start yet, but player left
+            board: new TetrisBoard(),
+            level: this.startLevel ?? 0,
+            lines: 0,
+            score: 0,
+            next: TetrominoType.ERROR_TYPE,
+            tetrisRate: 0,
+            droughtCount: 0,
+            countdown: 0,
+            transitionInto19: null,
+            transitionInto29: null,
+            numPlacements: 0,
+        };
     }
 
     /**
@@ -156,7 +172,7 @@ export class GamePlayer {
             const gameStart = (packet.content as GameStartSchema);
             this.gameState = new GameState(gameStart.level, gameStart.current, gameStart.next);
 
-            this.topoutScore = null;
+            this.topoutSnapshot = null;
             this.hasAtLeastOnePlacement = false;
 
             this.consecBestPlacements.reset();
@@ -241,10 +257,11 @@ export class GamePlayer {
     private async onGameEnd(packets: PacketAssembler, gameState: GameState, placementEvaluations: PlacementEvaluation[], forced: boolean): Promise<string> {
 
         // Get the final game state
-        const state = gameState.getSnapshot();
+        const snapshot = gameState.getSnapshot();
 
-        // Set topout score
-        this.topoutScore = state.score;
+        // Set topout snapshot. Server doesn't handle individual frames, so set to last isolated board
+        this.topoutSnapshot = snapshot;
+        this.topoutSnapshot.board = gameState.getIsolatedBoard();
 
         // Assign a unique game ID
         const gameID = uuid();
@@ -253,7 +270,7 @@ export class GamePlayer {
         const accuracyStats = this.calculateAccuracyStats(placementEvaluations);
 
         // Calculate XP gained based on injected strategy
-        const xpGained = this.xpStrategy(state.score);
+        const xpGained = this.xpStrategy(snapshot.score);
 
         // Get previous highscore
         const previousHighscore = (await DBUserObject.get(this.userid)).highest_score;
@@ -269,11 +286,11 @@ export class GamePlayer {
                 data: binary,
                 userid: this.userid,
                 start_level: gameState.startLevel,
-                end_level: state.level,
-                end_score: state.score,
-                end_lines: state.lines,
+                end_level: snapshot.level,
+                end_score: snapshot.score,
+                end_lines: snapshot.lines,
                 accuracy: accuracyStats.overallAccuracy,
-                tetris_rate: state.tetrisRate,
+                tetris_rate: snapshot.tetrisRate,
                 xp_gained: xpGained,
                 average_eval_loss: accuracyStats.average_eval_loss,
                 brilliant_count: accuracyStats.ratingCount[EvaluationRating.BRILLIANT] || 0,
@@ -289,18 +306,18 @@ export class GamePlayer {
             await DBUserObject.alter(this.userid, new DBGameEndEvent({
                 xpGained: xpGained,
                 gameID: gameID,
-                score: state.score,
-                level: state.level,
-                lines: state.lines,
-                transitionInto19: state.transitionInto19,
-                transitionInto29: state.transitionInto29,
-                numPlacements: state.numPlacements,
+                score: snapshot.score,
+                level: snapshot.level,
+                lines: snapshot.lines,
+                transitionInto19: snapshot.transitionInto19,
+                transitionInto29: snapshot.transitionInto29,
+                numPlacements: snapshot.numPlacements,
             }), false);
 
         } else console.log(`Not saving game for player ${this.username} because no placements were made`);
         
         // Emit the game end event
-        const isPersonalBest = state.score > previousHighscore;
+        const isPersonalBest = snapshot.score > previousHighscore;
         this.gameEnd$.next(
             {
                 gameID,
@@ -314,7 +331,7 @@ export class GamePlayer {
         );        
 
         // For full games to level 29, update accuracy quests
-        if (gameState.startLevel < 29 && state.level >= 29) {
+        if (gameState.startLevel < 29 && snapshot.level >= 29) {
             const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
             // TEMPORARY: accuracy must be rounded down because quest_progress can only store ints.
             // Find a better solution later
@@ -326,7 +343,7 @@ export class GamePlayer {
             const activityConsumer = EventConsumerManager.getInstance().getConsumer(ActivityConsumer);
             activityConsumer.createActivity(this.userid, {
                 type: ActivityType.PERSONAL_BEST,
-                score: state.score,
+                score: snapshot.score,
                 startLevel: gameState.startLevel,
                 gameID: gameID
             });
@@ -380,8 +397,16 @@ export class GamePlayer {
     }
 
     onSpectatorJoin(sessionID: string) {
-        if (!this.isInGame()) return;
-        const recoveryPacket = this.getRecoveryPacket(this.playerIndex)!;
+        let recoveryPacket: Uint8Array;
+        if (this.gameState) {
+            recoveryPacket = this.getRecoveryPacket(this.playerIndex, this.gameState.getSnapshot(), true)!;
+            console.log("sending in-game spectator recovery", sessionID);
+        } else if (this.topoutSnapshot) {
+            recoveryPacket = this.getRecoveryPacket(this.playerIndex, this.topoutSnapshot, false)!;
+            console.log("sending topout spectator recovery", sessionID);
+            this.topoutSnapshot.board.print();
+        } else return;
+
         this.Users.sendToUserSession(sessionID, recoveryPacket);
     }
 
@@ -392,19 +417,17 @@ export class GamePlayer {
     /**
      * Get recovery message for current game state to be sent to a user in the room
      */
-    getRecoveryPacket(playerIndex: number) {
-        if (this.gameState === null) return null;
-
+    private getRecoveryPacket(playerIndex: number, snapshot: GameStateSnapshot, inGame: boolean) {
         const recoveryMessage = new PacketAssembler();
         recoveryMessage.addPacketContent(new GameRecoveryPacket().toBinaryEncoder({
-            startLevel: this.gameState.startLevel,
-            isolatedBoard: this.gameState.getIsolatedBoard(),
-            current: this.gameState.getCurrentType(),
-            next: this.gameState.getNextType(),
-            score: this.gameState.getStatus().score,
-            level: this.gameState.getStatus().level,
-            lines: this.gameState.getStatus().lines,
-            countdown: this.gameState.getCountdown() ?? 0,
+            startLevel: this.gameState ? this.gameState.startLevel : 0,
+            isolatedBoard: this.gameState ? this.gameState.getIsolatedBoard() : snapshot.board,
+            current: this.gameState ? this.gameState.getCurrentType() : TetrominoType.ERROR_TYPE,
+            next: snapshot.next,
+            score: snapshot.score,
+            level: snapshot.level,
+            lines: snapshot.lines,
+            countdown: inGame ? (snapshot.countdown ?? 0) : COUNTDOWN_NOT_IN_GAME,
         }));
 
         return recoveryMessage.encode(playerIndex);
@@ -414,6 +437,7 @@ export class GamePlayer {
      * @returns the topout score of the player, or null if have yet to top out
      */
     getTopoutScore(): number | null {
-        return this.topoutScore;
+        if (this.topoutSnapshot === null) return null;
+        return this.topoutSnapshot.score;
     }
 }

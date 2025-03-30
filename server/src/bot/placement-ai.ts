@@ -101,7 +101,7 @@ export abstract class PlacementAI {
             throw new Error(`Invalid input frame timeline: ${inputFrameTimeline}`);
         }
 
-        console.log(`Registering placement at index ${index} with pieces ${TETROMINO_CHAR[current]} ${next === null ? 'nnb' : TETROMINO_CHAR[next]} timeline ${inputFrameTimeline}`);
+        //console.log(`Registering placement at index ${index} with pieces ${TETROMINO_CHAR[current]} ${next === null ? 'nnb' : TETROMINO_CHAR[next]} timeline ${inputFrameTimeline}`);
 
         // Create the initial placement result with default of no shifts
         this.placements.set(index, { inputFrameTimeline, shiftMap: null, computed: false });

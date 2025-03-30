@@ -1,7 +1,7 @@
 import { BehaviorSubject, Observable } from "rxjs";
 import { GameState, GameStateSnapshot, GameStateSnapshotWithoutBoard } from "src/app/shared/game-state-from-packets/game-state";
 import { Platform } from "src/app/shared/models/platform";
-import { GameAbbrBoardSchema, GameCountdownSchema, GameFullBoardSchema, GameFullStateSchema, GamePlacementSchema, GameRecoverySchema, GameStartSchema, PACKET_NAME, PacketContent, PacketOpcode } from "src/app/shared/network/stream-packets/packet";
+import { COUNTDOWN_NOT_IN_GAME, GameAbbrBoardSchema, GameCountdownSchema, GameFullBoardSchema, GameFullStateSchema, GamePlacementSchema, GameRecoverySchema, GameStartSchema, PACKET_NAME, PacketContent, PacketOpcode } from "src/app/shared/network/stream-packets/packet";
 import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
 import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
 import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
@@ -68,8 +68,27 @@ export class ServerPlayer {
       } else if (packet.opcode === PacketOpcode.GAME_RECOVERY) {
         const gameRecovery = packet.content as GameRecoverySchema;
 
+        // Sent when spectator joins after game ends
+        if (gameRecovery.countdown === COUNTDOWN_NOT_IN_GAME) {
+          this.state = null;
+          this.previousSnapshot = {
+            board: gameRecovery.isolatedBoard,
+            level: gameRecovery.level,
+            lines: gameRecovery.lines,
+            score: gameRecovery.score,
+            next: gameRecovery.next,
+            tetrisRate: 0,
+            droughtCount: 0,
+            transitionInto19: null,
+            transitionInto29: null,
+            numPlacements: 0,
+            countdown: 0
+          };
+          console.log("got spectator recovery packet after topout", packet.content);
+        }
+
         // Spectators that join mid-game will be sent a recovery packet
-        if (!this.state) {
+        else if (!this.state) {
           this.state = GameState.fromRecovery(gameRecovery);
           console.log("game recovery for server player, create new state");
         }

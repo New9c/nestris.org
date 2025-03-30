@@ -318,7 +318,7 @@ export class RankedQueueConsumer extends EventConsumer {
         // Send the number of players in the queue to all users in the queue
         this.sendNumQueuingPlayers();
 
-        console.log(`User ${userid} joined the ranked queue`);
+        //console.log(`User ${userid} joined the ranked queue`);
     }
 
     /**
@@ -342,7 +342,7 @@ export class RankedQueueConsumer extends EventConsumer {
         // Send the number of players in the queue to all users in the queue
         this.sendNumQueuingPlayers();
 
-        console.log(`User ${userid} left the ranked queue`);
+        //console.log(`User ${userid} left the ranked queue`);
     }
 
     /**

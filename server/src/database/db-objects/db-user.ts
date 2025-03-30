@@ -287,7 +287,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 break;
         }
 
-        console.log(`Altered user ${this.id} with event ${event.toString()}`);
+        //console.log(`Altered user ${this.id} with event ${event.toString()}`);
 
         // Update xp gained
         if (event instanceof XPEvent) incrementXP((event as XPEvent).args.xpGained);

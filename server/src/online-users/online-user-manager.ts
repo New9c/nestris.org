@@ -285,7 +285,7 @@ export class OnlineUserManager {
         // Send the session connect event
         this.events$.next(new OnSessionConnectEvent(userid, username, newSession.sessionID));
 
-        console.log(`User ${username} connected with sessionID ${newSession.sessionID}`);
+        //console.log(`User ${username} connected with sessionID ${newSession.sessionID}`);
     }
 
     public onBotDisconnect(bot: BotUser) {
@@ -327,7 +327,7 @@ export class OnlineUserManager {
         // Emit session disconnect event
         this.events$.next(new OnSessionDisconnectEvent(session.user.userid, session.user.username, session.sessionID));
 
-        console.log(`User ${session.user.username} disconnected with sessionID ${session.sessionID}`);
+        //console.log(`User ${session.user.username} disconnected with sessionID ${session.sessionID}`);
 
         // if no more sessions for user, close the user and emit user disconnect event
         if (onlineUser.getAllSessions().length === 0) {

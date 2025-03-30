@@ -166,7 +166,7 @@ export function DBObject<InMemoryObject extends {}, CreateParams, Event>(name: s
             // Get a copy of the in-memory object after altering
             const after: InMemoryObject = Object.assign({}, dbObject.get());
 
-            console.log(`Altered ${name} object with ID ${id} with event ${event}`);
+            //console.log(`Altered ${name} object with ID ${id} with event ${event}`);
 
             // Notify all subscribers of the change
             DBObject.onChange$.next({
