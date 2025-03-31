@@ -22,7 +22,7 @@ export class LaunchService {
   private intervalSubscription?: Subscription;
 
   public show$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  public launch$ = new BehaviorSubject(false);
+  public launch$ = new BehaviorSubject(true);
 
   constructor(
     private readonly serverStats: ServerStatsService,
@@ -30,35 +30,38 @@ export class LaunchService {
     const initialSeconds = this.calculateSeconds();
     if (initialSeconds < 0) {
       console.log('launched');
-      this.launch$.next(true);
       return;
     }
 
+
     this.serverStats.waitForServerStats().then(stats => {
-      if (stats.environment === DeploymentEnvironment.PRODUCTION) this.show$.next(true);
+      if (stats.environment === DeploymentEnvironment.PRODUCTION) {
+        this.show$.next(true);
+        this.launch$.next(false);
+
+        this.intervalSubscription = interval(1000).pipe(
+          map(() => this.calculateSeconds()),
+          tap(seconds => {
+            this.secondsToLaunch$.next(seconds);
+            if (seconds <= -4) {
+              console.log('launched');
+              this.show$.next(false);
+              this.launch$.next(true);
+              this.intervalSubscription?.unsubscribe();
+            } else if (seconds <= 0) {
+              this.launch$.next(true);
+            }
+          })
+        ).subscribe();
+    
+        this.countdown$ = this.secondsToLaunch$.pipe(
+          filter(seconds => seconds >= 0),
+          map(seconds => this.convertToTimeObject(seconds))
+        );
+      }
     });
     
     this.secondsToLaunch$.next(initialSeconds);
-    
-    this.intervalSubscription = interval(1000).pipe(
-      map(() => this.calculateSeconds()),
-      tap(seconds => {
-        this.secondsToLaunch$.next(seconds);
-        if (seconds <= -4) {
-          console.log('launched');
-          this.show$.next(false);
-          this.launch$.next(true);
-          this.intervalSubscription?.unsubscribe();
-        } else if (seconds <= 0) {
-          this.launch$.next(true);
-        }
-      })
-    ).subscribe();
-
-    this.countdown$ = this.secondsToLaunch$.pipe(
-      filter(seconds => seconds >= 0),
-      map(seconds => this.convertToTimeObject(seconds))
-    );
   }
 
   private calculateSeconds(): number {

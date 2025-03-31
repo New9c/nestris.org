@@ -50,6 +50,9 @@ export class QuestComponent implements OnInit {
   // Go to quest
   async go() {
 
+    // Ignore if completed, as go should be hidden
+    if (this.status === true) return;
+
     // Hide quest list modal, if applicable
     this.modalManagerService.hideModal();
 
