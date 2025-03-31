@@ -1,0 +1,35 @@
+<div class="launch-page" *ngIf="launch.show$ | async" [ngClass]="{'launched' : launch.launch$| async}">
+    <app-loading-screen [resolution]="2" (score)="setScore($event)" [blockSize]="50" [blockSpeed]="4" [explodeEverything]="!!(launch.launch$ | async)" />
+
+    <div class="center">
+        <div class="countdown" *ngIf="launch.countdown$ | async as countdown">
+            <div class="stat">
+                <h1>{{label(countdown.days)}}</h1>
+                <p>Days</p>
+            </div>
+            <div class="stat">
+                <h1>{{label(countdown.hours)}}</h1>
+                <p>Hours</p>
+            </div>
+            <div class="stat">
+                <h1>{{label(countdown.minutes)}}</h1>
+                <p>Minutes</p>
+            </div>
+            <div class="stat">
+                <h1>{{label(countdown.seconds)}}</h1>
+                <p>Seconds</p>
+            </div>
+        </div>
+
+        <div class="text">
+            <img class="logo" src="./assets/img/branding/tetrisfish_logo.svg" width="80px">
+            <h2>nestris.org launch!!!</h2>
+            <img class="rocket" src="./assets/img/branding/rocket.svg" width="50px">
+        </div>
+    </div>
+
+    <div class="score"><p *ngIf="scoreVisible">Score: {{score}}</p></div>
+
+    <p class="discord"><a href='https://discord.gg/4xkBHvGtzp' target="_blank"><u>Join the Discord community!</u></a></p>
+
+</div>

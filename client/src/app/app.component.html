@@ -5,3 +5,6 @@
 <app-modal-container />
 <app-alert-container />
 <app-tooltip />
+
+
+<app-launch-page *ngIf="launchService.show$ | async" />

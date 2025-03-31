@@ -118,6 +118,7 @@ import { TvComponent } from './components/tv/tv.component';
 import { TvRoomComponent } from './components/tv/tv-room/tv-room.component';
 import { ExpandComponent } from './components/ui/expand/expand.component';
 import { RankedStatComponent } from './components/ui/ranked-stat/ranked-stat.component';
+import { LaunchPageComponent } from './components/layout/launch-page/launch-page.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -272,6 +273,7 @@ const customNotifierOptions: NotifierOptions = {
     TvRoomComponent,
     ExpandComponent,
     RankedStatComponent,
+    LaunchPageComponent,
   ],
   imports: [
     BrowserModule,

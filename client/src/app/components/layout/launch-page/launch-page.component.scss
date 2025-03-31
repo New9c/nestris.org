@@ -1,0 +1,121 @@
+@import "../../../../styles.scss";
+
+.launch-page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    
+    background-color: $dark-color;
+
+    z-index: 1000;
+
+    opacity: 1;
+    transition: opacity 2s ease 2s; /* Apply delay properly */
+}
+
+.launch-page.launched {
+    opacity: 0;
+}
+
+.center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7vw;
+
+    pointer-events: none;
+}
+
+.countdown {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5vw;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    font-family: $main-font;
+    font-size: 10vw;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+    text-wrap: nowrap;
+    line-height: 1;
+}
+
+p {
+    font-family: $main-font;
+    font-size: 2vw;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+    text-wrap: nowrap;
+}
+
+h1, p {
+    text-shadow: 0 0 25px rgba(200, 200, 200, 0.3);
+}
+
+.text {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.2vw;
+}
+
+img {
+    display: block;
+}
+
+h2 {
+    font-family: $main-font;
+    font-size: 3vw;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+    text-wrap: nowrap;
+}
+
+.rocket {
+    margin-left: 10px;
+}
+
+.score {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 125px;
+    pointer-events: none;
+}
+
+.score p {
+    font-family: $main-font;
+    font-weight: 700;
+    font-size: 20px;
+    margin: 0;
+    text-wrap: nowrap;
+    pointer-events: none;
+}
+
+p.discord {
+    position: absolute;
+    bottom: 5vh;
+    left: 50%;
+    transform: translateX(-50%);
+
+    font-family: $chat-font;
+    font-size: 1vw;
+}
