@@ -52,6 +52,7 @@ export class LaunchPageComponent {
 
     // Secret bypass to hide launch page
     if (this.keysPressed.has('q') && this.keysPressed.has('p')) {
+      this.launch.launch$.next(true);
       this.launch.show$.next(false);
     }
 
