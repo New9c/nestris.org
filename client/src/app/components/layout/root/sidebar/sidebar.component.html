@@ -22,10 +22,10 @@
             <p class="online-users">{{(numOnlineFriends$ | async)}}</p>
             <app-online-indicator [isOnline]="((numOnlineFriends$ | async) ?? 0) > 0" />
         </app-sidebar-tab>
-        <app-sidebar-tab *ngIf="env!==DeploymentEnvironment.PRODUCTION" [tab]="TabID.SETTINGS"/>
+        <app-sidebar-tab [tab]="TabID.SETTINGS"/>
 
         <app-sidebar-tab class="play-tab" [tab]="TabID.PLAY" />
-        <app-sidebar-tab *ngIf="env!==DeploymentEnvironment.PRODUCTION" [tab]="TabID.REVIEW"/>
+        <app-sidebar-tab [tab]="TabID.REVIEW"/>
         <!-- <app-sidebar-tab *ngIf="env!==DeploymentEnvironment.PRODUCTION" [tab]="TabID.LEARN"/> -->
         <app-sidebar-tab [tab]="TabID.LEADERBOARD"/>
     </div>
