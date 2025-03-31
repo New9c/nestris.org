@@ -232,7 +232,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
                 return true;
             }
 
-            console.log("No opponent found, exiting queue");
+            //console.log("No opponent found, exiting queue");
             return false;
         } finally {
             clearTimeout(timeoutId);

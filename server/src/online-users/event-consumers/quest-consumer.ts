@@ -84,7 +84,7 @@ export class QuestConsumer extends EventConsumer {
 
         // Calculate how much xp was gained from completing quests
         const xpGained = completedQuestIDs.reduce((total, questID) => total + QUESTS[questID].xp, 0);
-        console.log(`${userid}: Completed quests: ${completedQuestIDs.map(id => QUESTS[id].name)} for ${xpGained} xp`);
+        //console.log(`${userid}: Completed quests: ${completedQuestIDs.map(id => QUESTS[id].name)} for ${xpGained} xp`);
 
         // Update the quest progress in the database
         await DBUserObject.alter(userid, new DBQuestProgressEvent({ questProgress, xpGained }), false);

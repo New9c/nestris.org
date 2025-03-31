@@ -44,7 +44,7 @@ export class LeaderboardManager {
                 for (const t200Leaderboard of LeaderboardManager.t200Leaderboards.values()) {
                     await t200Leaderboard.updateLeaderboard();
                 }
-                console.log(`Updated all t200 leaderboards in ${Date.now() - start}ms`);
+                //console.log(`Updated all t200 leaderboards in ${Date.now() - start}ms`);
             } catch (error) {
                 errorHandler.logError(error, "leaderboard");
             }
