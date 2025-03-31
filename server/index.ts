@@ -108,6 +108,7 @@ async function main() {
   console.log(`Starting ${NODE_ENV} server`);
 
   // Initialize express session middleware
+  if (NODE_ENV === DeploymentEnvironment.PRODUCTION) app.set('trust proxy', 1);
   app.use(session({
     secret: DISCORD_CLIENT_SECRET,
     resave: false,
