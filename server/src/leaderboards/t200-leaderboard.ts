@@ -135,6 +135,8 @@ export class T200HighscoreLeaderboard extends T200Leaderboard {
                     highscore_games ON users.userid = highscore_games.userid
                 LEFT JOIN
                     games ON highscore_games.game_id = games.id
+                WHERE
+                    users.login_method != 'bot'
                 ORDER BY
                     highscore DESC
                 LIMIT 200
@@ -188,7 +190,7 @@ export class T200RankedLeaderboard extends T200Leaderboard {
                 FROM
                     users
                 WHERE
-                    trophies >= 0
+                    trophies >= 0 AND login_method != 'bot'
                 ORDER BY
                     trophies DESC
                 LIMIT 200
@@ -236,12 +238,14 @@ export class T200PuzzlesLeaderboard extends T200Leaderboard {
 
     protected async populateLeaderboard(): Promise<T200LeaderboardRow[]> {
 
-        class T200RankedLeaderboardQuery extends DBQuery<T200LeaderboardRow[]> {
+        class T200PuzzleLeaderboardQuery extends DBQuery<T200LeaderboardRow[]> {
             public override query = `
                 SELECT
                     userid, username, league, puzzle_elo, highest_puzzle_elo, puzzles_attempted, puzzles_solved, puzzle_seconds_played
                 FROM
                     users
+                WHERE
+                    login_method != 'bot'
                 ORDER BY
                     puzzle_elo DESC
                 LIMIT 200
@@ -272,6 +276,6 @@ export class T200PuzzlesLeaderboard extends T200Leaderboard {
             }
         }
         
-        return await Database.query(T200RankedLeaderboardQuery);
+        return await Database.query(T200PuzzleLeaderboardQuery);
     }
 }

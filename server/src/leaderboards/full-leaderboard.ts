@@ -1,4 +1,4 @@
-import { DBUser } from "../../shared/models/db-user";
+import { DBUser, LoginMethod } from "../../shared/models/db-user";
 import { DBUserObject } from "../database/db-objects/db-user";
 import { Database, DBQuery } from "../database/db-query";
 import { RelativeLeaderboard } from "../../shared/models/leaderboard";
@@ -30,6 +30,9 @@ export abstract class FullLeaderboard {
 
         // Subscribe to DBUser changes to update the leaderboard in real-time
         DBUserObject.onChange().subscribe((change: {id: string, before: DBUser, after: DBUser}) => {
+            
+            // Bots are not a part of the leaderboard
+            if (change.after.login_method === LoginMethod.BOT) return;
 
             // Check if the user's score has changed
             const scoreBefore = this.getScoreFromUser(change.before);
@@ -53,6 +56,9 @@ export abstract class FullLeaderboard {
         // Subscribe to DBUser creation to add new users to the leaderboard
         DBUserObject.onCreate().subscribe((create: {id: string, object: DBUser}) => {
 
+            // Bots are not a part of the leaderboard
+            if (create.object.login_method === LoginMethod.BOT) return;
+
             // Add the new user to the leaderboard
             this.leaderboard.push({
                 rank: -1,
@@ -69,6 +75,9 @@ export abstract class FullLeaderboard {
 
         // Subscribe to DBUser deletion to remove users from the leaderboard
         DBUserObject.onDelete().subscribe((deleted: {id: string, object: DBUser}) => {
+
+            // Bots are not a part of the leaderboard
+            if (deleted.object.login_method === LoginMethod.BOT) return;
 
             // Remove the user from the leaderboard
             const index = this.leaderboard.findIndex((user) => user.userid === deleted.id);
@@ -130,9 +139,9 @@ export abstract class FullLeaderboard {
      * Get the rank of a user, adjusted for 1-indexing and ties.
      * @param userid The user to get the rank for
      */
-    public getRankForUser(userid: string): number {
+    public getRankForUser(userid: string): number | null {
         const index = this.leaderboard.findIndex((user) => user.userid === userid);
-        if (index === -1) throw new Error(`User ${userid} not found in leaderboard`);
+        if (index === -1) return null;
         return this.leaderboard[index].rank;
     }
 
@@ -167,6 +176,7 @@ class GetAllUsersScoreQuery extends DBQuery<LeaderboardUser[]> {
         this.query = `
             SELECT userid, username, ${score_column} as score
             FROM users
+            WHERE login_method != 'bot'
         `;
     }
 

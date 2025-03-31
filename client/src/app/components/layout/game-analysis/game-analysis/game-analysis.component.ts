@@ -226,7 +226,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     } catch (error: any) {
 
       // If error code is 410, the game has been deleted
-      const message = (error.status === 410) ? 'Replay file for this game has expired' : 'There was an error fetching the game';
+      const message = (error.status === 410) ? 'Replay file for this game has expired' : 'This game does not exist!';
       this.notificationService.notify(NotificationType.ERROR, message);
     
       this.router.navigate(['/review']);

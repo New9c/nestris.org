@@ -22,15 +22,15 @@
 
         <div class="stats-panels">
             <div class="big-stat solo">
-                <h1>#{{data.ranks.solo}}</h1>
+                <h1>{{data.ranks.solo ? '#' + data.ranks.solo : ''}}</h1>
                 <app-highest-score [highestScore]="data.dbUser.highest_score" [size]="25" />
             </div>
             <div class="big-stat ranked">
-                <h1>#{{data.ranks.ranked}}</h1>
+                <h1>{{data.ranks.ranked ? '#' + data.ranks.ranked : ''}}</h1>
                 <app-trophies [trophies]="data.dbUser.trophies" [size]="25" />
             </div>
             <div class="big-stat puzzle">
-                <h1>#{{data.ranks.puzzles}}</h1>
+                <h1>{{data.ranks.puzzles ? '#' + data.ranks.puzzles : ''}}</h1>
                 <app-puzzle-elo [puzzleElo]="data.dbUser.puzzle_elo" [size]="25" />
             </div>
             <div class="other-stats">

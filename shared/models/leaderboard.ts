@@ -24,9 +24,9 @@ export interface RelativeLeaderboards {
 }
 
 export interface RelativeRanks {
-    solo: number;
-    ranked: number;
-    puzzles: number;
+    solo: number | null;
+    ranked: number | null;
+    puzzles: number | null;
 }
 
 export enum T200LeaderboardType {

@@ -6,7 +6,7 @@ import { EventConsumer } from "../event-consumer";
 
 // Count the number of users in the database
 export class CountUsersQuery extends DBQuery<number> {
-    public override query = `SELECT COUNT(*) AS count FROM users;`;
+    public override query = `SELECT COUNT(*) AS count FROM users WHERE login_method != 'bot';`;
     public override warningMs = null;
 
     public override parseResult(resultRows: any[]): number {
