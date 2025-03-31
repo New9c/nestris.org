@@ -30,6 +30,7 @@ export class LaunchService {
     const initialSeconds = this.calculateSeconds();
     if (initialSeconds < 0) {
       console.log('launched');
+      this.launch$.next(true);
       return;
     }
 
@@ -46,6 +47,7 @@ export class LaunchService {
         if (seconds <= -4) {
           console.log('launched');
           this.show$.next(false);
+          this.launch$.next(true);
           this.intervalSubscription?.unsubscribe();
         } else if (seconds <= 0) {
           this.launch$.next(true);
