@@ -102,7 +102,6 @@ export class LoadingScreenComponent implements OnInit, AfterViewInit, OnChanges,
 
   // If change to explodeEverything, explode all tetris blocks
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('Changes:', this.explodeEverything);
     if (changes['explodeEverything'] && changes['explodeEverything'].currentValue) {
       console.log('Exploding everything');
       this.tetrisBlocks.forEach(block => this.explodeTetrisBlock(block, 12, 400));

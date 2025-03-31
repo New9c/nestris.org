@@ -12,6 +12,7 @@ import { ServerStatsService } from './server-stats.service';
 import { DeploymentEnvironment } from '../shared/models/server-stats';
 import { FetchService, Method } from './fetch.service';
 import { DBUser } from '../shared/models/db-user';
+import { ForceReloadService } from './force-reload.service';
 
 
 /*
@@ -44,8 +45,10 @@ export class WebsocketService {
     private fetchService: FetchService,
     private notificationService: NotificationService,
     private serverStats: ServerStatsService,
+    private forceReloadService: ForceReloadService,
     private router: Router,
-  ) {}
+  ) {
+  }
 
   // Initialize the websocket service with a user id and username, connecting to the websocket
   public async init(userid: string, username: string) {
@@ -68,6 +71,8 @@ export class WebsocketService {
     */
     this.onEvent(JsonMessageType.CONNECTION_SUCCESSFUL).subscribe((message) => {
       console.log('Connection successful, signed in.');
+
+      this.forceReloadService.verifyVersionHash();
 
       // If on login page, redirect to home page
       if (location.pathname === '/login') {

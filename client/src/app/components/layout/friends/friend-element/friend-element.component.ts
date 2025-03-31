@@ -11,7 +11,6 @@ import { RoomState } from 'src/app/shared/room/room-models';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
-import { AnalyticsService } from 'src/app/services/analytics.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
 import { map } from 'rxjs';
 import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';

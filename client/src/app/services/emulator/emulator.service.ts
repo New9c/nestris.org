@@ -109,12 +109,12 @@ export class EmulatorService {
   startGame(startLevel: number, sendPacketsToServer: boolean, levelCap?: number, seed?: string, clientRoom?: ClientRoom, countdown = 3) {
     this.sendPacketsToServer = sendPacketsToServer;
     this.clientRoom = clientRoom;
-    console.log("elvel cap", levelCap);
+    //console.log("elvel cap", levelCap);
 
     if (this.sendPacketsToServer) this.wakeLockService.enableWakeLock();
     this.questService.setInGame(true, this.clientRoom);
 
-    console.log("starting game at level", startLevel, "with seed", seed);
+    //console.log("starting game at level", startLevel, "with seed", seed);
 
     // Record initial game start time for deterimining time elapsed between frames
     this.timeDelta.resetDelta();
@@ -154,7 +154,7 @@ export class EmulatorService {
 
     // Update runahead flag
     this.runaheadFrames = this.meService.getSync()?.enable_runahead ? 1 : 0;
-    console.log("Runahead frames:", this.runaheadFrames);
+    //console.log("Runahead frames:", this.runaheadFrames);
 
     // Update keybinds
     const me = this.meService.getSync();

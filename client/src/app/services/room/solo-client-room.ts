@@ -180,7 +180,7 @@ export class SoloClientRoom extends ClientRoom {
         }
 
         const startLevel = SoloClientRoom.startLevel$.getValue();
-        console.log('Starting game with start level', startLevel);
+        //console.log('Starting game with start level', startLevel);
 
         // Transition to in-game state
         this.setSoloState(SoloClientState.IN_GAME);

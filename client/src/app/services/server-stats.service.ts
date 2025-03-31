@@ -28,7 +28,7 @@ export class ServerStatsService {
           id: BannerType.BETA_WARNING,
           priority: BannerPriority.LOW,
           color: "#3C5EB7",
-          message: "Join our <a href='https://discord.gg/4xkBHvGtzp' target='_blank'><u>Discord</u></a> community!"
+          message: "To learn more about this site and follow new updates, join our <a href='https://discord.gg/4xkBHvGtzp' target='_blank'><u>Discord</u></a> community!"
         });
       } else if (stats.environment === DeploymentEnvironment.STAGING) {
         this.bannerManager.addBanner({

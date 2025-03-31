@@ -45,7 +45,7 @@ addEventListener('message', async (event: MessageEvent<{id: number, endpoint: st
 
 
 // Import the Emscripten-generated script
-console.log('Importing Emscripten module...');
+// console.log('Importing Emscripten module...');
 importScripts('./assets/stackrabbit/wasmRabbit.js');
 
 // Load the Emscripten module and store it in the API variable

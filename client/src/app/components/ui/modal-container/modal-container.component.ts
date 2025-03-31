@@ -22,8 +22,6 @@ export class ModalContainerComponent {
 
     this.modalManager.getModal$().subscribe((modal) => {
 
-      console.log("Modal changed to " + modal, this.modalManager.getModalConfig());
-
       const newVisibility = modal !== null;
 
       if (this.visibility$.getValue() !== newVisibility) {
@@ -36,7 +34,6 @@ export class ModalContainerComponent {
     this.visibility$.subscribe((visibility) => {
       if (!visibility) {
         this.modalManager.hideModal();
-        console.log("Hide modal");
       }
     });
   }

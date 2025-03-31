@@ -74,6 +74,7 @@ import { SpectateRoomOfUserRoute } from './src/routes/room/spectate-room-of-user
 import { RankedAbortConsumer } from './src/online-users/event-consumers/ranked-abort-consumer';
 import { MatchInvitationManager } from './src/invitations/match-invitation';
 import { AnalyticsConsumer } from './src/online-users/event-consumers/analytics-consumer';
+import { GetVersionRoute } from './src/routes/misc/get-version-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -214,6 +215,7 @@ async function main() {
   routes.registerRoute(GetScoreHistogramRoute);
   routes.registerRoute(GetGlobalChatRoute);
   routes.registerRoute(GetErrorsRoute);
+  routes.registerRoute(GetVersionRoute);
 
   const bots = new BotManager();
   //bots.registerBot(new RankedBotUser('bot2', 2000, {aiConfig : { inputSpeed: InputSpeed.HZ_10 }}));
