@@ -464,8 +464,8 @@ export class RankedQueueConsumer extends EventConsumer {
         let numMatches2 = user2.matches_played;
 
         // Bots do not have drastic elo change because they have already been a little tuned
-        if (user1.login_method === LoginMethod.BOT) numMatches1 = Math.max(5, numMatches1);
-        if (user2.login_method === LoginMethod.BOT) numMatches2 = Math.max(5, numMatches2);
+        if (user1.login_method === LoginMethod.BOT) numMatches1 = Math.max(3, numMatches1);
+        if (user2.login_method === LoginMethod.BOT) numMatches2 = Math.max(3, numMatches2);
 
 
         // use the elo system to calculate the win/loss trophy delta for each user
