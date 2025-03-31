@@ -14,5 +14,6 @@ export const soloXPStrategy: XPStrategy = (score: number) => {
 };
 
 export function xpOnPuzzleSolve(puzzleElo: number) {
-    return Math.floor(puzzleElo / 1000) + 1;
+    // https://www.desmos.com/calculator/fcwni9mptv
+    return Math.ceil(Math.pow(puzzleElo / 1000, 1.8));
 }
