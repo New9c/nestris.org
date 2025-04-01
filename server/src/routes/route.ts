@@ -19,6 +19,12 @@ export class RouteError extends Error {
     }
 }
 
+export class Redirect {
+    constructor(
+        public readonly path: string
+    ) {}
+}
+
 abstract class Route {
     public abstract readonly route: string;
     protected readonly authentication: Authentication = Authentication.NONE;
@@ -29,7 +35,7 @@ abstract class Route {
     }
 
     protected abstract getExpressMethod(): any;
-    protected abstract run(user: UserInfo | undefined, pathParams: any, queryParams: any, bodyParams: any): Promise<any>;
+    protected abstract run(user: UserInfo | undefined, pathParams: any, queryParams: any, bodyParams: any): Promise<any | Redirect>;
 
     public register() {
 
@@ -54,6 +60,11 @@ abstract class Route {
 
                 // Run the route
                 const response: any = await this.run(user, req.params, req.query, req.body);
+
+                if (response instanceof Redirect) {
+                    res.redirect(response.path);
+                    return;
+                }
                 
                 // Send successful response
                 res.status(200).send(response);
@@ -99,9 +110,9 @@ export abstract class GetRoute<T extends {} = {}> extends Route {
      * @param queryParams The query parameters from the request
      * @throws RouteError if there is an error
      */
-    public abstract get(user: UserInfo | undefined, pathParams: any, queryParams: any): Promise<T>;
+    public abstract get(user: UserInfo | undefined, pathParams: any, queryParams: any): Promise<T | Redirect>;
 
-    protected override async run(user: UserInfo | undefined, pathParams: any, queryParams: any, bodyParams: {}): Promise<T> {
+    protected override async run(user: UserInfo | undefined, pathParams: any, queryParams: any, bodyParams: {}): Promise<T | Redirect> {
         return await this.get(user, pathParams, queryParams);
     }
 
@@ -118,9 +129,9 @@ export abstract class PostRoute<T extends {} = {}> extends Route {
      * @param queryParams The query parameters from the request
      * @param bodyParams The body parameters from the request
      */
-    public abstract post(user: UserInfo | undefined, pathParams: any, queryParams: any, bodyParams: any): Promise<T>;
+    public abstract post(user: UserInfo | undefined, pathParams: any, queryParams: any, bodyParams: any): Promise<T | Redirect>;
 
-    protected override async run(user: UserInfo | undefined, pathParams: any, queryParams: any, bodyParams: any): Promise<T> {
+    protected override async run(user: UserInfo | undefined, pathParams: any, queryParams: any, bodyParams: any): Promise<T | Redirect> {
         return await this.post(user, pathParams, queryParams, bodyParams);
     }
 

@@ -13,6 +13,7 @@ import { DeploymentEnvironment } from '../shared/models/server-stats';
 import { FetchService, Method } from './fetch.service';
 import { DBUser } from '../shared/models/db-user';
 import { ForceReloadService } from './force-reload.service';
+import { RELEASE_HASH } from '../shared/version';
 
 
 /*
@@ -245,7 +246,7 @@ export class WebsocketService {
 
         // Make sure user is authenticated, otherwise this will redirect to login page
         try {
-          await this.fetchService.fetch<DBUser>(Method.GET, '/api/v2/me');
+          await this.fetchService.fetch<DBUser>(Method.GET, `/api/v2/me?v=${RELEASE_HASH}`);
         } catch (e) {
           console.log('User not authenticated, redirecting to login page');
           this.signedInSubject$.next(false);

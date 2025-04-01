@@ -5,6 +5,7 @@ import { Method } from '../fetch.service';
 import { JsonMessage, JsonMessageType, MeMessage } from 'src/app/shared/network/json-message';
 import { map, Observable } from 'rxjs';
 import { BannerManagerService, BannerPriority, BannerType } from '../banner-manager.service';
+import { RELEASE_HASH } from 'src/app/shared/version';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +29,7 @@ export class MeService extends StateService<DBUser>() {
     let me: DBUser;
     try {
       // Fetch the user's information
-      me = this.decode(await this.fetchService.fetch<DBUser>(Method.GET, '/api/v2/me'));
+      me = this.decode(await this.fetchService.fetch<DBUser>(Method.GET, `/api/v2/me?v=${RELEASE_HASH}`));
     } catch (e) {
       // If cannot fetch me, redirect to login
       if (location.pathname !== '/login') location.href = '/login';
