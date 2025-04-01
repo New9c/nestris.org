@@ -9,9 +9,10 @@
 
     <div class="panels">
 
-        <app-nes-panel class="score-panel">
+        <app-nes-panel class="score-panel" [ngClass]="{'seven-digit': score && score >= 1000000, 'has-opponent': opponentScore !== null}">
             <p class="prevent-select">Score</p>
             <h1 class="prevent-select">{{padScore(score)}}</h1>
+            <h1 class="prevent-select diff" *ngIf="opponentScore !== null" [ngStyle]="{'color' : getDiffColor()}">{{getDiffString()}}</h1>
         </app-nes-panel>
 
         <div class="level-lines">

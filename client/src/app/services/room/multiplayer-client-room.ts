@@ -175,6 +175,18 @@ export class MultiplayerClientRoom extends ClientRoom {
         return this.serverPlayers[playerIndex].getBoard$();
     }
 
+    public getPlayerScore(playerIndex: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2) {
+        // If my index, use the client-side score
+        if (this.myIndex === playerIndex) return this.platform.getGameData$().pipe(
+            map(data => data.score)
+        );
+
+        // Otherwise, use the server-side score
+        return this.serverPlayers[playerIndex].getSnapshot$().pipe(
+            map(snapshot => snapshot.score)
+        );
+    }
+
     protected override async onStateUpdate(oldState: MultiplayerRoomState, newState: MultiplayerRoomState): Promise<void> {
 
         // If client goes from not ready to ready, reset game

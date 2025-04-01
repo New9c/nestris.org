@@ -24,7 +24,19 @@ app-eval-bar {
 .score-panel {
     width: 100%; // stretch to take same width as level and lines panels combined
     box-sizing: border-box;
+}
+
+.score-panel:not(.has-opponent) {
     padding-bottom: 15px;
+}
+
+.score-panel h1.diff {
+    align-self: flex-end;
+    margin-right: 18px;
+}
+
+.score-panel.seven-digit h1.diff {
+    margin-right: 6px;
 }
 
 .level-lines {

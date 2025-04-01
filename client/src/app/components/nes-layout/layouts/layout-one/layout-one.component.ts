@@ -22,6 +22,7 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
   @Input() level: number | null = 0; // if null, show -
   @Input() lines: number | null = 0; // if null, show -
   @Input() score: number | null = 0; // if null, show -
+  @Input() opponentScore: number | null = null; // For showing score diff. if null, do not show diff
   @Input() countdown?: number | string;
   @Input() trt: number | null = null;
   @Input() drought: number | null = null; // if undefined, not in drought and hidden. if drought, replace trt
@@ -58,6 +59,18 @@ export class LayoutOneComponent extends AbstractNesLayoutComponent implements On
     if (accuracy === null) return 'white';
     const rating = overallAccuracyRating(accuracy * 100);
     return EVALUATION_TO_COLOR[rating];
+  }
+
+  getDiffString(): string {
+    const diff = (this.score ?? 0) - (this.opponentScore ?? 0);
+    if (diff >= 0) return `+${diff}`;
+    else return `${diff}`;
+  }
+
+  getDiffColor(): string {
+    const diff = (this.score ?? 0) - (this.opponentScore ?? 0);
+    if (diff >= 0) return "rgb(0,255,0)";
+    else return "rgb(255,0,0)";
   }
 
 }
