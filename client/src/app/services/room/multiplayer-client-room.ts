@@ -136,13 +136,22 @@ export class MultiplayerClientRoom extends ClientRoom {
 
         // If player and ranked, set a timeout to be ready. On expire, abort
         if (this.myIndex !== null && state.ranked) {
-            this.readyTimer$.next(new Timer(40, () => this.sendClientRoomEvent({type: MultiplayerRoomEventType.ABORT})));
+            this.setReadyTimer();
         }
 
 
         if (this.myIndex !== null) {
             this.analytics.sendEvent("play-multiplayer", { ranked: state.ranked, platform: this.platform.getPlatform() });
         } else this.analytics.sendEvent("spectate-multiplayer");
+    }
+
+    private setReadyTimer() {
+        this.readyTimer$.getValue()?.stop();
+        this.readyTimer$.next(new Timer(40, () => {
+            if (this.getState<MultiplayerRoomState>().status === MultiplayerRoomStatus.BEFORE_GAME) {
+                this.sendClientRoomEvent({type: MultiplayerRoomEventType.ABORT});
+            }
+        }));
     }
 
     /**
@@ -228,7 +237,7 @@ export class MultiplayerClientRoom extends ClientRoom {
             this.ocrStateSubscription?.unsubscribe();
 
             if (this.myIndex !== null && newState.ranked) {
-                this.readyTimer$.next(new Timer(30, () => this.sendClientRoomEvent({type: MultiplayerRoomEventType.ABORT})));
+                this.setReadyTimer();
             }
 
             if (this.myIndex !== null && this.platform.getPlatform() === Platform.OCR) {
