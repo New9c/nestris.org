@@ -10,7 +10,7 @@ import { OCRConfig } from "../../ocr-state-machine";
 import { GymRNG } from "src/app/shared/tetris/piece-sequence-generation/gym-rng";
 import { RecoveryEvent } from "../events/recovery-event";
 
-export const NOISE_THRESHOLD = 20;
+export const NOISE_THRESHOLD = 40;
 
 export class BeforeGameState extends OCRState {
     public override readonly id = OCRStateID.BEFORE_GAME;
@@ -30,6 +30,7 @@ export class BeforeGameState extends OCRState {
         const frame = ocrFrame.getBinaryBoard();
         const consistency = ocrFrame.getBoardNoise();
         const nextType = ocrFrame.getNextType();
+        console.log("board noise", consistency);
     }
 }
 
