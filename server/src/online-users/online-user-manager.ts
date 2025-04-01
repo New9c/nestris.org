@@ -321,6 +321,12 @@ export class OnlineUserManager {
         const success = onlineUser.removeSession(session.sessionID, code, reason);
         if (!success) console.error(`Could not delete session ${session.sessionID} with code ${code} reason ${reason}, session does not exist`);
 
+        // If session was in activity, end activity
+        const activity = this.getUserActivity(onlineUser.userid);
+        if (activity && activity.sessionID === session.sessionID) {
+            this.resetUserActivity(onlineUser.userid);
+        }
+
         // remove the sessionID to userid mapping
         this.sessions.delete(session.sessionID);
 

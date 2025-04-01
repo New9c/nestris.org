@@ -35,6 +35,7 @@ export class FriendElementComponent implements OnInit {
 
   spectateActivities!: {[key in OnlineUserActivityType] : SpectateActivity };
   noActivityTooltip!: string;
+  notOnlineTooltip!: string;
 
   busyActivities!: {[key in OnlineUserActivityType] : string };
 
@@ -62,12 +63,13 @@ export class FriendElementComponent implements OnInit {
 
     this.busyActivities = {
       [OnlineUserActivityType.SOLO] : `${this.friendInfo.username} is busy playing a solo game!`,
-      [OnlineUserActivityType.MULTIPLAYER] : `${this.friendInfo.username} is busy playing a ranked match!`,
+      [OnlineUserActivityType.MULTIPLAYER] : `${this.friendInfo.username} is busy playing a match!`,
       [OnlineUserActivityType.QUEUEING] : `${this.friendInfo.username} is busy queuing for a ranked match!`,
       [OnlineUserActivityType.PUZZLES] : `${this.friendInfo.username} is busy solving a puzzle!`
     };
 
     this.noActivityTooltip = `${this.friendInfo.username} is currently idle`;
+    this.notOnlineTooltip = `${this.friendInfo.username} is not online`;
   }
 
 
