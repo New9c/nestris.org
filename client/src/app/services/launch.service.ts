@@ -4,7 +4,7 @@ import { filter, map, takeWhile, tap } from 'rxjs/operators';
 import { ServerStatsService } from './server-stats.service';
 import { DeploymentEnvironment } from '../shared/models/server-stats';
 
-const RELEASE_DATE = new Date(Date.UTC(2025, 3, 9, 16 + 5, 0, 0));
+const RELEASE_DATE = new Date(Date.UTC(2025, 3, 9, 16 + 4, 0, 0));
 
 // FOR TESTING ONLY
 // const RELEASE_DATE = new Date();

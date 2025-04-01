@@ -73,7 +73,7 @@ class ParagraphSetting extends Setting {
     // Send changes in paragraph
     this.component.subscriptions.push(this.paragraph$.pipe(
       filter(paragraph => paragraph !== null && paragraph.length <= this.maxChars),
-      debounceTime(200)
+      debounceTime(400)
     ).subscribe(paragraph => {
       console.log("send", paragraph);
       this.component.setAttribute(undefined, this.key, paragraph);

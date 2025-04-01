@@ -49,7 +49,7 @@
                         </div>
                         <!-- <app-slide-toggle [checked]="getAttribute(me, setting.key)" (setChecked)="setAttribute(me, setting.key, $event)" /> -->
                          <div class="textarea-container" [ngClass]="{'red' : setting.maxCharsRed$ | async}">
-                            <textarea [defaultValue]="getAttribute(me, setting.key)" (input)="setting.edit($event)">
+                            <textarea [defaultValue]="getAttribute(me, setting.key) ?? ''" (input)="setting.edit($event)">
                                 
                             </textarea>
                             <p class="max-chars">
