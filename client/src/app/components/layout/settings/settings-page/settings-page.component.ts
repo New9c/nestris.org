@@ -110,8 +110,8 @@ export class SettingsPageComponent implements OnDestroy {
           this,
           'about_me',
           'About me',
-          300,
-          'Give your profile page a little flair with a little something about you!'
+          400,
+          'Give your profile page some flair with a little something about you!'
         )
       ])
     ]),

@@ -16,8 +16,16 @@
             <app-xp-info [league]="data.dbUser.league" [xp]="data.dbUser.xp" />
         </div>
 
-        <div class="about-me-panel">
-            <h1>Coming soon!</h1>
+        <div class="center-panels">
+            <div class="about-me-panel">
+                <h1>About me</h1>
+                <div class="about-me-content">
+                    <p>{{data.dbUser.about_me}}</p>
+                </div>
+            </div>
+            <div class="ranked-stats-panel">
+            </div>
+            
         </div>
 
         <div class="stats-panels">

@@ -157,26 +157,64 @@ app-quest {
     margin: 0;
 }
 
-.about-me-panel {
+.center-panels {
     flex-grow: 1;
     box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.about-me-panel {
+    width: 100%;
+    box-sizing: border-box;
+    
     padding: 15px;
 
     background-color: rgba(255, 255, 255, 0.02);
     border-radius: 10px;
 
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .about-me-panel h1 {
     font-family: $main-font;
-    font-size: 12px;
-    font-weight: 400;
-    font-style: italic;
+    font-size: 16px;
+    font-weight: 600;
     margin: 0;
     padding: 0;
+}
+
+.about-me-content {
+    width: 281px;
+    flex-grow: 1;
+    box-sizing: border-box;
+    overflow-y: scroll;
+    height: 120px;
+}
+
+.about-me-panel p {
+    font-family: $main-font;
+    font-size: 11px;
+    font-weight: 300;
+    margin: 0;
+    padding: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.ranked-stats-panel {
+    flex-grow: 1;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 10px;
+
+    color: $ranked-color;
+    border:  solid 2px $ranked-color;
+    background-color: adjust-color($color: $ranked-color, $alpha: -0.97);
 }
 
 .stats-panels {
