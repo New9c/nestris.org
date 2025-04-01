@@ -25,7 +25,7 @@ export class MultiplayerRoomComponent extends MultiplayerComponent {
 
   public ocrStatus$ = this.multiplayerClientRoom.getOCRStatus$();
   public readyTimer = this.multiplayerClientRoom.readyTimer$.pipe(
-    switchMap(timer => timer ? timer.timeVisibleAt$(10) : of(null))
+    switchMap(timer => timer ? timer.timeVisibleAt$(20) : of(null))
   );
   public ocrTimer = this.multiplayerClientRoom.ocrTimer$.pipe(
     switchMap(timer => timer ? timer.timeVisibleAt$(5) : of(null))

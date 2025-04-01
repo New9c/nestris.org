@@ -147,7 +147,7 @@ export class MultiplayerClientRoom extends ClientRoom {
 
     private setReadyTimer() {
         this.readyTimer$.getValue()?.stop();
-        this.readyTimer$.next(new Timer(40, () => {
+        this.readyTimer$.next(new Timer(60, () => {
             if (this.getState<MultiplayerRoomState>().status === MultiplayerRoomStatus.BEFORE_GAME) {
                 this.sendClientRoomEvent({type: MultiplayerRoomEventType.ABORT});
             }
