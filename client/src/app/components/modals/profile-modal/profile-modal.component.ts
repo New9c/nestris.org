@@ -14,10 +14,13 @@ import { numberWithCommas } from 'src/app/util/misc';
 import { RelativeRanks } from 'src/app/shared/models/leaderboard';
 import { SoundEffect, SoundService } from 'src/app/services/sound.service';
 import { AnalyticsService } from 'src/app/services/analytics.service';
+import { Router } from '@angular/router';
+import { RankedStats } from 'src/app/shared/network/json-message';
 
 export interface ModalData {
   dbUser: DBUser;
   ranks: RelativeRanks;
+  rankedStats: RankedStats,
   online: boolean;
 }
 
@@ -57,7 +60,7 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
   readonly questXP = (questID: QuestID) => getQuest(questID).xp;
   readonly questColor = (questID: QuestID) => QUEST_COLORS[getQuest(questID).difficulty];
 
-  private userid!: string;
+  public userid!: string;
 
   public data$ = new BehaviorSubject<ModalData | null>(null);
   public activities$ = new BehaviorSubject<ActivityGroup[] | null>(null);
@@ -73,7 +76,8 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
     private readonly fetchService: FetchService,
     private readonly sound: SoundService,
     private analytics: AnalyticsService,
-    private location: Location
+    private location: Location,
+    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -107,10 +111,11 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
 
     const dbUserPromise: Promise<DBUser | DBUserWithOnlineStatus> = this.config?.userid ? this.apiService.getUserByID(this.config.userid) : this.meService.get();
     const ranksPromise = this.fetchService.fetch<RelativeRanks>(Method.GET, `/api/v2/leaderboard/ranks/${this.userid}`);
-    const [dbUser, ranks] = await Promise.all([dbUserPromise, ranksPromise]);
+    const rankedStatsPromise = this.fetchService.fetch<RankedStats>(Method.GET, `/api/v2/ranked-stats/${this.userid}`);
+    const [dbUser, ranks, rankedStats] = await Promise.all([dbUserPromise, ranksPromise, rankedStatsPromise]);
 
     const online = this.config?.userid ? (dbUser as DBUserWithOnlineStatus).online : true;
-    return { dbUser, ranks, online };
+    return { dbUser, ranks, rankedStats, online };
   }
 
   private async fetchActivities(): Promise<ActivityGroup[]> {
@@ -224,6 +229,11 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
   getIcon(activityType: ActivityType) {
     const name = ProfileModalComponent.ACTIVITY_ICONS[activityType];
     return `./assets/img/activity-icons/${name}.svg`
+  }
+
+  editProfile() {
+    this.modalManagerService.hideModal();
+    this.router.navigate(["/settings"]);
   }
 
 }

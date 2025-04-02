@@ -18,12 +18,32 @@
 
         <div class="center-panels">
             <div class="about-me-panel">
-                <h1>About me</h1>
+                <div class="about-me-header">
+                    <h1>About me </h1>
+                    <img *ngIf="(meService.getUserID$() | async) === data.dbUser.userid" (click)="editProfile()"
+                        src="./assets/img/button-icons/edit.svg" width="10px" />
+                </div>
+                
                 <div class="about-me-content">
                     <p>{{data.dbUser.about_me}}</p>
                 </div>
             </div>
             <div class="ranked-stats-panel">
+                <h1>Ranked Stats</h1>
+                <div class="ranked-stats">
+                    <div class="ranked-stat">
+                        <h2>{{numberWithCommas(data.rankedStats.performance)}}</h2>
+                        <p>Performance</p>
+                    </div>
+                    <div class="ranked-stat">
+                        <h2>{{data.rankedStats.consistency}}</h2>
+                        <p>Survival</p>
+                    </div>
+                    <div class="ranked-stat">
+                        <h2>{{data.rankedStats.aggression}}</h2>
+                        <p>Efficiency</p>
+                    </div>
+                </div>
             </div>
             
         </div>

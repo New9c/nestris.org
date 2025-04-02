@@ -75,6 +75,7 @@ import { RankedAbortConsumer } from './src/online-users/event-consumers/ranked-a
 import { MatchInvitationManager } from './src/invitations/match-invitation';
 import { AnalyticsConsumer } from './src/online-users/event-consumers/analytics-consumer';
 import { GetVersionRoute } from './src/routes/misc/get-version-route';
+import { GetRankedStatsRoute } from './src/routes/user/get-ranked-stats-route';
 
 // Load environment variables
 require('dotenv').config();
@@ -192,6 +193,7 @@ async function main() {
   routes.registerRoute(GetT200LeaderboardRoute);
   routes.registerRoute(GetRoomsRoute);
   routes.registerRoute(CreateSoloRoomRoute);
+  routes.registerRoute(GetRankedStatsRoute);
   routes.registerRoute(GetCacheStatsRoute);
   routes.registerRoute(LeaveRoomRoute);
   routes.registerRoute(SetStartingTrophiesRoute);
