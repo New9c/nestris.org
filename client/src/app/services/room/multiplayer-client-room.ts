@@ -310,6 +310,10 @@ export class MultiplayerClientRoom extends ClientRoom {
         this.ocr.stopGameCapture();
         this.ocrStateSubscription?.unsubscribe();
         this.packetGroupSubscription?.unsubscribe();
+
+        // Stop any ongoing timers
+        this.ocrTimer$.getValue()?.stop();
+        this.readyTimer$.getValue()?.stop();
     }
 
 }
