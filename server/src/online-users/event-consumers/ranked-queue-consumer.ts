@@ -100,6 +100,7 @@ class QueueUser {
         public readonly trophies: number,
         public readonly highscore: number,
         public readonly matchesPlayed: number,
+        public readonly allowBotOpponents: boolean,
         public readonly isBot: boolean,
     ) {}
 
@@ -116,12 +117,12 @@ class QueueUser {
      */
     public getTrophyRange(queueSeconds: number): TrophyRange {
 
-        if (queueSeconds < 2) return TrophyRange.fromDelta(this.trophies, 100);
-        if (queueSeconds < 4) return TrophyRange.fromDelta(this.trophies, 200);
+        if (queueSeconds < 3) return TrophyRange.fromDelta(this.trophies, 100);
+        if (queueSeconds < 6) return TrophyRange.fromDelta(this.trophies, 200);
         if (queueSeconds < 10) return TrophyRange.fromDelta(this.trophies, 400);
-        if (queueSeconds < 20) return TrophyRange.fromDelta(this.trophies, 600);
-        if (queueSeconds < 30) return TrophyRange.fromDelta(this.trophies, 1000);
-        return new TrophyRange(null, null);
+
+        // Hard limit disallowing any matches with more than 600 trophy difference
+        return TrophyRange.fromDelta(this.trophies, 600);
     }
 
 }
@@ -205,7 +206,9 @@ export class RankedQueueConsumer extends EventConsumer {
 
         // Add user to the queue, maintaining earliest-joined-first order
         const isBot = dbUser.login_method === LoginMethod.BOT;
-        this.queue.push(new QueueUser(userid, dbUser.username, sessionID, dbUser.trophies, dbUser.highest_score, dbUser.matches_played, isBot));
+        this.queue.push(new QueueUser(
+            userid, dbUser.username, sessionID, dbUser.trophies, dbUser.highest_score, dbUser.matches_played, dbUser.allow_bot_opponents, isBot
+        ));
 
         // Send the number of players in the queue to all users in the queue
         this.sendNumQueuingPlayers();
@@ -319,10 +322,16 @@ export class RankedQueueConsumer extends EventConsumer {
         const nonBotUsers = [user1, user2].filter(user => !user.isBot);
         let queueSeconds = Math.min(...nonBotUsers.map(user => user.queueElapsedSeconds()));
 
+        // If a player disables setting to match against bot opponents, do not allow match with bot
+        if ((!user1.allowBotOpponents || !user2.allowBotOpponents) && hasBot) return false;
+
         // Matching with bot delays the match process by some amount
-        if (hasBot && nonBotUsers[0].matchesPlayed >= 2) { // BUT the first two matches played have faster matches for retention
-            if (queueSeconds < MIN_BOT_MATCH_SECONDS) return false; // Can only match with bot after this time
-            else queueSeconds -= MIN_BOT_MATCH_SECONDS;
+        if (hasBot) {
+            // The first two matches played have faster matches for retention
+            const minSeconds = nonBotUsers[0].matchesPlayed >= 2 ? MIN_BOT_MATCH_SECONDS : MIN_BOT_MATCH_SECONDS / 2;
+
+            if (queueSeconds < minSeconds) return false; // Can only match with bot after this time
+            else queueSeconds -= minSeconds;
         }
 
         // Check if the users have similar trophies
