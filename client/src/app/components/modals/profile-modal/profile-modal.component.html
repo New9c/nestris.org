@@ -25,7 +25,7 @@
                 </div>
                 
                 <div class="about-me-content">
-                    <p>{{data.dbUser.about_me}}</p>
+                    <p>{{data.dbUser.about_me === 'NULL' ? '' : data.dbUser.about_me}}</p>
                 </div>
             </div>
             <div class="ranked-stats-panel">
