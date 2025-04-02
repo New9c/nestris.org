@@ -327,6 +327,9 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
         // Mullen for a random amount of time after opponent tops out
         const mullenSeconds = randomInt(1, 10);
 
+        // Sometimes, allow mullens if close to 29
+        const mullenIfCloseTo29 = Math.random() < 0.5;
+
         // Loop until topout
         while (true) {
 
@@ -335,7 +338,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
             if (topoutMs === null && opponentTopoutScore !== null && state.getStatus().score > opponentTopoutScore) {
                 topoutMs = Date.now();
             }
-            const allowTopout = (topoutMs !== null && (Date.now() - topoutMs) / 1000 > mullenSeconds) && !CONFIG.allowBotMullen;
+            const allowTopout = (topoutMs !== null && (Date.now() - topoutMs) / 1000 > mullenSeconds) && !CONFIG.allowBotMullen && !(state.getStatus().lines > 200 && mullenIfCloseTo29);
         
             // calculate how many frames to advance based on time elapsed to maintain 60fps
             const diff = performance.now() - epoch;
