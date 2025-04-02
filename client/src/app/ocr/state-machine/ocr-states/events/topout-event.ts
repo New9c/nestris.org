@@ -5,6 +5,7 @@ import { OCRFrame } from "../../ocr-frame";
 import { ALL_TETROMINO_TYPES, TetrominoType } from "../../../../shared/tetris/tetromino-type";
 import MoveableTetromino from "../../../../shared/tetris/moveable-tetromino";
 import { OCRStateID } from "../ocr-state-id";
+import { TETROMINO_CHAR } from "src/app/shared/tetris/tetrominos";
 
 /**
  * Event that triggers when a new piece is spawned without a line clear. This should result in the previous
@@ -15,7 +16,7 @@ export class TopoutEvent extends StateEvent {
     public override readonly persistence = new TimedPersistenceStrategy(500);
 
     constructor(
-        private readonly myState: PieceDroppingState,
+        private readonly myState?: PieceDroppingState,
     ) { super(); }
 
     /**
@@ -25,7 +26,7 @@ export class TopoutEvent extends StateEvent {
     protected override async precondition(ocrFrame: OCRFrame): Promise<boolean> {
 
         // An active piece means no topout
-        if (this.myState.getActivePieceThisFrame()) return false;
+        if (this.myState?.getActivePieceThisFrame()) return false;
 
         const board = ocrFrame.getBinaryBoard()!;
 

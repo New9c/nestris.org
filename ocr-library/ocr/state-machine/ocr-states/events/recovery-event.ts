@@ -54,30 +54,30 @@ export class RecoveryEvent extends StateEvent {
         this.previousSeperation = seperation;
 
         // If cannot seperate, cannot recover this frame
-        if (!seperation) { console.log("no seperation"); return false; }
+        if (!seperation) { return false; }
 
         // Need to have consecutive valid seperations
-        if (!previousSeperation) { console.log("no previous seperation"); return false; }
+        if (!previousSeperation) { return false; }
 
         const [previousPiece, previousIsolatedBoard] = previousSeperation;
         const [currentPiece, currentIsolatedBoard] = seperation;
 
         // The active piece must be of the same type
         if (previousPiece.tetrominoType !== currentPiece.tetrominoType) {
-            console.log("not same type seperation");
+            //console.log("not same type seperation");
             return false;
         }
 
         // The active piece must have moved while isolated board stayed the same
         if (previousPiece.equals(currentPiece) || !previousIsolatedBoard.equalsIgnoreColor(currentIsolatedBoard)) {
-            console.log("active not move or isolated board move");
+            //console.log("active not move or isolated board move");
             return false;
         }
 
         // Valid next piece
         const next = ocrFrame.getNextType()!;
         if (next === TetrominoType.ERROR_TYPE) {
-            console.log("invalid next piece");
+            //console.log("invalid next piece");
             return false;
         }
 

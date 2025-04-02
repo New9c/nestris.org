@@ -10,6 +10,8 @@ import { Counter } from "src/app/shared/scripts/counter";
 import { RecoveryEvent } from "../events/recovery-event";
 import { SmartGameStatus } from "src/app/shared/tetris/smart-game-status";
 import { OCRConfig } from "../../ocr-state-machine";
+import { TopoutEvent } from "../events/topout-event";
+import { StuckEvent } from "../events/stuck-event";
 
 export class GameLimboState extends OCRState {
     public override readonly id = OCRStateID.GAME_LIMBO;
@@ -25,8 +27,14 @@ export class GameLimboState extends OCRState {
         this.registerEvent(new RestartGameEvent(this.config, this.globalState, this.textLogger));
         this.registerEvent(new LinecapEvent(this.config, this.globalState));
         this.registerEvent(new RecoveryEvent(this.globalState, this));
-        this.registerEvent(new TimeoutEvent(this.globalState));
         this.registerEvent(new ExitEvent());
+        this.registerEvent(new StuckEvent());
+
+        // If piece appears on top of screen for too long, it is topout
+        this.registerEvent(new TopoutEvent());
+
+        // NO TIMEOUTS, TOO MANY FALSE POSITIVES
+        //this.registerEvent(new TimeoutEvent(this.globalState));
     }
 
     /**
@@ -65,13 +73,13 @@ export class GameLimboState extends OCRState {
         const previousLevel = this.predictedLevel;
         const previousLines = this.predictedLines;
 
-        console.log("updating counters");
+        //console.log("updating counters");
 
         // Derive new lines
         if (this.predictedLines < 992) {
             // If before lines rollover, read all 3 digits. Can only skip up to 8 lines, or OCR will break
             let ocrLines = (await ocrFrame.getLines(false))!
-            console.log("ocrLines", ocrLines, "predicted", this.predictedLines);
+            //console.log("ocrLines", ocrLines, "predicted", this.predictedLines);
             if (ocrLines !== -1 && ocrLines > this.predictedLines && ocrLines <= this.predictedLines + 8) {
                 this.predictedLines = ocrLines;
                 console.log("new lines", this.predictedLines, "full read");
@@ -156,7 +164,7 @@ export class ExitEvent extends StateEvent {
      */
     protected override async precondition(ocrFrame: OCRFrame): Promise<boolean> {
         const noise = ocrFrame.getBoardNoise()!;
-        console.log("board noise", noise);
+        //console.log("board noise", noise);
         return noise > NOISE_THRESHOLD;
     };
 

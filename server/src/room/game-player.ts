@@ -1,7 +1,7 @@
 import { Subject, Observable } from "rxjs";
 import { GameState, GameStateSnapshot } from "../../shared/game-state-from-packets/game-state";
 import { MeMessage } from "../../shared/network/json-message";
-import { PacketContent, PacketOpcode, GameStartSchema, GamePlacementSchema, StackRabbitPlacementSchema, GameRecoverySchema, GameRecoveryPacket, COUNTDOWN_NOT_IN_GAME } from "../../shared/network/stream-packets/packet";
+import { PacketContent, PacketOpcode, GameStartSchema, GamePlacementSchema, StackRabbitPlacementSchema, GameRecoverySchema, GameRecoveryPacket, COUNTDOWN_NOT_IN_GAME, GameFullStateSchema } from "../../shared/network/stream-packets/packet";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { DBUserObject, DBGameEndEvent } from "../database/db-objects/db-user";
 import { CreateGameQuery } from "../database/db-queries/create-game-query";
@@ -211,6 +211,11 @@ export class GamePlayer {
                 }));
                 if (this.gameState!.startLevel === 29) await questConsumer.updateQuestCategory(this.userid, QuestCategory.LINES29, snapshot.lines);
             }
+        }
+
+        else if (packet.opcode === PacketOpcode.GAME_FULL_STATE) {
+            if (!this.gameState) throw new Error("Cannot process full state packet without game start packet");
+            this.gameState.onFullState(packet.content as GameFullStateSchema);
         }
 
         else if (packet.opcode === PacketOpcode.GAME_RECOVERY) {

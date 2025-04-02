@@ -213,7 +213,7 @@ app-quest {
     border-radius: 10px;
 
     color: $ranked-color;
-    border:  solid 2px $ranked-color;
+    //border:  solid 2px $ranked-color;
     background-color: adjust-color($color: $ranked-color, $alpha: -0.97);
 }
 

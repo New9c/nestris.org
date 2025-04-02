@@ -74,7 +74,7 @@ export class OCRStateMachine {
         if (newStateID !== undefined) {
             this.stateCount++;
             this.currentState$.next(ocrStateFactory(newStateID, this.config, this.globalState, this.textLogger));
-            //console.log("Transition to", newStateID);
+            console.log("Transition to", newStateID);
         }
         
         this.profiler.stop();

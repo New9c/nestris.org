@@ -30,7 +30,7 @@ export class BeforeGameState extends OCRState {
         const frame = ocrFrame.getBinaryBoard();
         const consistency = ocrFrame.getBoardNoise();
         const nextType = ocrFrame.getNextType();
-        console.log("board noise", consistency);
+        //console.log("board noise", consistency);
     }
 }
 

@@ -74,7 +74,7 @@ export abstract class OCRState {
             this.eventStatuses.push(eventStatus);
 
             if (eventStatus.persistenceMet) {
-                //console.log(`Conditions for event ${event.name} met`);
+                console.log(`Conditions for event ${event.name} met`);
                 return await event.triggerEvent(ocrFrame);
             }
         }
