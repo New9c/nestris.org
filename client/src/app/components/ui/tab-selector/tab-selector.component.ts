@@ -17,6 +17,8 @@ export class TabSelectorComponent {
   @Input() linkedToRouter: boolean = false;
   @Input() tabToURL: {[key in string]: string} = {}; // if linkedToRouter, must be same length as tabs
 
+  @Input() allowSwitchToTab: (tab: any) => boolean = () => true;
+
   constructor() {}
 
   public selectTab(tab: any): void {
@@ -28,6 +30,8 @@ export class TabSelectorComponent {
     if (!this.tabs.includes(tab)) {
       throw new Error(`Tab ${tab} not found`);
     }
+
+    if (!this.allowSwitchToTab(tab)) return;
 
     this.selectedTab = tab;
     this.selectedTabChange.emit(tab);

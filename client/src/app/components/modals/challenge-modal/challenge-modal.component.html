@@ -8,7 +8,8 @@
 
     <div class="setting" *ngFor="let setting of settings">
       <h3>{{setting.label}}</h3>
-      <app-tab-selector [tabs]="setting.allValues" [(selectedTab)]="setting.currentValue" [tabStrings]="setting.valueStrings" />
+      <app-tab-selector [tabs]="setting.allValues" [(selectedTab)]="setting.currentValue"
+        [tabStrings]="setting.valueStrings" [allowSwitchToTab]="allowSwitchToValue.bind(this, setting)" />
     </div>
     
   </div>

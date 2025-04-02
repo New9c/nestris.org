@@ -63,14 +63,14 @@ export class ChallengeModalComponent {
       id: SettingID.START_LEVEL,
       label: "Start level",
       currentValue: 18,
-      allValues: [6, 9, 12, 15, 18, 19, 29],
+      allValues: [0, 6, 9, 12, 15, 18, 19, 29],
     },
 
     {
       id: SettingID.LINECAP,
       label: "Level cap",
       currentValue: NO_CAP,
-      allValues: [NO_CAP, 29, 39, 49],
+      allValues: [NO_CAP, 19, 29, 39, 49],
     },
 
   ];
@@ -120,6 +120,17 @@ export class ChallengeModalComponent {
     const setting = this.settings.find(setting => setting.id === id);
     if (setting === undefined) throw new Error("Setting not found");
     return setting.currentValue;
+  }
+
+  allowSwitchToValue(setting: Setting, value: any) {
+
+    let linecap = this.getSettingValue(SettingID.LINECAP);
+    if (setting.id === SettingID.LINECAP) linecap = value;
+
+    let startLevel = this.getSettingValue(SettingID.START_LEVEL);
+    if (setting.id === SettingID.START_LEVEL) startLevel = value;
+
+    return linecap === NO_CAP || startLevel < linecap;
   }
 
 }
