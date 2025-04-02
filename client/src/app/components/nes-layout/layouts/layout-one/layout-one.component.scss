@@ -32,11 +32,11 @@ app-eval-bar {
 
 .score-panel h1.diff {
     align-self: flex-end;
-    margin-right: 18px;
+    margin-right: 22.5px;
 }
 
 .score-panel.seven-digit h1.diff {
-    margin-right: 6px;
+    margin-right: 10px;
 }
 
 .level-lines {
@@ -51,11 +51,11 @@ app-eval-bar {
 }
 
 .level-panel {
-    width: 75px; // prevent panel from stretching when level number increases
+    width: 78px; // prevent panel from stretching when level number increases
 }
 
 .lines-panel {
-    width: 90px;
+    width: 93px;
 }
 
 .spacer {
