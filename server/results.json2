@@ -1,0 +1,47 @@
+[
+  {
+    "config": {
+      "inputSpeed": 25,
+      "inaccuracy": 0.1,
+      "mistake": 0.005,
+      "misdrop": 0.01,
+      "startLevel": 18
+    },
+    "stats": {
+      "average": {
+        "level": 20,
+        "lines": 142,
+        "score": 492680
+      },
+      "games": [
+        {
+          "startLevel": 18,
+          "gameStatus": {
+            "level": 20,
+            "lines": 149,
+            "score": 562360
+          },
+          "transitionLines": 130
+        },
+        {
+          "startLevel": 18,
+          "gameStatus": {
+            "level": 20,
+            "lines": 142,
+            "score": 492680
+          },
+          "transitionLines": 130
+        },
+        {
+          "startLevel": 18,
+          "gameStatus": {
+            "level": 18,
+            "lines": 13,
+            "score": 69160
+          },
+          "transitionLines": 130
+        }
+      ]
+    }
+  }
+]

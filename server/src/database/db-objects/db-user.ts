@@ -44,6 +44,10 @@ export class DBUpdateAttributeEvent extends GenericEvent<UpdateAttributeArgs> {}
 interface SetInitialTrophiesArgs { trophies: number }
 export class DBSetInitialTrophiesEvent extends GenericEvent<SetInitialTrophiesArgs> {}
 
+// Manual set highscore of the user
+interface ManualSetHighscoreArgs { highscore: number }
+export class DBManualSetHighscoreEvent extends GenericEvent<ManualSetHighscoreArgs> {}
+
 // An XP event advances the user's XP and possibly their league. In addition, DBUser will check for quest update
 // changes and trigger additional XP increases if necessary.
 interface XPArgs { xpGained: number }
@@ -276,6 +280,11 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 this.inMemoryObject.highest_trophies = initialTrophiesArgs.trophies;
                 break;
 
+            case DBManualSetHighscoreEvent:
+                const highscoreArgs = (event as DBManualSetHighscoreEvent).args;
+                this.inMemoryObject.highest_score = highscoreArgs.highscore;
+                break;
+                
             // Update a single attribute
             case DBUpdateAttributeEvent:
                 const attributeArgs = (event as DBUpdateAttributeEvent).args;

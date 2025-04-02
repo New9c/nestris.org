@@ -57,7 +57,7 @@ print(f"Mean Squared Error on Test Set: {mse}")
 def trophies_from_score(score):
     if score <= 0:
         raise ValueError("Score must be greater than zero for trophies calculation.")
-    return 3.05 * math.pow(score, 0.5)
+    return 3.5 * math.pow(score, 0.5)
 
 def predict_score(input_speed, inaccuracy, mistake, misdrop):
     # Predict the score using the trained model
@@ -98,10 +98,10 @@ def remove_percentage(bots, percentage):
 # Function to generate all configurations, calculate the scores and trophies, and write to TypeScript file
 def generate_bot_configs_and_write_to_file():
     # Define the possible values for each parameter
-    input_speeds = [6, 8, 10, 12, 14, 17, 20]
-    inaccuracies = [0.5, 0.3, 0.1]
-    mistakes = [0.3, 0.2, 0.1, 0.05]
-    misdrops = [0.05, 0.03, 0.01, 0.005, 0.001]
+    input_speeds = [6, 8, 10, 12, 14, 17, 20, 25]
+    inaccuracies = [0.9, 0.6, 0.3, 0.1]
+    mistakes = [0.3, 0.1, 0.05, 0.03, 0.01, 0.005]
+    misdrops = [0.03, 0.01, 0.005, 0.001, 0.0005]
 
 
     # Generate all permutations of the configurations
@@ -118,7 +118,7 @@ def generate_bot_configs_and_write_to_file():
             continue
 
         # don't allow fast bots that misdrop a lot, not realistic
-        if input_speed >= 14 and misdrop > 0.01:
+        if input_speed >= 14 and misdrop >= 0.01:
             continue
 
         # Get the score and calculate trophies
@@ -137,7 +137,7 @@ def generate_bot_configs_and_write_to_file():
 
         # Create the bot entry
         bot_entry = {
-            "score": round(score),
+            "score": round(math.pow(score, 0.7) * 100), # score accounts for average, bump up a bit for predicted high score
             "trophies": round(trophies),
             "speed": f"InputSpeed.HZ_{int(input_speed)}",  # Format as HZ_<speed>
             "inaccuracy": inaccuracy,
@@ -150,7 +150,7 @@ def generate_bot_configs_and_write_to_file():
     
     # Sort bots by trophies in ascending order
     bots = sorted(bots, key=lambda bot: bot['trophies'])
-    bots = remove_percentage(bots, 0.4)
+    bots = remove_percentage(bots, 0.6)
 
     print("num bots:", len(bots))
 
@@ -158,7 +158,7 @@ def generate_bot_configs_and_write_to_file():
     with open("generated_bots.txt", "w") as f:
         f.write(f"const bots: BotType[] = [\n")
         for bot in bots:
-            f.write(f"    {{ trophies: {bot['trophies']}, speed: {bot['speed']}, inaccuracy: {bot['inaccuracy']}, mistake: {bot['mistake']}, misdrop: {bot['misdrop']}, botIDs: {bot['botIDs']} }},\n")
+            f.write(f"    {{ highscore: {bot['score']}, trophies: {bot['trophies']}, speed: {bot['speed']}, inaccuracy: {bot['inaccuracy']}, mistake: {bot['mistake']}, misdrop: {bot['misdrop']}, botIDs: {bot['botIDs']} }},\n")
         f.write(f"];\n")
 
     #messagebox.showinfo("Success", "Bot configurations have been written to generated_bots.txt.")

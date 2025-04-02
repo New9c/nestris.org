@@ -7,12 +7,12 @@ import { AIPlacement, PlacementAI, ShiftMap } from "./placement-ai";
 import { TopMovesHybridResponse } from "../../shared/scripts/stackrabbit-decoder";
 import { randomChoice, randomInt, weightedRandomChoice } from "../../shared/scripts/math";
 import { INPUT_SPEED_TO_TIMELINE, InputSpeed } from "../../shared/models/input-speed";
+import { calculatePlacementScore, rescaleStackrabbitEval } from "../../shared/evaluation/evaluation";
 
 
 export class SRPlacementAI extends PlacementAI {
 
     public override generateInputFrameTimeline(): string {
-
         return INPUT_SPEED_TO_TIMELINE[this.config.inputSpeed];
 
     }
@@ -63,11 +63,13 @@ export class SRPlacementAI extends PlacementAI {
 
         // If inaccuracy or mistake, pick move closest to some random amount lower than bestEval
         if (isInaccuracy || isMistake) {
-            const diff = isMistake ? randomInt(5, 10)  : randomInt(3, 5);
-            const targetEval = bestEval - diff;
+            const diff = isMistake ? randomInt(10, 20) : randomInt(4, 8);
+            const normTarget = rescaleStackrabbitEval(bestEval) - (rescaleStackrabbitEval(diff) - rescaleStackrabbitEval(0));
+            const distance = (placementScore: number) => Math.abs(rescaleStackrabbitEval(placementScore) - normTarget);
+
             let closestPlacement = stackrabbit.nextBox[0];
             for (let placement of stackrabbit.nextBox) {
-                if (Math.abs(placement.score - targetEval) < Math.abs(closestPlacement.score - targetEval)) {
+                if (distance(placement.score) < distance(closestPlacement.score)) {
                     closestPlacement = placement;
                 }
             }
@@ -163,7 +165,7 @@ export class SRPlacementAI extends PlacementAI {
 
         return {
             map: shiftMap,
-            startPushdownFrame: frameIndex + randomInt(10, 200)
+            startPushdownFrame: frameIndex + randomInt(40, 200)
         }
 
     }

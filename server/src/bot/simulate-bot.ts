@@ -97,30 +97,30 @@ type Hyperparameters = {
 };
 
 const defaultHyperparams: Hyperparameters = {
-    inputSpeeds: [InputSpeed.HZ_6, InputSpeed.HZ_8, InputSpeed.HZ_10, InputSpeed.HZ_12, InputSpeed.HZ_14, InputSpeed.HZ_17, InputSpeed.HZ_20],
-    inaccuracies: [0.5, 0.3, 0.1],
-    mistakes: [0.3, 0.2, 0.1, 0.05],
-    misdrops: [0.05, 0.03, 0.01, 0.005, 0.001],
+    inputSpeeds: [InputSpeed.HZ_6, InputSpeed.HZ_8, InputSpeed.HZ_10, InputSpeed.HZ_12, InputSpeed.HZ_14, InputSpeed.HZ_17, InputSpeed.HZ_20, InputSpeed.HZ_25],
+    inaccuracies: [0.9, 0.6, 0.3, 0.1],
+    mistakes: [0.3, 0.1, 0.05, 0.03, 0.01, 0.005],
+    misdrops: [0.03, 0.01, 0.005, 0.001, 0.0005],
     levels: [18],
     simulationsPerConfig: 3,
 };
 
-// input_speeds = [6, 8, 10, 12, 14, 17, 20]
-// inaccuracies = [0.5, 0.3, 0.1]
-// mistakes = [0.3, 0.2, 0.1, 0.05]
-// misdrops = [0.05, 0.03, 0.01, 0.005, 0.001]
+// input_speeds = [6, 8, 10, 12, 14, 17, 20, 25]
+// inaccuracies = [0.9, 0.6, 0.3, 0.1]
+// mistakes = [0.3, 0.1, 0.05, 0.03, 0.01, 0.005]
+// misdrops = [0.03, 0.01, 0.005, 0.001, 0.0005]
 
 const defaultHyperparams2: Hyperparameters = {
-    inputSpeeds: [InputSpeed.HZ_15, 20],
-    inaccuracies: [0.01],
-    mistakes: [0.2],
-    misdrops: [0.001, 0.0005],
+    inputSpeeds: [InputSpeed.HZ_6, InputSpeed.HZ_10, InputSpeed.HZ_14, InputSpeed.HZ_20, InputSpeed.HZ_25],
+    inaccuracies: [0.9, 0.6, 0.3, 0.1],
+    mistakes: [0.3, 0.1, 0.03, 0.005],
+    misdrops: [0.03, 0.01, 0.005, 0.001, 0.0005],
     levels: [18],
     simulationsPerConfig: 3,
 };
 
 
-export async function testBotHyperparameters(hyperparams: Hyperparameters = defaultHyperparams) {
+export async function testBotHyperparameters(hyperparams: Hyperparameters = defaultHyperparams2) {
     const results = [];
 
     for (const inputSpeed of hyperparams.inputSpeeds) {
@@ -140,7 +140,7 @@ export async function testBotHyperparameters(hyperparams: Hyperparameters = defa
                         const stats = await simulateBotAveraged(level, config, hyperparams.simulationsPerConfig);
                         
                         results.push({ config: Object.assign({}, config, {startLevel: level}), stats });
-                        console.log(`Config:`, config, `Results:`, stats);
+                        //console.log(`Config:`, config, `Games:`, stats.games);
                     }
                 }
             }

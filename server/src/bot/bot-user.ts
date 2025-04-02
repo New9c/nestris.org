@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
-import { DBSetInitialTrophiesEvent, DBUserObject } from '../database/db-objects/db-user';
+import { DBManualSetHighscoreEvent, DBSetInitialTrophiesEvent, DBUserObject } from '../database/db-objects/db-user';
 import { Authentication, DBUser, LoginMethod } from '../../shared/models/db-user';
-import { generateRandomUsername } from '../authentication/username-generation';
+import { generateRandomUsername, makeUsernameUnique } from '../authentication/username-generation';
 import { JsonMessage } from '../../shared/network/json-message';
 import { OnlineUserManager } from '../online-users/online-user-manager';
 import { PacketDisassembler } from '../../shared/network/stream-packets/packet-disassembler';
@@ -14,9 +14,9 @@ import { QuestConsumer } from '../online-users/event-consumers/quest-consumer';
  * @param userid The ID of the bot user. Precondition: The user does not already exist in the database.
  * @returns The newly created bot user.
  */
-export async function createBotUser(userid: string, initialTrophies: number): Promise<DBUser> {
+export async function createBotUser(userid: string, initialHighscore: number, initialTrophies: number): Promise<DBUser> {
 
-    const username = await generateRandomUsername();
+    const username = await makeUsernameUnique(await generateRandomUsername());
     
     // Create new user
     console.log(`Creating new user ${username} with ID ${userid} (BOT USER)`);
@@ -26,8 +26,15 @@ export async function createBotUser(userid: string, initialTrophies: number): Pr
         authentication: Authentication.USER
     });
 
+    // Set the initial highscore of the bot user
+    await DBUserObject.alter(userid, new DBManualSetHighscoreEvent({
+        highscore: initialHighscore
+    }), false);
+
     // Set the initial trophies of the bot user
-    const user = await DBUserObject.alter(userid, new DBSetInitialTrophiesEvent({trophies: initialTrophies}), false);
+    const user = await DBUserObject.alter(userid, new DBSetInitialTrophiesEvent({
+        trophies: initialTrophies
+    }), false);
 
     await EventConsumerManager.getInstance().getConsumer(QuestConsumer).updateChampionQuestCategory(
         user.userid,
@@ -54,6 +61,7 @@ export class BotUser<Config extends BotConfig = {}> {
 
     constructor(
         public readonly userid: string,
+        public readonly initialHighscore: number,
         public readonly initialTrophies: number,
         public readonly config: Config,
     ) {
@@ -69,7 +77,7 @@ export class BotUser<Config extends BotConfig = {}> {
         
         // Get the bot user from the database, or create it if it does not exist
         let botUser = await DBUserObject.getOrNull(this.userid);
-        if (!botUser) botUser = await createBotUser(this.userid, this.initialTrophies);
+        if (!botUser) botUser = await createBotUser(this.userid, this.initialHighscore, this.initialTrophies);
         //else console.log(`Loaded existing bot user ${botUser.username} with ID ${this.userid}`);
         
         // Assert that the user is a bot user
