@@ -146,6 +146,8 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             show_live_analysis: true,
             disable_midgame_quests: false,
 
+            allow_bot_opponents: true,
+
             keybind_emu_move_left: 'ArrowLeft',
             keybind_emu_move_right: 'ArrowRight',
             keybind_emu_rot_left: 'Z',

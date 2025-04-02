@@ -56,6 +56,8 @@ export interface DBUser {
   show_live_analysis: boolean,
   disable_midgame_quests: boolean,
 
+  allow_bot_opponents: boolean,
+
   keybind_emu_move_left: string,
   keybind_emu_move_right: string,
   keybind_emu_rot_left: string,
@@ -112,6 +114,8 @@ export const DBUserAttributes = [
   'enable_runahead',
   'show_live_analysis',
   'disable_midgame_quests',
+
+  'allow_bot_opponents',
   
   'keybind_emu_move_left',
   'keybind_emu_move_right',

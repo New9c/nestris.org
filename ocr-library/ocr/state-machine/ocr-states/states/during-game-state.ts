@@ -11,6 +11,7 @@ import { TopoutEvent } from "../events/topout-event";
 import { ConfusionEvent } from "../events/confusion-event";
 import { RestartGameEvent } from "../events/restart-game-event";
 import { getColorTypeForTetromino } from "src/app/shared/tetris/tetromino-colors";
+import { StuckEvent } from "../events/stuck-event";
 
 enum ActivePieceFailure {
     NOT_PLUS_FOUR_MINOS = "NOT_PLUS_FOUR_MINOS",
@@ -37,6 +38,7 @@ export class PieceDroppingState extends OCRState {
         this.registerEvent(new LineClearSpawnEvent(this, this.config, this.globalState));
         this.registerEvent(new TopoutEvent(this));
         this.registerEvent(new ConfusionEvent(this));
+        this.registerEvent(new StuckEvent());
     }
 
     /**

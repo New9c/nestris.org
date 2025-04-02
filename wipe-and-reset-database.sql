@@ -42,6 +42,8 @@ CREATE TABLE "public"."users" (
     "show_live_analysis" boolean NOT NULL,
     "disable_midgame_quests" boolean NOT NULL,
 
+    "allow_bot_opponents" boolean NOT NULL,
+
     "keybind_emu_move_left" text NOT NULL,
     "keybind_emu_move_right" text NOT NULL,
     "keybind_emu_rot_left" text NOT NULL,

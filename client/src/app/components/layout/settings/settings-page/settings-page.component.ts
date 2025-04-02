@@ -137,6 +137,13 @@ export class SettingsPageComponent implements OnDestroy {
           'Runahead reduces latency but requires more CPU power. It is recommended to disable runahead if you are experiencing performance issues.'
         ),
       ]),
+      new Category('Ranked', [
+        new BooleanSetting(
+          'allow_bot_opponents',
+          'Allow bot opponents',
+          'Allow matching against bots in ranked matches to reduce queuing times when fewer players are online'
+        ),
+      ]),
       new Category('Sound', [
         new BooleanSetting('enable_sound', 'Play sound effects'),
       ]),
