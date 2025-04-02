@@ -71,6 +71,11 @@ export class FetchService {
       await this.injector.get(WebsocketService).logout();
     }
 
+    // Server is down, try reload every 5 seconds
+    if (response.status === 502) {
+      setTimeout(() => location.reload(), 5000);
+    }
+
     if (!response.ok) {
       
       let errorMessage = response.statusText; // Default to status text

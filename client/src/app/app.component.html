@@ -1,13 +1,11 @@
 <ng-container *ngIf="launchService.launch$ | async">
     <router-outlet></router-outlet>
-
-    <notifier-container />
     <app-video-capture />
     <app-modal-container />
     <app-alert-container />
     <app-tooltip />
 </ng-container>
 
-
+<notifier-container />
 
 <app-launch-page *ngIf="launchService.show$ | async" />
