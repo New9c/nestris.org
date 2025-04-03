@@ -95,15 +95,15 @@
                                 <section class="placement">
                                     <h1>Placement #{{current.placementIndex + 1}}</h1>
                                     <div class="buttons">
-                                        <app-solid-button tooltip="Shortcut: Left" icon="./assets/img/media-icons/left-2.svg" [color]="ButtonColor.GREY" [iconHeight]="15" [paddingHorizontal]="12" [paddingVertical]="6" (click)="previousPlacement()" />
-                                        <app-solid-button tooltip="Shortcut: ," icon="./assets/img/media-icons/left.svg" [color]="ButtonColor.GREY" [iconHeight]="15" [paddingHorizontal]="12" [paddingVertical]="6" (click)="previousFrame()" />
-                                        <app-solid-button tooltip="Shortcut: ." icon="./assets/img/media-icons/right.svg" [color]="ButtonColor.GREY" [iconHeight]="15" [paddingHorizontal]="12" [paddingVertical]="6" (click)="nextFrame()" />
-                                        <app-solid-button tooltip="Shortcut: Right" icon="./assets/img/media-icons/right-2.svg" [color]="ButtonColor.GREY" [iconHeight]="15" [paddingHorizontal]="12" [paddingVertical]="6" (click)="nextPlacement()" />
+                                        <app-solid-button tooltip="Previous placement (key: left)" icon="./assets/img/media-icons/left-2.svg" [color]="ButtonColor.GREY" [iconHeight]="15" [paddingHorizontal]="12" [paddingVertical]="6" (click)="previousPlacement()" />
+                                        <app-solid-button tooltip="Previous frame (key: ,)" icon="./assets/img/media-icons/left.svg" [color]="ButtonColor.GREY" [iconHeight]="15" [paddingHorizontal]="12" [paddingVertical]="6" (click)="previousFrame()" />
+                                        <app-solid-button tooltip="Next frame (key: .)" icon="./assets/img/media-icons/right.svg" [color]="ButtonColor.GREY" [iconHeight]="15" [paddingHorizontal]="12" [paddingVertical]="6" (click)="nextFrame()" />
+                                        <app-solid-button tooltip="Previous placement (key: right)" icon="./assets/img/media-icons/right-2.svg" [color]="ButtonColor.GREY" [iconHeight]="15" [paddingHorizontal]="12" [paddingVertical]="6" (click)="nextPlacement()" />
                                     </div>
                                     <div class="buttons">
 
-                                        <app-solid-button tooltip="Shortcut: Spacebar" *ngIf="!(playing$ | async)" icon="./assets/img/media-icons/play.svg" [color]="ButtonColor.BLUE" [iconHeight]="15" (click)="play()" />
-                                        <app-solid-button tooltip="Shortcut: Spacebar" *ngIf="playing$ | async" icon="./assets/img/media-icons/pause.svg" [color]="ButtonColor.RED" [iconHeight]="15" (click)="stopPlaying()" />
+                                        <app-solid-button tooltip="Play (key: space)" *ngIf="!(playing$ | async)" icon="./assets/img/media-icons/play.svg" [color]="ButtonColor.BLUE" [iconHeight]="15" (click)="play()" />
+                                        <app-solid-button tooltip="Pause: (key: space)" *ngIf="playing$ | async" icon="./assets/img/media-icons/pause.svg" [color]="ButtonColor.RED" [iconHeight]="15" (click)="stopPlaying()" />
 
                                         <app-solid-button [label]="(speed$ | async) + 'x'" [color]="ButtonColor.GREY" [fontSize]="12" [paddingHorizontal]="8" [paddingVertical]="7.75" (click)="toggleSpeed()" />
                                         <app-solid-button icon="./assets/img/media-icons/start.svg" [color]="ButtonColor.GREY" [iconHeight]="15" (click)="goToStart()" />
