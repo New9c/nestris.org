@@ -29,12 +29,14 @@ export class ServerPlayer {
     private previousSnapshot: GameStateSnapshot | null;
 
     private sendRecoveryRequestInterval?: any;
+    private recoveryRetries: number = 0;
   
     // The constructor initializes the ServerPlayer with a buffer delay (in ms) for the PacketReplayer
     constructor(
       private readonly clientRoom: ClientRoom,
       private readonly playerIndex: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2,
       private readonly defaultLevel: number,
+      private readonly isPlayer: boolean,
       bufferDelay: number = 300
     ) {
 
@@ -55,13 +57,21 @@ export class ServerPlayer {
 
                 // If received an invalid packet and no subsequent recovery packet, keep requesting for a new recovery packet
                 if (!this.sendRecoveryRequestInterval) {
+
                   const event: RequestRecoveryRoomEvent = {
                     type: RoomEventType.REQUEST_RECOVERY,
                     playerIndex: this.playerIndex
                   }
                   this.sendRecoveryRequestInterval = setInterval(() => {
-                    this.clientRoom.sendClientRoomEvent(event);
-                    console.log("Sent request for recovery packet");
+                  
+                    // Recovery request still causes bugs. Quickfix for spectators is just to reload the page and try again
+                    if (!this.isPlayer && this.recoveryRetries >= 3) location.reload();
+                    else {
+                      this.recoveryRetries++;
+                      this.clientRoom.sendClientRoomEvent(event);
+                      console.log("Sent request for recovery packet, attempt", this.recoveryRetries);
+                    }
+                    
                   }, 3000);
                   console.log("Packet error, starting timer to request for recovery packet");
                 }
