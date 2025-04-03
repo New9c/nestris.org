@@ -5,6 +5,11 @@ import { getQuestStatus, QuestCategory, QuestID, QUESTS } from "../../../shared/
 import { ActivityConsumer } from "./activity-consumer";
 import { ActivityType } from "../../../shared/models/activity";
 
+export interface QuestUpdate {
+    category: QuestCategory,
+    progress: number | ((questID: QuestID) => number),
+}
+
 // Sort quest IDs first by category, then by descending xp gain.
 // This means that when traversing QuestIDs, it is guaranteed that harder quests will be encountered first
 const QuestIDs = Object.values(QuestID).filter(id => typeof id === 'number') as QuestID[];
@@ -39,8 +44,7 @@ export class QuestConsumer extends EventConsumer {
      */
     public async updateQuestCategory(
         userid: string,
-        category: QuestCategory,
-        progress: number | ((questID: QuestID) => number),
+        updates: QuestUpdate[],
         allowNegativeProgress: boolean = false,
     ) {
 
@@ -53,24 +57,27 @@ export class QuestConsumer extends EventConsumer {
         let completedQuestIDs: QuestID[] = [];
         for (const questID of QuestIDs) {
             const quest = QUESTS[questID];
-            if (quest.category !== category) continue;
 
-            // Get previous and new progress for the quest
-            const previousStatus = getQuestStatus(questProgress, questID);
-            const newProgress = typeof progress === 'number' ? progress : progress(questID);
+            for (const update of updates) {
+                if (quest.category !== update.category) continue;
 
-            // if progress made, update quest progress
-            if (newProgress > previousStatus.currentScore) {
-                questProgress[questID] = newProgress;
-                progressMade = true;
+                // Get previous and new progress for the quest
+                const previousStatus = getQuestStatus(questProgress, questID);
+                const newProgress = typeof update.progress === 'number' ? update.progress : update.progress(questID);
 
-                // if newly completed quest, mark as completed to add xp and display alert
-                if (!previousStatus.completed && newProgress >= quest.targetScore) completedQuestIDs.push(questID);
-            }
+                // if progress made, update quest progress
+                if (newProgress > previousStatus.currentScore) {
+                    questProgress[questID] = newProgress;
+                    progressMade = true;
 
-            if (allowNegativeProgress && newProgress < previousStatus.currentScore) {
-                questProgress[questID] = newProgress;
-                progressMade = true;
+                    // if newly completed quest, mark as completed to add xp and display alert
+                    if (!previousStatus.completed && newProgress >= quest.targetScore) completedQuestIDs.push(questID);
+                }
+
+                if (allowNegativeProgress && newProgress < previousStatus.currentScore) {
+                    questProgress[questID] = newProgress;
+                    progressMade = true;
+                }
             }
         }
 
@@ -105,13 +112,13 @@ export class QuestConsumer extends EventConsumer {
 
     public async updateChampionQuestCategory(userid: string, wins: number, trophies: number) {
 
-        await this.updateQuestCategory(userid, QuestCategory.CHAMPION, (questID: QuestID) => {
+        await this.updateQuestCategory(userid, [{ category : QuestCategory.CHAMPION, progress :  (questID: QuestID) => {
 
             // Champion I is the number of matches won
             if (questID === QuestID.CHAMPION_I) return wins;
 
             // Champion II+ are trophy count
             return trophies;
-        });
+        }}]);
     }
 }

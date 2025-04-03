@@ -10,7 +10,7 @@ import { Database, DBQuery, WriteDBQuery } from "../../database/db-query";
 import { EventConsumer, EventConsumerManager } from "../event-consumer";
 import { OnSessionDisconnectEvent } from "../online-user-events";
 import { ActivityConsumer } from "./activity-consumer";
-import { QuestConsumer } from "./quest-consumer";
+import { QuestConsumer, QuestUpdate } from "./quest-consumer";
 
 /**
  * Query to fetch a random sample of puzzles of a given rating from the database.
@@ -453,9 +453,12 @@ export class RatedPuzzleConsumer extends EventConsumer<RatedPuzzleConfig> {
         this.updatePuzzleStats(dbPuzzle, submission, isCorrect);
 
         // Update puzzle quests
+        const updates: QuestUpdate[] = [];
+        updates.push({ category: QuestCategory.PUZZLER, progress: newElo });
+        if (isCorrect) updates.push({category: QuestCategory.PUZZLE_COUNT, progress: newUser.puzzles_solved});
+
         const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
-        await questConsumer.updateQuestCategory(userid, QuestCategory.PUZZLER, newElo);
-        if (isCorrect) await questConsumer.updateQuestCategory(userid, QuestCategory.PUZZLE_COUNT, newUser.puzzles_solved);
+        await questConsumer.updateQuestCategory(userid, updates);
 
         // If user has reached a new 1000 elo milestone, add activity. i.e. 2983 -> 3005 elo
         const milestone = (elo: number) => Math.floor(elo / 1000);

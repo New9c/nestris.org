@@ -219,6 +219,6 @@ export class FriendEventConsumer extends EventConsumer {
 
         // Update number of friends for friend count quests, allowing progress to revert
         const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
-        await questConsumer.updateQuestCategory(userid, QuestCategory.FRIENDS, numFriends, true);
+        await questConsumer.updateQuestCategory(userid, [{ category: QuestCategory.FRIENDS, progress: numFriends }], true);
     }
 }

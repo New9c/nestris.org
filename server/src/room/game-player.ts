@@ -10,7 +10,7 @@ import { OnlineUserManager } from "../online-users/online-user-manager";
 import { v4 as uuid } from 'uuid';
 import { calculatePlacementScore, EvaluationRating, placementScoreRating } from "../../shared/evaluation/evaluation";
 import { EventConsumerManager } from "../online-users/event-consumer";
-import { QuestConsumer } from "../online-users/event-consumers/quest-consumer";
+import { QuestConsumer, QuestUpdate } from "../online-users/event-consumers/quest-consumer";
 import { QuestCategory, QuestID } from "../../shared/nestris-org/quest-system";
 import { XPStrategy } from "../../shared/nestris-org/xp-system";
 import { DBGameType } from "../../shared/models/db-game";
@@ -67,9 +67,9 @@ class ConsecutiveTracker {
         private readonly category: QuestCategory,
     ) {}
 
-    async increment() {
+    increment(): QuestUpdate {
         this.count++;
-        await EventConsumerManager.getInstance().getConsumer(QuestConsumer).updateQuestCategory(this.userid, this.category, this.count);
+        return { category: this.category, progress: this.count };
     }
 
     reset() {
@@ -161,6 +161,7 @@ export class GamePlayer {
      * @param packet The packet to process
      */
     public async handlePacket(packet: PacketContent) {
+        const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
 
         // Add packet to the aggregation to be saved to the database if not in the ignore list
         if (!DATABASE_PACKET_IGNORE_LIST.includes(packet.opcode)) this.packets.addPacketContent(packet.binary);
@@ -188,29 +189,32 @@ export class GamePlayer {
         } else if (packet.opcode === PacketOpcode.GAME_PLACEMENT) {
             if (!this.gameState) throw new Error("Cannot add game placement packet without game start packet");
 
+            const updates: QuestUpdate[] = [];
+
             // Update game state with placement
             const gamePlacement = (packet.content as GamePlacementSchema);
             this.hasAtLeastOnePlacement = true;
             const { numLinesCleared } = this.gameState.onPlacement(gamePlacement.mtPose, gamePlacement.nextNextType, gamePlacement.pushdown);
 
             // Check if any progress on 'Efficiency' quests for number of consecutive tetrises
-            if (numLinesCleared === 4) await this.consecTetrises.increment();
+            if (numLinesCleared === 4) updates.push(this.consecTetrises.increment());
             else if (numLinesCleared > 0) this.consecTetrises.reset();
 
             // Check if any progress on score or line quests on line clear
             if (numLinesCleared > 0) {
-                const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
                 const snapshot = this.gameState.getSnapshotWithoutBoard();
 
-                await questConsumer.updateQuestCategory(this.userid, QuestCategory.SCORE, snapshot.score);
-                await questConsumer.updateQuestCategory(this.userid, QuestCategory.SURVIVOR, (questID => {
+                updates.push({ category: QuestCategory.SCORE, progress: snapshot.score});
+                updates.push({ category: QuestCategory.SURVIVOR, progress: (questID => {
                     // Survivor I tracks lines
                     if (questID === QuestID.SURVIVOR_I) return snapshot.lines;
                     // Survivor II+ tracks level from non-29 start
                     else return this.gameState!.startLevel >= 29 ? 0 : snapshot.level;
-                }));
-                if (this.gameState!.startLevel === 29) await questConsumer.updateQuestCategory(this.userid, QuestCategory.LINES29, snapshot.lines);
+                })});
+                if (this.gameState!.startLevel === 29) updates.push({ category: QuestCategory.LINES29, progress: snapshot.lines });
             }
+
+            if (updates.length > 0) questConsumer.updateQuestCategory(this.userid, updates);
         }
 
         else if (packet.opcode === PacketOpcode.GAME_FULL_STATE) {
@@ -234,7 +238,9 @@ export class GamePlayer {
 
             // Check if any progress on 'Perfection' quests for number of consecutive best placements
             const rating = placementScoreRating(calculatePlacementScore(stackrabbitPlacement.bestEval, stackrabbitPlacement.playerEval));
-            if ([EvaluationRating.BRILLIANT, EvaluationRating.BEST].includes(rating)) await this.consecBestPlacements.increment();
+            if ([EvaluationRating.BRILLIANT, EvaluationRating.BEST].includes(rating)) {
+                questConsumer.updateQuestCategory(this.userid, [this.consecBestPlacements.increment()]);
+            }
             else this.consecBestPlacements.reset();
         }
 
@@ -340,7 +346,10 @@ export class GamePlayer {
             const questConsumer = EventConsumerManager.getInstance().getConsumer(QuestConsumer);
             // TEMPORARY: accuracy must be rounded down because quest_progress can only store ints.
             // Find a better solution later
-            await questConsumer.updateQuestCategory(this.userid, QuestCategory.ACCURACY, Math.floor(accuracyStats.overallAccuracy));
+            await questConsumer.updateQuestCategory(this.userid, [{
+                category: QuestCategory.ACCURACY,
+                progress: Math.floor(accuracyStats.overallAccuracy)
+            }]);
         }
 
         // If personal best, log activity without waiting for database insertion to complete
