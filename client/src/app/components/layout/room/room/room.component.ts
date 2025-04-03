@@ -79,8 +79,13 @@ export class RoomComponent implements OnInit, OnDestroy {
         const { roomState } = await this.fetchService.fetch<{roomState: RoomState}>(Method.POST, `/api/v2/spectate-room/${roomID}/${sessionID}`);
         
         if (roomState) {
-          this.roomType$.next(roomState.type);
-          this.spectating$.next(true);
+
+          // TERRIBLE. Setting timeout to avoid race condition and let InRoomStatus message receive
+          setTimeout(() => {
+            this.roomType$.next(roomState.type);
+            this.spectating$.next(true);
+          }, 100);
+          
         } else {
           this.router.navigate(['/']);
         }
