@@ -15,6 +15,7 @@ import { PlayerIndex } from "../../shared/room/multiplayer-room-models";
 export class SoloRoom extends Room<SoloRoomState> {
 
     private player: GamePlayer;
+    private pendingSessionRecovery: string[] = [];
     
     /**
      * Creates a new SoloRoom for the single player with the given playerSessionID
@@ -78,14 +79,22 @@ export class SoloRoom extends Room<SoloRoomState> {
      */
     protected async onPlayerSendBinaryMessage(sessionID: string, message: PacketDisassembler): Promise<void> {
 
-        // Resend message to all other players in the room
-        this.sendToAllExcept(sessionID, PacketAssembler.encodeIndexFromPacketDisassembler(message, 0));
-
         // Handle each packet individually
         while (message.hasMorePackets()) {
             const packet = message.nextPacket();
             await this.player.handlePacket(packet);
         }
+
+        // If any sessions need recoveries, send them
+        if (this.pendingSessionRecovery.length > 0) {
+            this.pendingSessionRecovery.forEach(sessionID => {
+                this.player.sendRecoveryPacket(sessionID);
+            });
+            this.pendingSessionRecovery = [];
+        }
+
+        // Resend message to all other players in the room
+        this.sendToAllExcept(sessionID, PacketAssembler.encodeIndexFromPacketDisassembler(message, 0));
     }
 
     /**
@@ -100,14 +109,19 @@ export class SoloRoom extends Room<SoloRoomState> {
      * @param sessionID SessionID of spectator
      */
     protected override async onSpectatorJoin(sessionID: string): Promise<void> {
-        this.player.sendRecoveryPacket(sessionID);
+        setTimeout(() => this.sendRecovery(sessionID), 100);
     }
 
     protected override async onClientRoomEvent(userid: string, sessionID: string, event: ClientRoomEvent): Promise<void> {
         switch (event.type) {
             case RoomEventType.REQUEST_RECOVERY:
-                this.player.sendRecoveryPacket(sessionID);
+                this.sendRecovery(sessionID);
                 return;
         }
+    }
+
+    private sendRecovery(sessionID: string) {
+        if (this.player.isInGame()) this.pendingSessionRecovery.push(sessionID);
+        else this.player.sendRecoveryPacket(sessionID);
     }
 }

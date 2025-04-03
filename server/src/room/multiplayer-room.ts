@@ -23,6 +23,11 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         [PlayerIndex.PLAYER_2]: null,
     };
 
+    private pendingSessionRecovery: {[PlayerIndex.PLAYER_1]: string[], [PlayerIndex.PLAYER_2]: string[]} = {
+        [PlayerIndex.PLAYER_1]: [],
+        [PlayerIndex.PLAYER_2]: [],
+    }
+
     /**
      * Creates a new SoloRoom for the single player with the given playerSessionID
      * @param playerSessionID The playerSessionID of the player in the room
@@ -168,6 +173,14 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
             const packet = message.nextPacket();
             await player.handlePacket(packet);
         }
+
+        // If any sessions need recoveries, send them
+        if (this.pendingSessionRecovery[playerIndex].length > 0) {
+            this.pendingSessionRecovery[playerIndex].forEach(sessionID => {
+                this.gamePlayers[playerIndex].sendRecoveryPacket(sessionID);
+            });
+            this.pendingSessionRecovery[playerIndex] = [];
+        }
         
         // Resend message to all other players in the room, prefixing with the player index
         this.sendToAllExcept(sessionID, PacketAssembler.encodeIndexFromPacketDisassembler(message, playerIndex));
@@ -183,7 +196,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         // Special type: Request recovery does not require sessionID to be a player
         if (event.type === RoomEventType.REQUEST_RECOVERY) {
             const requestPlayerIndex = (event as RequestRecoveryRoomEvent).playerIndex as (PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2);
-            this.gamePlayers[requestPlayerIndex]?.sendRecoveryPacket(sessionID);
+            this.sendRecovery(requestPlayerIndex, sessionID);
             return;
         }
 
@@ -366,10 +379,14 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
      */
     protected override async onSpectatorJoin(sessionID: string): Promise<void> {
         setTimeout(
-            () => bothPlayerIndicies.forEach(playerIndex => this.gamePlayers[playerIndex].sendRecoveryPacket(sessionID)),
+            () => bothPlayerIndicies.forEach(playerIndex => this.sendRecovery(playerIndex, sessionID)),
             100 // slight delay for client to get ready and hopefully avoid race conditions. there are some deeper problems here.
         )
         
     }
 
+    private sendRecovery(playerIndex: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2, sessionID: string) {
+        if (this.gamePlayers[playerIndex].isInGame()) this.pendingSessionRecovery[playerIndex].push(sessionID);
+        else this.gamePlayers[playerIndex].sendRecoveryPacket(sessionID);
+    }
 }
