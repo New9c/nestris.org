@@ -145,6 +145,10 @@ export class OCRGameState {
         return this.game.getNumPlacements();
     }
 
+    getNumTetrises(): number {
+        return this.game.getNumTetrises();
+    }
+
     placePiece(mt: MoveableTetromino, nextType: TetrominoType, pushdown: number) {
 
         // Place piece and update game state

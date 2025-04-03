@@ -43,7 +43,6 @@ export class GameState {
   private countdown: number | undefined;
 
   private numTetrises: number = 0;
-  private numLines: number = 0;
   private numPlacements: number = 0;
 
   private transitionInto19: number | null = null;
@@ -89,6 +88,7 @@ export class GameState {
       current: this.current,
       next: this.next,
       countdown: 0, // countdown is not saved in recovery
+      numTetrises: this.numTetrises,
     };
 
   }
@@ -128,13 +128,17 @@ export class GameState {
 
   // Get what percentage of lines cleared were tetrises
   getTetrisRate(): number {
-    return this.numLines === 0 ? 0 : (this.numTetrises * 4) / this.numLines;
+    return this.status.lines === 0 ? 0 : (this.numTetrises * 4) / this.status.lines;
   }
 
   onFullState(fullState: GameFullStateSchema) {
+    const previousLines = this.status.lines;
     this.limbo = true;
     this.currentBoard = fullState.board;
     this.status.setStatus(fullState.level, fullState.lines, fullState.score);
+
+    // If went up by 4 lines, assume it was a tetris
+    if (fullState.lines - previousLines === 4) this.numTetrises++;
   }
 
   onRecovery(recovery: GameRecoverySchema) {
@@ -147,6 +151,7 @@ export class GameState {
     this.countdown = recovery.countdown;
     this.droughtCounter.reset();
     this.droughtCounter.onPiece(this.current);
+    this.numTetrises = recovery.numTetrises;
 
     this.limbo = false;
   }
@@ -196,7 +201,6 @@ export class GameState {
     this.status.onLineClear(linesCleared);
 
     // increment tetrises and lines cleared
-    this.numLines += linesCleared;
     if (linesCleared === 4) this.numTetrises++;
 
     // calculate transitions, if any

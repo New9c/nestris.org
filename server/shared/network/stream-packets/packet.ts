@@ -285,7 +285,7 @@ export class GameFullStatePacket extends Packet<GameFullStateSchema> {
 PACKET_MAP[PacketOpcode.GAME_FULL_STATE] = new GameFullStatePacket();
 
 // ================================ GAME_RECOVERY =================================
-PACKET_CONTENT_LENGTH[PacketOpcode.GAME_RECOVERY] = 468;
+PACKET_CONTENT_LENGTH[PacketOpcode.GAME_RECOVERY] = 484;
 export interface GameRecoverySchema extends PacketSchema {
   startLevel: number; // 8 bits start level of game. If not in game, value does not matter
   current: TetrominoType; // 3 bits current piece type
@@ -295,6 +295,7 @@ export interface GameRecoverySchema extends PacketSchema {
   level: number; // 8 bits level, cap at 255
   lines: number; // 16 bits lines, cap at 65,535
   countdown: number; // 4 bits current countdown number, 0-15. 0 means not in countdown
+  numTetrises: number; // 16 bits number of tetrises
 }
 export class GameRecoveryPacket extends Packet<GameRecoverySchema> {
   constructor() { super(PacketOpcode.GAME_RECOVERY); }
@@ -308,6 +309,7 @@ export class GameRecoveryPacket extends Packet<GameRecoverySchema> {
       level: content.nextUnsignedInteger(8),
       lines: content.nextUnsignedInteger(16),
       countdown: content.nextUnsignedInteger(4),
+      numTetrises: content.nextUnsignedInteger(16),
     };
   }
   protected override _toBinaryEncoderWithoutOpcode(content: GameRecoverySchema): BinaryEncoder {
@@ -320,6 +322,7 @@ export class GameRecoveryPacket extends Packet<GameRecoverySchema> {
     encoder.addUnsignedInteger(content.level, 8);
     encoder.addUnsignedInteger(content.lines, 16);
     encoder.addUnsignedInteger(content.countdown, 4);
+    encoder.addUnsignedInteger(content.numTetrises, 16);
     return encoder;
   }
 }

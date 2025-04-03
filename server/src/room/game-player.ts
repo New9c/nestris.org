@@ -433,6 +433,7 @@ export class GamePlayer {
             level: snapshot.level,
             lines: snapshot.lines,
             countdown: inGame ? (snapshot.countdown ?? 0) : COUNTDOWN_NOT_IN_GAME,
+            numTetrises: this.gameState?.getNumTetrises() ?? 0,
         }));
 
         return recoveryMessage.encode(playerIndex);

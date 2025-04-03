@@ -92,7 +92,8 @@ export class RecoveryEvent extends StateEvent {
             level: status.level,
             lines: status.lines,
             next,
-            countdown: 0
+            countdown: 0,
+            numTetrises: this.globalState.game?.getNumTetrises() ?? 0,
         }
 
         return true;
