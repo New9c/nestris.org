@@ -19,7 +19,7 @@ import { RankedStatsQuery } from "../../database/db-queries/ranked-stats-query";
 export class QueueError extends Error {}
 export class UserUnavailableToJoinQueueError extends QueueError {}
 
-const MIN_BOT_MATCH_SECONDS = 10;
+const MIN_BOT_MATCH_SECONDS = 15;
 
 
 /**
@@ -117,12 +117,11 @@ class QueueUser {
      */
     public getTrophyRange(queueSeconds: number): TrophyRange {
 
+        // Disallow any matches with more than 400 trophy difference
         if (queueSeconds < 3) return TrophyRange.fromDelta(this.trophies, 100);
-        if (queueSeconds < 6) return TrophyRange.fromDelta(this.trophies, 200);
-        if (queueSeconds < 10) return TrophyRange.fromDelta(this.trophies, 400);
-
-        // Hard limit disallowing any matches with more than 600 trophy difference
-        return TrophyRange.fromDelta(this.trophies, 600);
+        if (queueSeconds < 10) return TrophyRange.fromDelta(this.trophies, 200);
+        return TrophyRange.fromDelta(this.trophies, 400);
+        
     }
 
 }
