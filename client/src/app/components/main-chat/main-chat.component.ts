@@ -109,7 +109,6 @@ export class MainChatComponent implements AfterViewInit, OnDestroy {
       message
     }]));
 
-    this.sound.play(SoundEffect.POP);
   }
 
   numUsersMessage(numUsers: number | null): string {

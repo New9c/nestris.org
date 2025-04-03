@@ -13,4 +13,8 @@ Grey by default; red when hovered
 })
 export class XComponent {
   @Output() clickX = new EventEmitter<MouseEvent>();
+
+  click(event: MouseEvent) {
+    this.clickX.emit(event);
+  }
 }

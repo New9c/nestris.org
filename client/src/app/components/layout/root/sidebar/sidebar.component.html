@@ -1,7 +1,7 @@
 <div class="sidebar" *ngIf="(serverStatsService.getServerStats$() | async)?.environment as env">
     <div class="sidebar-top">
-        <img class="logo logo-big" src="./assets/img/branding/tetrisfish_logo.svg" width="110px" appClickSound (click)="goHome()" />
-        <img class="logo logo-small" src="./assets/img/branding/tetrisfish_logo.svg" width="50px" appClickSound (click)="goHome()" />
+        <img class="logo logo-big" src="./assets/img/branding/tetrisfish_logo.svg" width="110px" (click)="goHome()" />
+        <img class="logo logo-small" src="./assets/img/branding/tetrisfish_logo.svg" width="50px" (click)="goHome()" />
         <!-- <h1 class="brand-name">nestris.org</h1> -->
 
 

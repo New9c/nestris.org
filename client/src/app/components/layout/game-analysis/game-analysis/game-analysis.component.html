@@ -95,13 +95,15 @@
                                 <section class="placement">
                                     <h1>Placement #{{current.placementIndex + 1}}</h1>
                                     <div class="buttons">
-                                        <app-solid-button label="Prev" [color]="ButtonColor.GREY" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="6" (click)="previousPlacement()" />
-                                        <app-solid-button label="Next" [color]="ButtonColor.BLUE" [fontSize]="14" [paddingHorizontal]="12" [paddingVertical]="6" (click)="nextPlacement()" />
+                                        <app-solid-button tooltip="Shortcut: Left" icon="./assets/img/media-icons/left-2.svg" [color]="ButtonColor.GREY" [iconHeight]="15" [paddingHorizontal]="12" [paddingVertical]="6" (click)="previousPlacement()" />
+                                        <app-solid-button tooltip="Shortcut: ," icon="./assets/img/media-icons/left.svg" [color]="ButtonColor.GREY" [iconHeight]="15" [paddingHorizontal]="12" [paddingVertical]="6" (click)="previousFrame()" />
+                                        <app-solid-button tooltip="Shortcut: ." icon="./assets/img/media-icons/right.svg" [color]="ButtonColor.GREY" [iconHeight]="15" [paddingHorizontal]="12" [paddingVertical]="6" (click)="nextFrame()" />
+                                        <app-solid-button tooltip="Shortcut: Right" icon="./assets/img/media-icons/right-2.svg" [color]="ButtonColor.GREY" [iconHeight]="15" [paddingHorizontal]="12" [paddingVertical]="6" (click)="nextPlacement()" />
                                     </div>
                                     <div class="buttons">
 
-                                        <app-solid-button *ngIf="!(playing$ | async)" icon="./assets/img/media-icons/play.svg" [color]="ButtonColor.GREEN" [iconHeight]="15" (click)="play()" />
-                                        <app-solid-button *ngIf="playing$ | async" icon="./assets/img/media-icons/pause.svg" [color]="ButtonColor.RED" [iconHeight]="15" (click)="stopPlaying()" />
+                                        <app-solid-button tooltip="Shortcut: Spacebar" *ngIf="!(playing$ | async)" icon="./assets/img/media-icons/play.svg" [color]="ButtonColor.BLUE" [iconHeight]="15" (click)="play()" />
+                                        <app-solid-button tooltip="Shortcut: Spacebar" *ngIf="playing$ | async" icon="./assets/img/media-icons/pause.svg" [color]="ButtonColor.RED" [iconHeight]="15" (click)="stopPlaying()" />
 
                                         <app-solid-button [label]="(speed$ | async) + 'x'" [color]="ButtonColor.GREY" [fontSize]="12" [paddingHorizontal]="8" [paddingVertical]="7.75" (click)="toggleSpeed()" />
                                         <app-solid-button icon="./assets/img/media-icons/start.svg" [color]="ButtonColor.GREY" [iconHeight]="15" (click)="goToStart()" />
@@ -171,13 +173,15 @@
             </ng-container>
 
 
-        <ng-container *ngIf="current$ | async as current">
+        <div class="summary-container" *ngIf="current$ | async as current">
             <app-game-summary-graph *ngIf="memoryGameStatus" [game]="memoryGameStatus"
             [currentPlacement]="current.placementIndex"
             [placementPercent]="getPlacementPercent(current)"
             (clickPlacement)="clickPlacement($event)"
                 [WIDTH]="(contentRect$ | async)?.width ?? 600"  />
-        </ng-container>
+
+            <p>Click the graph to jump anywhere in the game!</p>
+        </div>
     </ng-container>
 </div>
 

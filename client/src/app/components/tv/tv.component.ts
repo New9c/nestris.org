@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { FetchService, Method } from 'src/app/services/fetch.service';
 import { RoomService } from 'src/app/services/room/room.service';
+import { SoundEffect } from 'src/app/services/sound.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 
 
@@ -16,6 +17,7 @@ export class TvComponent implements OnInit, OnDestroy {
   static expanded$ = new BehaviorSubject<boolean>(false);
 
   readonly roomInfo$ = this.roomService.getRoomInfo$();
+  readonly SoundEffect = SoundEffect;
 
   private loadTVInterval: any;
   private matchEndSubscription?: Subscription;

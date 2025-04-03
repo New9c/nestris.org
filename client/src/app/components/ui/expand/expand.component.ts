@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
+import { SoundEffect } from 'src/app/services/sound.service';
 
 @Component({
   selector: 'app-expand',
@@ -8,4 +9,6 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angul
 })
 export class ExpandComponent {
   @Output() clickExpand = new EventEmitter<MouseEvent>();
+
+  readonly SoundEffect = SoundEffect;
 }

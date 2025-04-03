@@ -5,7 +5,7 @@
 
             <div class="tabs">
 
-                <button *ngFor="let mode of modes"  class="tab prevent-select" appClickSound
+                <button *ngFor="let mode of modes"  class="tab prevent-select"
                     [ngClass]="[mode, (currentMode$ | async) === mode ? 'selected' : '']" (click)="setMode(mode)">
                     <app-mode-icon [mode]="mode" [width]="85" />
                 </button>

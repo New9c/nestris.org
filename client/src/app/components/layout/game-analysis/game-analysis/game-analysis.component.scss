@@ -429,3 +429,18 @@ p.count {
     font-size: 12px;
     margin: 0;
 }
+
+.summary-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.summary-container p {
+    font-family: $main-font;
+    font-size: 9px;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+}

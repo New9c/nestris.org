@@ -100,7 +100,6 @@ export class RoomComponent implements OnInit, OnDestroy {
   }
 
   public async sendChatMessage(message: string) {
-    this.sound.play(SoundEffect.POP);
     await this.roomService.sendChatMessage(message);
   }
 

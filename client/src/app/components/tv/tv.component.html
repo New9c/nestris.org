@@ -1,4 +1,4 @@
-<button class="fab" appClickSound [clickSoundDisabled]="!!(expanded$ | async) && !(roomInfo$ | async)" (click)="onClick()" [ngClass]="[(expanded$ | async) ? 'expanded' : 'collapsed', (roomInfo$ | async) ? 'has-room' : 'no-room']">
+<button class="fab" appClickSound [clickSoundDisabled]="!!(expanded$ | async)" (click)="onClick()" [ngClass]="[(expanded$ | async) ? 'expanded' : 'collapsed', (roomInfo$ | async) ? 'has-room' : 'no-room']">
     <img class="tv" src="./assets/img/button-icons/tv.svg" width="23px">
 
     <div *ngIf="expanded$ | async" class="tv-container">
