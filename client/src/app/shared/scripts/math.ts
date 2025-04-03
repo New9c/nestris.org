@@ -105,3 +105,23 @@ export function isPrime(num: number): boolean {
 export function clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
 }
+
+
+/**
+ * Splits an array into batches of a given size.
+ * 
+ * @param arr - The input array to be batched.
+ * @param size - The size of each batch (default is 5).
+ * @returns A 2D array where each inner array has at most `size` elements.
+ */
+export function batchArray<T>(arr: T[], size: number = 5): T[][] {
+    return arr.reduce<T[][]>((batches, item, index) => {
+        // Start a new batch every `size` elements
+        if (index % size === 0) {
+        batches.push([]);
+        }
+        // Add the current item to the latest batch
+        batches[batches.length - 1].push(item);
+        return batches;
+    }, []);
+}

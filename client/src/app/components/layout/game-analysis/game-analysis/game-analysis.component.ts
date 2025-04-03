@@ -19,6 +19,8 @@ import { RateMoveResponse, StackrabbitService, TopMovesHybridResponse } from 'sr
 import { SmartGameStatus } from 'src/app/shared/tetris/smart-game-status';
 import { InputSpeed } from 'src/app/shared/models/input-speed';
 import { RatedMove } from 'src/app/components/ui/eval-bar/eval-bar.component';
+import { GeneratePuzzlesService } from 'src/app/services/generate-puzzles.service';
+import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 
 
 interface CurrentFrame {
@@ -147,6 +149,8 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly apiService: ApiService,
     private readonly notificationService: NotificationService,
     private readonly stackrabbitService: StackrabbitService,
+    private readonly generatePuzzlesService: GeneratePuzzlesService,
+    private readonly modalManagerService: ModalManagerService,
   ) {
   }
 
@@ -473,6 +477,10 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     clearInterval(this.resizeInterval);
+
+    // Stop any generation of puzzles
+    this.generatePuzzlesService.stopGenerating();
+    this.modalManagerService.hideModal();
   }
 
   // on window resize, update the svgRect
@@ -679,5 +687,20 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
       case EvaluationRating.BLUNDER: return this.game!.blunder_count;
       default: return 0;
     }
+  }
+
+  disableReviewPlacements(): string | null {
+    const PLACEMENTS_REQUIRED = 50;
+    if (this.game!.start_level > 19) return `This feature is not available for 29 start games!`;
+    if (this.placements!.length < PLACEMENTS_REQUIRED) return `This feature requires a game with at least ${PLACEMENTS_REQUIRED} placements! Try playing a longer game.`;
+    return null;
+  }
+
+  reviewPlacements() {
+    // Start generating puzzles
+    this.generatePuzzlesService.generatePuzzles(this.game!.id, this.placements!);
+
+    // Show the generating puzzles modal
+    this.modalManagerService.showModal(ModalType.GENERATE_PUZZLES);
   }
 }

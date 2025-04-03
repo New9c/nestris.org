@@ -58,9 +58,11 @@ app-loading-animation {
     width: 100%;
     height: 110px;
     box-sizing: border-box;
+
+    transition: all 0.2s;
 }
 
-.stat:hover {
+.stat:hover:not(.disabled) {
     filter: brightness(1.1);
 }
 
@@ -120,6 +122,38 @@ app-loading-animation {
 .statistic p:last-child {
     font-size: 14px;
     font-weight: 700;
+}
+
+.stat.review-placements {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #54A165;
+
+    box-shadow: 0px 4px 4px 1px rgba(0, 0, 0, 0.25);
+}
+
+.stat.review-placements:hover:not(.disabled) {
+    transform: scale(1.02);
+}
+
+.stat.review-placements:active:not(.disabled) {
+    transform: scale(1.03);
+    opacity: 0.9;
+}
+
+.stat.review-placements.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.stat.review-placements h1 {
+    font-family: $main-font;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
 }
 
 .main {

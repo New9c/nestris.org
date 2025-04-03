@@ -8,7 +8,6 @@ import { Base62Encoder } from "../scripts/base62-encoder";
 export function encodePuzzle(board: TetrisBoard, current: TetrominoType, next: TetrominoType): string {
 
     const encodedBoard = BufferTranscoder.encode(board);
-    console.log(encodedBoard, encodedBoard.length);
 
     // create a uint8 array that contains the current piece, next piece, and the board
     const puzzleData = new Uint8Array(2 + encodedBoard.length);

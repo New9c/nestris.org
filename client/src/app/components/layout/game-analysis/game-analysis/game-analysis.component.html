@@ -32,9 +32,10 @@
                     <p>{{(game!.tetris_rate * 100).toFixed(0)}}%</p>
                 </div>
             </div>
-            <div class="stat">
-                
-            </div>
+            <button class="stat review-placements" [disabled]="disableReviewPlacements()" [ngClass]="{'disabled' : disableReviewPlacements()}"
+                [tooltip]="disableReviewPlacements() ?? ''" tooltipDirection="right" (click)="reviewPlacements()">
+                <h1>Review Placements</h1>
+            </button>
         </div>
 
         <ng-container *ngIf="current$ | async as current">
