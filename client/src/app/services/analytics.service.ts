@@ -22,7 +22,11 @@ export class AnalyticsService {
       }
     });
 
-    this.onSiteLoad();
+    // Track siteload to capture referrers
+    this.sendEvent('siteload', { $referrer: document.referrer })
+
+    // Track logins by human accounts
+    this.websocket.waitForSignIn().then(() => this.sendEvent('login'));
   }
 
   public async sendEvent(event: string, properties: {[key: string]: any} = {}) {
@@ -33,10 +37,6 @@ export class AnalyticsService {
 
     properties['$session_id'] = this.websocket.getSessionID();
     this.websocket.sendJsonMessage(new AnalyticsEventMessage(me.userid, event, properties));
-  }
-
-  public async onSiteLoad() {
-    this.sendEvent('pageload', { $referrer: document.referrer });
   }
 
   public async onURLChange(url: string) {
