@@ -38,6 +38,7 @@ export enum QuestID {
     AUTOMATON_JR,
     HUNDRED_PUZZLES,
     THOUSAND_PUZZLES,
+    CHAMPION_V,
 }
 
 export const ALL_QUEST_IDS = Object.values(QuestID).filter(id => typeof id === 'number') as QuestID[];
@@ -291,19 +292,28 @@ export const QUESTS: Record<QuestID, Quest> = {
         id: QuestID.CHAMPION_III,
         category: QuestCategory.CHAMPION,
         name: "Champion III",
-        description: "Reach 2500 trophies in ranked mode",
+        description: "Reach 2400 trophies in ranked mode",
         difficulty: QuestDifficulty.ADVANCED,
         xp: 3000,
-        targetScore: 2500
+        targetScore: 2400
     },
     [QuestID.CHAMPION_IV]: {
         id: QuestID.CHAMPION_IV,
         category: QuestCategory.CHAMPION,
         name: "Champion IV",
-        description: "Reach 3000 trophies in ranked mode",
+        description: "Reach 3200 trophies in ranked mode",
         difficulty: QuestDifficulty.EXPERT,
         xp: 10000,
-        targetScore: 3000
+        targetScore: 3200
+    },
+    [QuestID.CHAMPION_V]: {
+        id: QuestID.CHAMPION_V,
+        category: QuestCategory.CHAMPION,
+        name: "Champion V",
+        description: "Reach 4000 trophies in ranked mode",
+        difficulty: QuestDifficulty.IMPOSSIBLE,
+        xp: 50000,
+        targetScore: 4000
     },
     [QuestID.EFFICIENCY_I]: {
         id: QuestID.EFFICIENCY_I,
