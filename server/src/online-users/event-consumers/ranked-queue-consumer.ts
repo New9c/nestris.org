@@ -274,7 +274,7 @@ export class RankedQueueConsumer extends EventConsumer {
 
                         // Don't match bots immediately yet. see if there's bots that have played less matches
                         const numMatches = user1.matchesPlayed + user2.matchesPlayed;
-                        if (newestBots === undefined || numMatches > newestBots.numMatches) {
+                        if (newestBots === undefined || numMatches < newestBots.numMatches) {
                             newestBots = {
                                 bot1: user1,
                                 bot2: user2,
