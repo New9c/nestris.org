@@ -23,6 +23,8 @@ import { NotificationType } from "src/app/shared/models/notifications";
 import { Router } from "@angular/router";
 import { CONFIG } from "src/app/shared/config";
 import { AnalyticsService } from "../analytics.service";
+import { RoomService } from "./room.service";
+import { PlayerIndex } from "src/app/shared/room/multiplayer-room-models";
 
 export enum SoloClientState {
     BEFORE_GAME_MODAL = 'BEFORE_GAME_MODAL',
@@ -33,6 +35,7 @@ export enum SoloClientState {
 
 export class SoloClientRoom extends ClientRoom {
 
+    readonly room = this.injector.get(RoomService);
     readonly emulator = this.injector.get(EmulatorService);
     readonly ocr = this.injector.get(OcrGameService);
     readonly platformInterface = this.injector.get(PlatformInterfaceService);
@@ -73,7 +76,7 @@ export class SoloClientRoom extends ClientRoom {
         // If spectating, only show game screen
         if (event.status === InRoomStatus.SPECTATOR) {
             this.setSoloState(SoloClientState.IN_GAME);
-            this.spectatorPlayer = new ServerPlayer(18);
+            this.spectatorPlayer = new ServerPlayer(this, PlayerIndex.PLAYER_1, 18);
             this.spectatorBoard$ = this.spectatorPlayer.getBoard$();
             this.spectatorSnapshot$ = this.spectatorPlayer.getSnapshot$();
 
@@ -210,6 +213,7 @@ export class SoloClientRoom extends ClientRoom {
         this.ocr.stopGameCapture();
         this.ocrSubscription?.unsubscribe();
         this.packetGroupSubscription?.unsubscribe();
+        this.spectatorPlayer?.onDelete();
 
         this.analytics.sendEvent("leave-solo");
     }

@@ -6,6 +6,10 @@ import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
 import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
 import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
 import { PacketReplayer } from "src/app/util/packet-replayer";
+import { RoomService } from "./room.service";
+import { ClientRoom } from "./client-room";
+import { RequestRecoveryRoomEvent, RoomEventType } from "src/app/shared/room/room-models";
+import { PlayerIndex } from "src/app/shared/room/multiplayer-room-models";
 
 /**
  * A ServerPlayer tracks game state of a player based on server-sent packets. It uses lag buffering to
@@ -23,9 +27,13 @@ export class ServerPlayer {
 
     // Stores the most recent snapshot of the game state, if the game has ended
     private previousSnapshot: GameStateSnapshot | null;
+
+    private sendRecoveryRequestInterval?: any;
   
     // The constructor initializes the ServerPlayer with a buffer delay (in ms) for the PacketReplayer
     constructor(
+      private readonly clientRoom: ClientRoom,
+      private readonly playerIndex: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2,
       private readonly defaultLevel: number,
       bufferDelay: number = 300
     ) {
@@ -40,7 +48,25 @@ export class ServerPlayer {
         this.replayer = new PacketReplayer((packets) => {
 
             // When PacketReplayer decides it is time for a packet(s) to be executed, update the player state with the packet(s)
-            packets.forEach((packet) => this.processPacket(packet));
+            packets.forEach((packet) => { 
+              try {
+                this.processPacket(packet);
+              } catch {
+
+                // If received an invalid packet and no subsequent recovery packet, keep requesting for a new recovery packet
+                if (!this.sendRecoveryRequestInterval) {
+                  const event: RequestRecoveryRoomEvent = {
+                    type: RoomEventType.REQUEST_RECOVERY,
+                    playerIndex: this.playerIndex
+                  }
+                  this.sendRecoveryRequestInterval = setInterval(() => {
+                    this.clientRoom.sendClientRoomEvent(event);
+                    console.log("Sent request for recovery packet");
+                  }, 3000);
+                  console.log("Packet error, starting timer to request for recovery packet");
+                }
+              }
+        });
 
         }, bufferDelay);
     }  
@@ -57,7 +83,7 @@ export class ServerPlayer {
       // Can only transition null -> GameStartPacket or null -> GameRecoveryPacket
       // Otherwise, ignore the packet
       if (this.state === null && ![PacketOpcode.GAME_START, PacketOpcode.GAME_RECOVERY].includes(packet.opcode)) {
-        console.error(`Invalid packet received for player: ${PACKET_NAME[packet.opcode]}`);
+        throw new Error(`Invalid packet received for player: ${PACKET_NAME[packet.opcode]}`);
         return;
       }
  
@@ -67,6 +93,12 @@ export class ServerPlayer {
 
       } else if (packet.opcode === PacketOpcode.GAME_RECOVERY) {
         const gameRecovery = packet.content as GameRecoverySchema;
+
+        if (this.sendRecoveryRequestInterval) {
+          clearInterval(this.sendRecoveryRequestInterval);
+          this.sendRecoveryRequestInterval = undefined;
+          console.log("Got recovery packet, stopping request for recovery timer");
+        }
 
         // Sent when spectator joins after game ends
         if (gameRecovery.countdown === COUNTDOWN_NOT_IN_GAME) {
@@ -177,4 +209,8 @@ export class ServerPlayer {
         numPlacements: 0,
       }
     };
+
+    public onDelete() {
+      clearInterval(this.sendRecoveryRequestInterval);
+    }
 }

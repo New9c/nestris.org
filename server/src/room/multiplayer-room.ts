@@ -1,6 +1,6 @@
 
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
-import { ClientRoomEvent, RoomType } from "../../shared/room/room-models";
+import { ClientRoomEvent, RequestRecoveryRoomEvent, RoomEventType, RoomType } from "../../shared/room/room-models";
 import { Room } from "../online-users/event-consumers/room-consumer";
 import { UserSessionID } from "../online-users/online-user";
 import { bothPlayerIndicies, calculateScoreForPlayer, MatchPoint, MultiplayerRoomEventType, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex, PlayerInfo, TrophyDelta } from "../../shared/room/multiplayer-room-models";
@@ -179,6 +179,15 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
      * @param event The event sent by the player
      */
     protected async onClientRoomEvent(userid: string, sessionID: string, event: ClientRoomEvent): Promise<void> {
+
+        // Special type: Request recovery does not require sessionID to be a player
+        if (event.type === RoomEventType.REQUEST_RECOVERY) {
+            const requestPlayerIndex = (event as RequestRecoveryRoomEvent).playerIndex as (PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2);
+            this.gamePlayers[requestPlayerIndex]?.sendRecoveryPacket(sessionID);
+            return;
+        }
+
+
         const playerIndex = this.getPlayerIndex(sessionID);
         const state = this.getRoomState();
 
@@ -357,7 +366,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
      */
     protected override async onSpectatorJoin(sessionID: string): Promise<void> {
         setTimeout(
-            () => bothPlayerIndicies.forEach(playerIndex => this.gamePlayers[playerIndex].onSpectatorJoin(sessionID)),
+            () => bothPlayerIndicies.forEach(playerIndex => this.gamePlayers[playerIndex].sendRecoveryPacket(sessionID)),
             100 // slight delay for client to get ready and hopefully avoid race conditions. there are some deeper problems here.
         )
         

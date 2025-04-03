@@ -401,7 +401,7 @@ export class GamePlayer {
         }
     }
 
-    onSpectatorJoin(sessionID: string) {
+    sendRecoveryPacket(sessionID: string) {
         let recoveryPacket: Uint8Array;
         if (this.gameState) {
             recoveryPacket = this.getRecoveryPacket(this.playerIndex, this.gameState.getSnapshot(), true)!;

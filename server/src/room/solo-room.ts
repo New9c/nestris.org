@@ -3,7 +3,7 @@ import { DBGameType } from "../../shared/models/db-game";
 import { soloXPStrategy } from "../../shared/nestris-org/xp-system";
 import { PacketAssembler } from "../../shared/network/stream-packets/packet-assembler";
 import { PacketDisassembler } from "../../shared/network/stream-packets/packet-disassembler";
-import { RoomType } from "../../shared/room/room-models";
+import { ClientRoomEvent, RoomEventType, RoomType } from "../../shared/room/room-models";
 import { SoloRoomState } from "../../shared/room/solo-room-models";
 import { DBSoloGamesListAddEvent, DBSoloGamesListView } from "../database/db-views/db-solo-games-list";
 import { Room } from "../online-users/event-consumers/room-consumer";
@@ -96,10 +96,18 @@ export class SoloRoom extends Room<SoloRoomState> {
     }
 
     /**
-         * When spectator joins, send recovery packet to get spectator up-to-date on game state
-         * @param sessionID SessionID of spectator
-         */
-        protected override async onSpectatorJoin(sessionID: string): Promise<void> {
-            this.player.onSpectatorJoin(sessionID);
+     * When spectator joins, send recovery packet to get spectator up-to-date on game state
+     * @param sessionID SessionID of spectator
+     */
+    protected override async onSpectatorJoin(sessionID: string): Promise<void> {
+        this.player.sendRecoveryPacket(sessionID);
+    }
+
+    protected override async onClientRoomEvent(userid: string, sessionID: string, event: ClientRoomEvent): Promise<void> {
+        switch (event.type) {
+            case RoomEventType.REQUEST_RECOVERY:
+                this.player.sendRecoveryPacket(sessionID);
+                return;
         }
+    }
 }

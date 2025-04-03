@@ -64,7 +64,7 @@ export abstract class ClientRoom {
      * Send a client room event to the server to the corresponding room in the server.
      * @param event The event to send to the server
      */
-    protected sendClientRoomEvent(event: ClientRoomEvent) {
+    public sendClientRoomEvent(event: ClientRoomEvent) {
         this.injector.get(WebsocketService).sendJsonMessage(new ClientRoomEventMessage(event));
     }
 

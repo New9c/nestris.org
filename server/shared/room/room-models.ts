@@ -30,3 +30,12 @@ export interface RoomState {
 export interface ClientRoomEvent {
     type: string; // The type of the event, to be defined by the specific room type
 }
+
+export enum RoomEventType {
+    REQUEST_RECOVERY = "REQUEST_RECOVERY",
+}
+
+export interface RequestRecoveryRoomEvent {
+    type: RoomEventType.REQUEST_RECOVERY,
+    playerIndex: number;
+}

@@ -242,30 +242,32 @@ export class WebsocketService {
     this.ws.onclose = async (event) => {
       console.log(`WebSocket closed: ${event.code} ${event.reason}`);
 
+      // On abnormal close, refresh page
       if (event.code === 1006) {
+        location.reload();
 
-        // Make sure user is authenticated, otherwise this will redirect to login page
-        try {
-          await this.fetchService.fetch<DBUser>(Method.GET, `/api/v2/me?v=${RELEASE_HASH}`);
-        } catch (e) {
-          console.log('User not authenticated, redirecting to login page');
-          this.signedInSubject$.next(false);
-          this.notificationService.notify(NotificationType.ERROR, "You have been disconnected from the server. Please log in again.");
-          this.router.navigate(['/login']);
-          return;
-        }
+        // // Make sure user is authenticated, otherwise this will redirect to login page
+        // try {
+        //   await this.fetchService.fetch<DBUser>(Method.GET, `/api/v2/me?v=${RELEASE_HASH}`);
+        // } catch (e) {
+        //   console.log('User not authenticated, redirecting to login page');
+        //   this.signedInSubject$.next(false);
+        //   this.notificationService.notify(NotificationType.ERROR, "You have been disconnected from the server. Please log in again.");
+        //   this.router.navigate(['/login']);
+        //   return;
+        // }
         
 
-        this.disconnectRetries++;
+        // this.disconnectRetries++;
 
-        // if route contains /online, redirect to home page
-        if (location.pathname.includes('/online')) this.router.navigate(['/']);
+        // // if route contains /online, redirect to home page
+        // if (location.pathname.includes('/online')) this.router.navigate(['/']);
 
-        if (this.disconnectRetries === 1) this.notificationService.notify(NotificationType.ERROR, "Disconnected from server, attempting to reconnect...");
+        // if (this.disconnectRetries === 1) this.notificationService.notify(NotificationType.ERROR, "Disconnected from server, attempting to reconnect...");
         
-        setTimeout(() => {
-          this.connectWebsocket(userid, username);
-        }, 500 * this.disconnectRetries);
+        // setTimeout(() => {
+        //   this.connectWebsocket(userid, username);
+        // }, 500 * this.disconnectRetries);
       }
     };
   }

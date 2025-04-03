@@ -111,8 +111,8 @@ export class MultiplayerClientRoom extends ClientRoom {
         // Initialize serverPlayers
         const defaultLevel = state.startLevel;
         this.serverPlayers = {
-            [PlayerIndex.PLAYER_1]: new ServerPlayer(defaultLevel),
-            [PlayerIndex.PLAYER_2]: new ServerPlayer(defaultLevel),
+            [PlayerIndex.PLAYER_1]: new ServerPlayer(this, PlayerIndex.PLAYER_1, defaultLevel),
+            [PlayerIndex.PLAYER_2]: new ServerPlayer(this, PlayerIndex.PLAYER_2, defaultLevel),
         }
 
         // Initialize my OCRStatus
@@ -310,6 +310,7 @@ export class MultiplayerClientRoom extends ClientRoom {
         this.ocr.stopGameCapture();
         this.ocrStateSubscription?.unsubscribe();
         this.packetGroupSubscription?.unsubscribe();
+        bothPlayerIndicies.forEach(playerIndex => this.serverPlayers[playerIndex].onDelete());
 
         // Stop any ongoing timers
         this.ocrTimer$.getValue()?.stop();
