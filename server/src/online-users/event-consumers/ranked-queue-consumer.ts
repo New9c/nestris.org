@@ -117,10 +117,11 @@ class QueueUser {
      */
     public getTrophyRange(queueSeconds: number): TrophyRange {
 
-        // Disallow any matches with more than 400 trophy difference
+        // Disallow any matches with more than 600 trophy difference
         if (queueSeconds < 3) return TrophyRange.fromDelta(this.trophies, 100);
         if (queueSeconds < 10) return TrophyRange.fromDelta(this.trophies, 200);
-        return TrophyRange.fromDelta(this.trophies, 400);
+        if (queueSeconds < 30) return TrophyRange.fromDelta(this.trophies, 400);
+        return TrophyRange.fromDelta(this.trophies, 600);
         
     }
 
