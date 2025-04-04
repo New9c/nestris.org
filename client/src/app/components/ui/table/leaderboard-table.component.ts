@@ -39,6 +39,8 @@ export class LeaderboardTableComponent implements OnChanges {
   // The row to highlight on the table, if it exists
   @Input() myID?: string;
 
+  @Input() showLeague: boolean = false;
+
   readonly HIGHEST_RANK = 200;
 
   readonly parseInt = parseInt;

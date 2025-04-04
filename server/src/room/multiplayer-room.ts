@@ -103,6 +103,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
             username: this.gamePlayers[playerIndex].username,
             sessionID: this.gamePlayers[playerIndex].sessionID,
             trophies: user.trophies,
+            highestTrophies: user.highest_trophies,
             highscore: user.highest_score,
             leftRoom: false,
             trophyDelta: playerIndex === PlayerIndex.PLAYER_1 ? this.player1TrophyDelta : this.player2TrophyDelta,

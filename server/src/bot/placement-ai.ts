@@ -75,7 +75,7 @@ export abstract class PlacementAI {
 
     public randomError(level: number): { isMisdrop: boolean, isMistake: boolean, isInaccuracy: boolean } {
 
-        let multiplier: number = 0.8;
+        let multiplier: number = 0.5;
         let gravity = getGravity(level);
         if (gravity === 2) multiplier = 2;
         else if (gravity === 1) multiplier = 5;

@@ -56,6 +56,7 @@ export interface PlayerInfo {
     username: string;
     sessionID: string;
     trophies: number;
+    highestTrophies: number;
     highscore: number;
     leftRoom: boolean;
     trophyDelta?: TrophyDelta;

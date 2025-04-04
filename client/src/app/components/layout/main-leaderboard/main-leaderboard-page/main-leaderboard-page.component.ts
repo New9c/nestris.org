@@ -8,6 +8,7 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 import { EVALUATION_TO_COLOR, overallAccuracyRating } from 'src/app/shared/evaluation/evaluation';
 import { GlobalStat, GlobalStats } from 'src/app/shared/models/global-stat';
 import { T200LeaderboardData, T200LeaderboardType } from 'src/app/shared/models/leaderboard';
+import { numberWithCommas } from 'src/app/util/misc';
 
 interface GlobalStatDisplay {
   icon: string;
@@ -133,6 +134,7 @@ export class MainLeaderboardPageComponent implements OnDestroy {
 
   FORMAT_RULES: { [key: string]: (value: any) => string } = {
     highscore_accuracy: accuracy => `${(accuracy*100).toFixed(1)}%`,
+    xp: xp => numberWithCommas(xp),
   };
 
   COLOR_RULES: { [key: string]: (value: number) => string } = {

@@ -100,3 +100,14 @@ export function previousLeague(league: League) {
     if (league === LOWEST_LEAGUE) throw new Error('No previous league');
     return (league - 1) as League;
 }
+
+export function getTotalXP(league: League, xp: number): number {
+    let totalXP = xp;
+
+    // Add up XP required for all leagues before the current one
+    for (let i = LOWEST_LEAGUE; i < league; i++) {
+        totalXP += LEAGUE_XP_REQUIREMENTS[i as League];
+    }
+
+    return totalXP;
+}

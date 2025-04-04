@@ -2,7 +2,7 @@
     <div class="side" *ngFor="let playerIndex of getPlayerIndices()" [ngClass]="getIndexColor(playerIndex)">
         <div class="player" *ngIf="state.players[playerIndex] as player">
             <app-game-header [username]="player.username + (state.aborter === playerIndex ? ' (Aborted)' : '')" [userid]="player.userid"
-            [trophies]="player.trophies" [rated]="state.ranked" [highscore]="state.ranked ? undefined : player.highscore"
+            [trophies]="player.trophies" [highestTrophies]="player.highestTrophies" [rated]="state.ranked" [highscore]="state.ranked ? undefined : player.highscore"
             [score]="getScore(state, playerIndex)" [color]="getIndexColor(playerIndex)" />
 
             <!-- Show client gameplay directly if it's the player's board -->

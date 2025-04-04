@@ -1,6 +1,6 @@
 <div class="game-header" [ngClass]="userid ? 'has-id' : ''">
     <div class="profile-container" (click)="openProfile($event)">
-        <h1 class="name">{{username}}</h1>
+        <app-username [username]="username" [highestTrophies]="highestTrophies" [premium]="premium" [fontSize]="25" [fontWeight]="700" />
         <div class="stats">
             <app-trophies *ngIf="!rated" [trophies]="trophies" [size]="18" />
             <app-highest-score *ngIf="highscore !== undefined" [highestScore]="highscore" [size]="18" />

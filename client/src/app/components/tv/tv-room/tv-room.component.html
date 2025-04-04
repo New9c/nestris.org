@@ -1,7 +1,8 @@
 <div class="match-container" *ngIf="(multiplayerState$ | async) as state">
     <div *ngFor="let playerIndex of bothPlayerIndicies" class="player-container">
         <div class="player" *ngIf="state.players[playerIndex] as player">
-            <app-game-header [username]="player.username + (state.aborter === playerIndex ? ' (Aborted)' : '')" [userid]="player.userid" [trophies]="player.trophies" [rated]="true" />
+            <app-game-header [username]="player.username + (state.aborter === playerIndex ? ' (Aborted)' : '')" [userid]="player.userid"
+                [highestTrophies]="player.highestTrophies" [trophies]="player.trophies" [rated]="true" />
             <app-layout-one *ngIf="(multiplayerClientRoom.getSnapshotForPlayer$(playerIndex) | async) as playerData"
             [canvasBoard]="multiplayerClientRoom.getBoardForPlayer$(playerIndex)"
             [nextType]="playerData.next"

@@ -57,7 +57,7 @@ print(f"Mean Squared Error on Test Set: {mse}")
 def trophies_from_score(score):
     if score <= 0:
         raise ValueError("Score must be greater than zero for trophies calculation.")
-    return 3.5 * math.pow(score, 0.5)
+    return 3.4 * math.pow(score, 0.5)
 
 def predict_score(input_speed, inaccuracy, mistake, misdrop):
     # Predict the score using the trained model
@@ -150,7 +150,7 @@ def generate_bot_configs_and_write_to_file():
     
     # Sort bots by trophies in ascending order
     bots = sorted(bots, key=lambda bot: bot['trophies'])
-    bots = remove_percentage(bots, 0.6)
+    bots = remove_percentage(bots, 0.7)
 
     print("num bots:", len(bots))
 

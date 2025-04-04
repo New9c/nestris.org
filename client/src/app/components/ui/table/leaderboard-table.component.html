@@ -7,14 +7,12 @@
 
     <div class="row content" *ngFor="let row of rows; let i = index" [ngStyle]="{gridTemplateColumns: gridTemplateColumns((isExpanded$ | async) ?? true)}"
         [ngClass]="{'me': row.userid === myID, 'top' : i === 0, 'first' : row.rank === 1, 'second' : row.rank === 2, 'third' : row.rank === 3}">
-        <div class="cell player">
+        <button class="cell player" (click)="viewProfile(row.userid)">
             <div class="ranking prevent-select" [ngClass]="getDigitClassname(row.rank)">#{{ row.rank }}</div>
-            <app-league-icon [league]="row.league" [height]="22" />
-            <button (click)="viewProfile(row.userid)">
-                <p class="username prevent-select" [tooltip]="'View ' + row.username + '\'s profile'">{{row.username}}</p>
-            </button>
+            <app-league-icon *ngIf="showLeague" [league]="row.league" [height]="22" />
+            <p class="username prevent-select" [tooltip]="'View ' + row.username + '\'s profile'">{{row.username}}</p>
             <app-online-indicator [isOnline]="row.isOnline || row.userid === myID" [inActivity]="row.inActivity" />
-        </div>
+        </button>
         <ng-container *ngFor="let item of attributes | keyvalue: originalOrder">
 
             <div class="cell attribute" *ngIf="item.key === 'highest_score'; else trophies"><app-highest-score class="td-content" [size]="14" [highestScore]="getRowAttribute(row, item.key)" /></div>

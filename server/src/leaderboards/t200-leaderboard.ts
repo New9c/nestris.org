@@ -1,5 +1,5 @@
 import { ResourceIDType, T200LeaderboardData, T200LeaderboardRow, T200LeaderboardType } from "../../shared/models/leaderboard";
-import { getLeagueFromIndex, LEAGUE_XP_REQUIREMENTS } from "../../shared/nestris-org/league-system";
+import { getLeagueFromIndex, getTotalXP, LEAGUE_XP_REQUIREMENTS } from "../../shared/nestris-org/league-system";
 import { Database, DBQuery } from "../database/db-query";
 import { OnlineUserManager } from "../online-users/online-user-manager";
 import { sortLeaderboard } from "./sort-leaderboard";
@@ -61,7 +61,7 @@ export class T200XPLeaderboard extends T200Leaderboard {
     public override readonly type = T200LeaderboardType.SOLO_XP;
     public override readonly resourceIDType = null;
     public override readonly attributes = {
-        xp: 'XP',
+        xp: 'Total XP',
         highest_score: 'Highscore',
         trophies: 'Trophies',
         puzzle_elo: 'Puzzle elo',
@@ -93,7 +93,7 @@ export class T200XPLeaderboard extends T200Leaderboard {
                     userid: row.userid,
                     username: row.username,
                     league: row.league,
-                    xp: row.xp,
+                    xp: getTotalXP(row.league, row.xp),
                     highest_score: row.highest_score,
                     trophies: row.trophies,
                     puzzle_elo: row.puzzle_elo,
@@ -190,7 +190,7 @@ export class T200RankedLeaderboard extends T200Leaderboard {
                 FROM
                     users
                 WHERE
-                    trophies >= 0 AND login_method != 'bot'
+                    trophies >= 0
                 ORDER BY
                     trophies DESC
                 LIMIT 200

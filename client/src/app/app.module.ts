@@ -121,6 +121,7 @@ import { RankedStatComponent } from './components/ui/ranked-stat/ranked-stat.com
 import { LaunchPageComponent } from './components/layout/launch-page/launch-page.component';
 import { GeneratePuzzlesModalComponent } from './components/modals/generate-puzzles-modal/generate-puzzles-modal.component';
 import { RabbitLoadingAnimationComponent } from './components/ui/rabbit-loading-animation/rabbit-loading-animation.component';
+import { UsernameComponent } from './components/ui/username/username.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -278,6 +279,7 @@ const customNotifierOptions: NotifierOptions = {
     LaunchPageComponent,
     GeneratePuzzlesModalComponent,
     RabbitLoadingAnimationComponent,
+    UsernameComponent,
   ],
   imports: [
     BrowserModule,
