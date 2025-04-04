@@ -44,10 +44,10 @@ export class LiveGameAnalyzer extends GameAnalyzer {
     public onNewPosition(position: Position) {
 
         // Stop analyzing after reaching level 29 for non-29-start games
-        if (!this.stopAnalyzing && this.startLevel < 29 && position.level >= 29) {
-            this.stopAnalysis();
-            console.log("Stopping analysis for this game because level 29 was reached");
-        }
+        // if (!this.stopAnalyzing && this.startLevel < 29 && position.level >= 29) {
+        //     this.stopAnalysis();
+        //     console.log("Stopping analysis for this game because level 29 was reached");
+        // }
 
         if (this.stopAnalyzing) return;
 
