@@ -120,6 +120,7 @@ import { ExpandComponent } from './components/ui/expand/expand.component';
 import { RankedStatComponent } from './components/ui/ranked-stat/ranked-stat.component';
 import { LaunchPageComponent } from './components/layout/launch-page/launch-page.component';
 import { GeneratePuzzlesModalComponent } from './components/modals/generate-puzzles-modal/generate-puzzles-modal.component';
+import { RabbitLoadingAnimationComponent } from './components/ui/rabbit-loading-animation/rabbit-loading-animation.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -276,6 +277,7 @@ const customNotifierOptions: NotifierOptions = {
     RankedStatComponent,
     LaunchPageComponent,
     GeneratePuzzlesModalComponent,
+    RabbitLoadingAnimationComponent,
   ],
   imports: [
     BrowserModule,

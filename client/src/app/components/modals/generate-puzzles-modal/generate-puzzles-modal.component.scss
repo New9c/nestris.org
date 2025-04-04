@@ -2,13 +2,12 @@
 
 .modal {
     width: 650px;
-    height: 300px;
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
+}
 
-  h1 {
+h1 {
     font-family: $main-font;
     font-size: 25px;
     font-style: normal;
@@ -16,9 +15,9 @@
     line-height: normal;
     text-align: center;
     text-wrap: nowrap;
-  }
-  
-  h2 {
+}
+
+h2 {
     font-family: $main-font;
     font-size: 12px;
     font-style: normal;
@@ -29,4 +28,66 @@
     padding: 0;
     margin: 0;
     width: 90%;
-  }
+}
+
+.buttons {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.content {
+    height: 200px;
+
+    width: 100%;
+    box-sizing: border-box;
+
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading {
+    width: 60%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.loading p {
+    font-family: $main-font;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 0;
+    margin: 0;
+}
+
+.loading-bar {
+    width: 100%;
+    height: 10px;
+    border: 2px solid white;
+    border-radius: 20px;
+    margin-top: 15px;
+
+    position: relative;
+}
+
+.loading-bar .progress{ 
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: white;
+    border-radius: 20px;
+    transition: width 0.1s linear;
+}
+
+app-rabbit-loading-animation {
+    margin-top: -30px;
+}

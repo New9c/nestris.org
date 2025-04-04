@@ -27,11 +27,14 @@
     margin-bottom: 10px;
 }
 
-app-loading-animation {
+app-rabbit-loading-animation {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+
+    opacity: 1;
+    transition: opacity 0.5;
 }
 
 .content {
@@ -469,6 +472,8 @@ p.count {
     flex-direction: column;
     align-items: center;
     gap: 2px;
+
+    margin-top: -10px;
 }
 
 .summary-container p {

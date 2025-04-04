@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AnalysisPlacement } from '../components/layout/game-analysis/game-interpreter';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { StackrabbitService, TopMovesHybridResponse } from './stackrabbit/stackrabbit.service';
 import { BufferTranscoder } from '../shared/network/tetris-board-transcoding/buffer-transcoder';
 import { InputSpeed } from '../shared/models/input-speed';
@@ -10,6 +10,7 @@ import { PuzzleRating } from '../shared/puzzles/puzzle-rating';
 import { batchArray } from '../shared/scripts/math';
 import { encodePuzzle } from '../shared/puzzles/encode-puzzle';
 import { bothPlayerIndicies } from '../shared/room/multiplayer-room-models';
+import { cos } from '@tensorflow/tfjs';
 
 // A local puzzle encapsulates all data for the puzzle without needing any server fetches
 export interface LocalPuzzle {
@@ -39,12 +40,23 @@ export class GeneratePuzzlesService {
     private readonly stackrabbit: StackrabbitService,
   ) { }
 
+  public getState$(): Observable<State | null> {
+    return this.state$.asObservable();
+  }
+
   public async generatePuzzles(gameID: string, placements: AnalysisPlacement[]) {
+    
+    // If already generated puzzles for this game, do not regenerate but just reuse
+    if (this.state$.getValue()?.gameID === gameID) {
+      console.log("already generating puzzles for this game, not generating again");
+      return;
+    }
+
     this.allowGenerating = true;
     console.log("started generating puzzles");
 
-    // If already generated puzzles for this game, do not regenerate but just reuse
-    if (this.state$.getValue()?.gameID === gameID) return;
+    // Only look at placements before 29
+    placements = placements.filter(placement => placement.level < 29);
 
     // Parse through all placements
     this.state$.next({
@@ -106,9 +118,6 @@ export class GeneratePuzzlesService {
   private async evaluatePlacement(placement: AnalysisPlacement): Promise<LocalPuzzle | string> {
     // ADAPTED from puzzle-generator/rate-puzzle.ts. Absolutely not good coding practice, but copied for the interest of time.
 
-    // Ignore level 29+
-    if (placement.level >= 29) return "not 29";
-
     const board = BufferTranscoder.decode(placement.encodedIsolatedBoard);
 
     // Check that board is valid
@@ -121,6 +130,11 @@ export class GeneratePuzzlesService {
 
     if (stackrabbit.nextBox.length < 5) return "Less than 5 moves";
     if (stackrabbit.noNextBox.length < 5) return "Less than 5 no-next-box moves";
+
+    // It's a good puzzle, but player already solved it
+    if (stackrabbit.nextBox[0].firstPlacement.equals(MoveableTetromino.fromMTPose(placement.current, placement.placement))) {
+      return "player made best move";
+    }
     
     // get the board after the first move
     const boardAfterFirst = board.copy();

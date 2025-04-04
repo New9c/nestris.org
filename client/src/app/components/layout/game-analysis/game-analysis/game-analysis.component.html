@@ -181,10 +181,10 @@
             (clickPlacement)="clickPlacement($event)"
                 [WIDTH]="(contentRect$ | async)?.width ?? 600"  />
 
-            <p>Click the graph to jump anywhere in the game!</p>
+            <p>Click anywhere on the graph or press the number keys (0-9) to skip around the game!</p>
         </div>
     </ng-container>
 </div>
 
 <a routerLink="/review"><app-solid-button class="back-button" [color]="ButtonColor.GREY" label="Back" /></a>
-<app-loading-animation *ngIf="!(loaded$ | async)" [size]="30" />
+<app-rabbit-loading-animation *ngIf="!(loaded$ | async)" width="200px" />
