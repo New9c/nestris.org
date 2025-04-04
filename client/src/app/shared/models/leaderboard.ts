@@ -53,6 +53,7 @@ export interface T200LeaderboardRow {
     rank: number;
     userid: string;
     username: string;
+    highestTrophies: number;
     isOnline: boolean;
     inActivity: boolean;
     league: League;

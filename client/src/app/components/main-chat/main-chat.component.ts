@@ -9,6 +9,7 @@ import { ProfileModalConfig } from '../modals/profile-modal/profile-modal.compon
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { timeAgo } from 'src/app/util/misc';
 import { SoundEffect, SoundService } from 'src/app/services/sound.service';
+import { getTitle } from '../ui/username/username.component';
 
 @Component({
   selector: 'app-main-chat',
@@ -18,6 +19,8 @@ import { SoundEffect, SoundService } from 'src/app/services/sound.service';
 })
 export class MainChatComponent implements AfterViewInit, OnDestroy {
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+
+  readonly getTitle = getTitle;
 
   static showChat = new BehaviorSubject<boolean>(false);
   static lastScrollTop: number | null = null;
@@ -105,6 +108,7 @@ export class MainChatComponent implements AfterViewInit, OnDestroy {
       userid: me.userid,
       username: me.username,
       league: me.league,
+      highestTrophies: me.highest_trophies,
       timeMs: Date.now(),
       message
     }]));

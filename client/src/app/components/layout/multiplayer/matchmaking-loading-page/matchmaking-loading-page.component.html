@@ -24,7 +24,7 @@
         <div class="found-opponent bounded" >
             <div class="player left" *ngIf="(me$ | async) as me">
                 <app-league-icon [league]="me.league" [height]="220" />
-                <p class="username">{{me.username}}</p>
+                <app-username [username]="me.username" [highestTrophies]="me.highest_trophies" [fontSize]="25" [fontWeight]="700" />
                 <app-trophies [trophies]="me.trophies" [size]="25" />
             </div>
             <div class="versus">
@@ -40,7 +40,7 @@
             </div>
             <div class="player right">
                 <app-league-icon [league]="foundOpponent.opponentLeague" [height]="220" [flipped]="true" />
-                <p class="username">{{foundOpponent.opponentName}}</p>
+                <app-username [username]="foundOpponent.opponentName" [highestTrophies]="foundOpponent.opponentHighestTrophies" [fontSize]="25" [fontWeight]="700" />
                 <app-trophies [trophies]="foundOpponent.opponentTrophies" [size]="25" />
             </div>
         </div>

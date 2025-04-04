@@ -133,6 +133,7 @@ export interface GlobalChatMessage {
     userid: string,
     username: string,
     league: League,
+    highestTrophies: number,
     timeMs: number, // Date.now()
     message: string,
 }
@@ -216,6 +217,7 @@ export class FoundOpponentMessage extends JsonMessage {
     constructor(
         public readonly opponentName: string,
         public readonly opponentTrophies: number,
+        public readonly opponentHighestTrophies: number,
         public readonly opponentLeague: League,
         public readonly trophyDelta: TrophyDelta,
         public readonly startLevel: number,

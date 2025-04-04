@@ -1,7 +1,29 @@
 @import "../../../../styles.scss";
 
-p {
+.username {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.username.clickable:hover {
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.username.clickable:active {
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+h1, p {
     font-family: $main-font;
     margin: 0;
     padding: 0;
+}
+
+h1 {
+    color: #D82800;
+    color: $ranked-color;
+    font-weight: 800;
 }

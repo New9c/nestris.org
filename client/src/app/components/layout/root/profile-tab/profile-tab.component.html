@@ -3,7 +3,8 @@
     <div class="tab-left">
         <img class="icon prevent-select" [src]="tabIcon" width="20px">
         <div class="user-info">
-            <h1 class="label prevent-select">{{ (meService.get$() | async)?.username }}</h1>
+            <app-username *ngIf="meService.get$() | async as me" [username]="me.username" [highestTrophies]="me.highest_trophies"
+                [fontSize]="16" [fontWeight]="600" />
             <div class="ping-container" *ngIf="pingService.onPingUpdate() | async as ping">
                 <app-ping-icon [speed]="ping.pingSpeed" />
                 <p class="ping prevent-select" [ngStyle]="{color: ping.pingColor}">{{ping.pingString}}</p>

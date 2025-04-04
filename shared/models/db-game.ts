@@ -25,6 +25,7 @@ export interface DBGame {
     blunder_count: number,
 
     username?: string,
+    highest_trophies?: number,
     data_exists?: boolean,
     rank?: number
 }

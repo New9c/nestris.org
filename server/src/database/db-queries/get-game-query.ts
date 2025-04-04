@@ -16,6 +16,7 @@ export class GetGameQuery extends DBQuery<DBGameWithData> {
             ${this.attributes.join(',')}, 
             gd.data,
             u.username,
+            u.highest_trophies,
             1 + (
             SELECT COUNT(*)
             FROM games

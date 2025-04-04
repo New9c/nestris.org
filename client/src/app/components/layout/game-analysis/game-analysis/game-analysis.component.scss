@@ -17,24 +17,28 @@
     z-index: 1;
 }
 
-.title {
+.title-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: 10px;
+}
+
+.title-container h1 {
     font-family: $main-font;
     font-weight: 600;
     font-size: 16px;
     margin: 5px;
-    text-wrap: nowrap;
-
-    margin-bottom: 10px;
+    text-wrap: nowrap; 
 }
 
-app-rabbit-loading-animation {
+
+app-loading-animation {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-
-    opacity: 1;
-    transition: opacity 0.5;
 }
 
 .content {

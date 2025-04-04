@@ -1,3 +1,5 @@
-<div class="username">
-    <p [ngStyle]="{'fontSize': fontSize + 'px', 'fontWeight': fontWeight}">{{ username }}</p>
+<div class="username" [ngClass]="{'clickable': !!userid}" [ngStyle]="{'gap' : fontSize*0.3 + 'px'}" 
+        [tooltip]="userid ? ('View ' + username + '\'s profile') : ''" (click)="openProfile($event)">
+    <h1 class="prevent-select" *ngIf="getTitle(highestTrophies)" [ngStyle]="{'fontSize': fontSize*0.9 + 'px'}">{{getTitle(highestTrophies)}}</h1>
+    <p class="prevent-select" [ngStyle]="{'fontSize': fontSize + 'px', 'fontWeight': fontWeight}">{{ username }}</p>
 </div>

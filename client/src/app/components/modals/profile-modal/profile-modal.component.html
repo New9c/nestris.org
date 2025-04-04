@@ -5,7 +5,7 @@
         <div class="profile panel" [ngStyle]="{'borderColor' : leagueColor(data.dbUser.league)}">
             <div class="top">
                 <div class="left">
-                    <h2 class="username">{{data.dbUser.username}}</h2>
+                    <app-username [username]="data.dbUser.username" [highestTrophies]="data.dbUser.highest_trophies" [fontSize]="20" [fontWeight]="600" />
                     <app-online-indicator [isOnline]="data.online" />
                 </div>
                 <h2 class="league-name" [ngStyle]="{'color' : leagueColor(data.dbUser.league)}">{{leagueName(data.dbUser.league)}}</h2>

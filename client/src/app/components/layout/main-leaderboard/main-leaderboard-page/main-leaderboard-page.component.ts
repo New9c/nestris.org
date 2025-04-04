@@ -27,6 +27,7 @@ export class MainLeaderboardPageComponent implements OnDestroy {
   readonly modes = [Mode.SOLO, Mode.RANKED, Mode.PUZZLES];
 
   readonly ButtonColor = ButtonColor;
+  readonly T200LeaderboardType = T200LeaderboardType;
 
   readonly leaderboardTypes: { [key in Mode]: T200LeaderboardType[] } = {
     [Mode.SOLO]: [T200LeaderboardType.SOLO_HIGHSCORE, T200LeaderboardType.SOLO_XP],

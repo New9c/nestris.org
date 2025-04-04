@@ -98,6 +98,7 @@ class QueueUser {
         public readonly username: string,
         public readonly sessionID: string,
         public readonly trophies: number,
+        public readonly highestTrophies: number,
         public readonly highscore: number,
         public readonly matchesPlayed: number,
         public readonly allowBotOpponents: boolean,
@@ -207,7 +208,7 @@ export class RankedQueueConsumer extends EventConsumer {
         // Add user to the queue, maintaining earliest-joined-first order
         const isBot = dbUser.login_method === LoginMethod.BOT;
         this.queue.push(new QueueUser(
-            userid, dbUser.username, sessionID, dbUser.trophies, dbUser.highest_score, dbUser.matches_played, dbUser.allow_bot_opponents, isBot
+            userid, dbUser.username, sessionID, dbUser.trophies, dbUser.highest_trophies, dbUser.highest_score, dbUser.matches_played, dbUser.allow_bot_opponents, isBot
         ));
 
         // Send the number of players in the queue to all users in the queue
@@ -423,10 +424,10 @@ export class RankedQueueConsumer extends EventConsumer {
         const player1League = getLeagueFromIndex(dbUser1.league);
         const player2League = getLeagueFromIndex(dbUser2.league);
         this.users.sendToUserSession(user1.sessionID, new FoundOpponentMessage(
-            user2.username, user2.trophies, player2League, player1TrophyDelta, startLevel, levelCap, user1Stats, user2Stats
+            user2.username, user2.trophies, user2.highestTrophies, player2League, player1TrophyDelta, startLevel, levelCap, user1Stats, user2Stats
         ));
         this.users.sendToUserSession(user2.sessionID, new FoundOpponentMessage(
-            user1.username, user1.trophies, player1League, player2TrophyDelta, startLevel, levelCap, user2Stats, user1Stats
+            user1.username, user1.trophies, user1.highestTrophies, player1League, player2TrophyDelta, startLevel, levelCap, user2Stats, user1Stats
         ));
 
         console.log(`Matched users ${user1.username} and ${user2.username} with trophies ${user1.trophies} and ${user2.trophies}and delta ${player1TrophyDelta.trophyGain}/${player1TrophyDelta.trophyLoss} and ${player2TrophyDelta.trophyGain}/${player2TrophyDelta.trophyLoss}`);

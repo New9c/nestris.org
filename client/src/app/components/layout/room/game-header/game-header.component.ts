@@ -23,12 +23,4 @@ export class GameHeaderComponent {
     private readonly modalManagerService: ModalManagerService 
   ) {}
 
-  openProfile(event: MouseEvent) {
-    event.stopPropagation();
-    if (this.userid) {
-      const config: ProfileModalConfig = { userid: this.userid };
-      this.modalManagerService.showModal(ModalType.PROFILE, config);
-    }
-  }
-
 }

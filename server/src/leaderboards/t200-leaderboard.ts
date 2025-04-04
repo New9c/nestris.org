@@ -74,7 +74,7 @@ export class T200XPLeaderboard extends T200Leaderboard {
         class T200XPLeaderboardQuery extends DBQuery<T200LeaderboardRow[]> {
             public override query = `
                 SELECT
-                    userid, username, league, xp, highest_score, trophies, puzzle_elo   
+                    userid, username, highest_trophies, league, xp, highest_score, trophies, puzzle_elo   
                 FROM
                     users
                 ORDER BY
@@ -92,6 +92,7 @@ export class T200XPLeaderboard extends T200Leaderboard {
 
                     userid: row.userid,
                     username: row.username,
+                    highestTrophies: row.highest_trophies,
                     league: row.league,
                     xp: getTotalXP(row.league, row.xp),
                     highest_score: row.highest_score,
@@ -128,7 +129,7 @@ export class T200HighscoreLeaderboard extends T200Leaderboard {
         class T200HighscoreLeaderboardQuery extends DBQuery<T200LeaderboardRow[]> {
             public override query = `
                 SELECT
-                    users.userid, username, league, games_played, games.end_score as highscore, games.end_lines as highscore_lines, games.start_level as highscore_start_level, games.accuracy as highscore_accuracy, games.id as game_id
+                    users.userid, username, highest_trophies, league, games_played, games.end_score as highscore, games.end_lines as highscore_lines, games.start_level as highscore_start_level, games.accuracy as highscore_accuracy, games.id as game_id
                 FROM
                     users
                 INNER JOIN
@@ -153,6 +154,7 @@ export class T200HighscoreLeaderboard extends T200Leaderboard {
                     userid: row.userid,
                     username: row.username,
                     league: row.league,
+                    highestTrophies: row.highest_trophies,
                     
                     highest_score: row.highscore,
                     highscore_lines: row.highscore_lines,
@@ -207,6 +209,7 @@ export class T200RankedLeaderboard extends T200Leaderboard {
                     userid: row.userid,
                     username: row.username,
                     league: row.league,
+                    highestTrophies: row.highest_trophies,
 
                     trophies: row.trophies,
                     highest_trophies: row.highest_trophies,
@@ -241,7 +244,7 @@ export class T200PuzzlesLeaderboard extends T200Leaderboard {
         class T200PuzzleLeaderboardQuery extends DBQuery<T200LeaderboardRow[]> {
             public override query = `
                 SELECT
-                    userid, username, league, puzzle_elo, highest_puzzle_elo, puzzles_attempted, puzzles_solved, puzzle_seconds_played
+                    userid, username, highest_trophies, league, puzzle_elo, highest_puzzle_elo, puzzles_attempted, puzzles_solved, puzzle_seconds_played
                 FROM
                     users
                 WHERE
@@ -262,6 +265,7 @@ export class T200PuzzlesLeaderboard extends T200Leaderboard {
                     userid: row.userid,
                     username: row.username,
                     league: row.league,
+                    highestTrophies: row.highest_trophies,
 
                     puzzle_elo: row.puzzle_elo,
                     highest_puzzle_elo: row.highest_puzzle_elo,

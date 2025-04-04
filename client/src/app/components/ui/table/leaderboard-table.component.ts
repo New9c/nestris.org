@@ -40,6 +40,7 @@ export class LeaderboardTableComponent implements OnChanges {
   @Input() myID?: string;
 
   @Input() showLeague: boolean = false;
+  @Input() showTitle: boolean = true;
 
   readonly HIGHEST_RANK = 200;
 

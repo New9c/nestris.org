@@ -27,6 +27,7 @@
     </div>
 
     <app-leaderboard-table *ngIf="(leaderboard$ | async)?.data as leaderboard" [attributes]="leaderboard.attributes" [rows]="leaderboard.leaderboard" [myID]="(meService.getUserID$() | async) ?? undefined"
-        [showLeague]="true" sortByAttribute="rating" [formatRules]="FORMAT_RULES" [colorRules]="COLOR_RULES" [resourceIDType]="leaderboard.resourceIDType" />
+        [showLeague]="leaderboard.type === T200LeaderboardType.SOLO_XP" [showTitle]="leaderboard.type !== T200LeaderboardType.SOLO_XP"
+        sortByAttribute="rating" [formatRules]="FORMAT_RULES" [colorRules]="COLOR_RULES" [resourceIDType]="leaderboard.resourceIDType" />
 
 </div>

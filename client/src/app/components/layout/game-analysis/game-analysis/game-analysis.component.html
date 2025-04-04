@@ -1,7 +1,11 @@
 <div class="content" #content *ngIf="loaded$ | async">
     <ng-container *ngIf="stackrabbit$ | async as stackrabbit">
 
-        <h1 class="title">{{game!.username}}'s game {{timeAgo(game!.created_at)}} </h1>
+        <div class="title-container">
+            <h1>Played by</h1>
+            <app-username [username]="game!.username!" [userid]="game!.userid" [highestTrophies]="game!.highest_trophies ?? 0" [fontSize]="16" [fontWeight]="600" />
+            <h1>{{timeAgo(game!.created_at)}}</h1>
+        </div>
 
         <div class="stat-panels">
             <div class="stat score">
@@ -187,4 +191,4 @@
 </div>
 
 <a routerLink="/review"><app-solid-button class="back-button" [color]="ButtonColor.GREY" label="Back" /></a>
-<app-rabbit-loading-animation *ngIf="!(loaded$ | async)" width="200px" />
+<app-loading-animation *ngIf="!(loaded$ | async)" [size]="30" />
