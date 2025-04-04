@@ -49,6 +49,8 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    position: relative;
 }
 
 .loading {
@@ -58,6 +60,12 @@ h2 {
     flex-direction: column;
     align-items: center;
     gap: 5px;
+
+    transition: opacity 0.4s ease-in-out;
+}
+
+.loading.done {
+    opacity: 0;
 }
 
 .loading p {
@@ -78,7 +86,7 @@ h2 {
     position: relative;
 }
 
-.loading-bar .progress{ 
+.loading-bar .progress { 
     position: absolute;
     top: 0;
     left: 0;
@@ -90,4 +98,41 @@ h2 {
 
 app-rabbit-loading-animation {
     margin-top: -30px;
+}
+
+.fade-in {
+	opacity: 0;
+    animation: fadeInOpacity 0.4s ease-in forwards;
+    animation-delay: 0.6s;
+}
+
+@keyframes fadeInOpacity {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+p.loaded {
+    font-family: $main-font;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 0;
+    margin: 0;
+
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+p.loaded.success {
+    color: $ui-green-color;
+}
+
+p.loaded.fail {
+    color: $ui-red-color;
 }

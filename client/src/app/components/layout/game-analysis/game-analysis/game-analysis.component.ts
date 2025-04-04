@@ -690,7 +690,7 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   disableReviewPlacements(): string | null {
-    const PLACEMENTS_REQUIRED = 50;
+    const PLACEMENTS_REQUIRED = 20;
     if (this.game!.start_level > 19) return `This feature is not available for 29 start games!`;
     if (this.placements!.length < PLACEMENTS_REQUIRED) return `This feature requires a game with at least ${PLACEMENTS_REQUIRED} placements! Try playing a longer game.`;
     return null;

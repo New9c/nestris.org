@@ -8,7 +8,7 @@
 
     <div class="content">
 
-        <div class="loading" *ngIf="state.placementsProcessed < state.totalPlacements">
+        <div class="loading" [ngClass]="{'done' : state.placementsProcessed === state.totalPlacements}">
             <app-rabbit-loading-animation width="150px" />
 
             <div class="loading-bar">
@@ -17,12 +17,18 @@
             <p>Analyzing placement {{state.placementsProcessed}} of {{state.totalPlacements}}...</p>
         </div>
 
+        <ng-container *ngIf="state.placementsProcessed === state.totalPlacements">
+            <p *ngIf="state.puzzles.length > 0" class="loaded success fade-in">{{'We found ' + state.puzzles.length + ' placement' + (state.puzzles.length === 1 ? '' : 's') + ' to review!'}}</p>
+            <p  *ngIf="state.puzzles.length === 0" class="loaded fail fade-in">We didn't find any notable placements! Try a different game.</p>    
+        </ng-container>
+
     </div>
 
 
     <div class="buttons">
         <app-solid-button label="Cancel" [color]="ButtonColor.GREY" (smartClick)="hide()" />
-        <app-solid-button label="Go!" [color]="ButtonColor.GREEN" [disabled]="state.placementsProcessed < state.totalPlacements" (smartClick)="go()" />
+        <app-solid-button label="Go!" [color]="ButtonColor.GREEN" [disabled]="state.placementsProcessed < state.totalPlacements || state.puzzles.length === 0" (smartClick)="go()"
+            [tooltip]="state.placementsProcessed < state.totalPlacements ? 'Please be patient, processing placements!' : state.puzzles.length === 0 ? 'No placements found' : ''" tooltipDirection="right" />
     </div>
 
 </div>
