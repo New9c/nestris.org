@@ -192,7 +192,7 @@ export class T200RankedLeaderboard extends T200Leaderboard {
                 FROM
                     users
                 WHERE
-                    trophies >= 0
+                    trophies >= 0 AND users.login_method != 'bot'
                 ORDER BY
                     trophies DESC
                 LIMIT 200
