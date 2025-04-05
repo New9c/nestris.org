@@ -65,7 +65,7 @@ export class ServerPlayer {
                   this.sendRecoveryRequestInterval = setInterval(() => {
                   
                     // Recovery request still causes bugs. Quickfix for spectators is just to reload the page and try again
-                    if (!this.isPlayer && this.recoveryRetries >= 3) location.reload();
+                    if (!this.isPlayer && this.recoveryRetries >= 2) location.reload();
                     else {
                       this.recoveryRetries++;
                       this.clientRoom.sendClientRoomEvent(event);

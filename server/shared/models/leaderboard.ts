@@ -34,6 +34,7 @@ export enum T200LeaderboardType {
     SOLO_HIGHSCORE = 'highscore',
     RANKED = 'ranked',
     PUZZLES = 'puzzles',
+    PUZZLE_RUSH = 'puzzle_rush',
 }
 
 // what the type of resource ID is

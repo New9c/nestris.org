@@ -40,7 +40,10 @@ export interface DBUser {
   puzzles_attempted: number,
   puzzles_solved: number,
   puzzle_seconds_played: number,
+
   puzzle_rush_best: number,
+  puzzle_rush_attempts: number,
+  puzzle_rush_pps: number, // placements per second, multiplied by 10, for best puzzle rush score
 
   games_played: number,
   highest_score: number,
@@ -100,7 +103,10 @@ export const DBUserAttributes = [
   'puzzles_attempted',
   'puzzles_solved',
   'puzzle_seconds_played',
+
   'puzzle_rush_best',
+  'puzzle_rush_attempts',
+  'puzzle_rush_pps',
 
   'games_played',
   'highest_score',

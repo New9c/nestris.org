@@ -32,7 +32,7 @@ export class MainLeaderboardPageComponent implements OnDestroy {
   readonly leaderboardTypes: { [key in Mode]: T200LeaderboardType[] } = {
     [Mode.SOLO]: [T200LeaderboardType.SOLO_HIGHSCORE, T200LeaderboardType.SOLO_XP],
     [Mode.RANKED]: [T200LeaderboardType.RANKED],
-    [Mode.PUZZLES]: [T200LeaderboardType.PUZZLES],
+    [Mode.PUZZLES]: [T200LeaderboardType.PUZZLES, T200LeaderboardType.PUZZLE_RUSH],
   };
 
   readonly leaderboardTypeLabels: { [key in T200LeaderboardType]: string } = {
@@ -40,6 +40,7 @@ export class MainLeaderboardPageComponent implements OnDestroy {
     [T200LeaderboardType.SOLO_HIGHSCORE]: 'Highscore',
     [T200LeaderboardType.RANKED]: 'Trophies',
     [T200LeaderboardType.PUZZLES]: 'Puzzle Elo',
+    [T200LeaderboardType.PUZZLE_RUSH] : 'Puzzle Rush',
   };
 
   readonly leaderboardTypeIcon: { [key in T200LeaderboardType]: string } = {
@@ -47,6 +48,7 @@ export class MainLeaderboardPageComponent implements OnDestroy {
     [T200LeaderboardType.SOLO_HIGHSCORE]: './assets/img/tab-icons/play.svg',
     [T200LeaderboardType.RANKED]: './assets/img/tab-icons/play.svg',
     [T200LeaderboardType.PUZZLES]: './assets/img/tab-icons/puzzles.svg',
+    [T200LeaderboardType.PUZZLE_RUSH]: './assets/img/elements/puzzle-rush.svg',
   }
 
   readonly globalStatDisplays: { [key in Mode]: GlobalStatDisplay[] } = {

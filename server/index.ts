@@ -21,7 +21,7 @@ import { GetAllUsernamesRoute } from './src/routes/user/get-all-usernames-route'
 import { GuestConsumer } from './src/online-users/event-consumers/guest-consumer';
 import { LeaderboardManager } from './src/leaderboards/leaderboard-manager';
 import { FullHighscoreLeaderboard, FullPuzzlesLeaderboard, FullTrophiesLeaderboard } from './src/leaderboards/full-leaderboard';
-import { T200HighscoreLeaderboard, T200PuzzlesLeaderboard, T200RankedLeaderboard, T200XPLeaderboard } from './src/leaderboards/t200-leaderboard';
+import { T200HighscoreLeaderboard, T200PuzzleRushLeaderboard, T200PuzzlesLeaderboard, T200RankedLeaderboard, T200XPLeaderboard } from './src/leaderboards/t200-leaderboard';
 import { GetRelativeLeaderboardsRoute } from './src/routes/leaderboard/get-relative-leaderboards-route';
 import { CreateSoloRoomRoute } from './src/routes/room/create-solo-room-route';
 import { RoomConsumer } from './src/online-users/event-consumers/room-consumer';
@@ -174,6 +174,7 @@ async function main() {
   LeaderboardManager.registerT200Leaderboard(T200HighscoreLeaderboard);
   LeaderboardManager.registerT200Leaderboard(T200RankedLeaderboard);
   LeaderboardManager.registerT200Leaderboard(T200PuzzlesLeaderboard);
+  LeaderboardManager.registerT200Leaderboard(T200PuzzleRushLeaderboard);
   await LeaderboardManager.init(users);
 
   // Schedule tasks

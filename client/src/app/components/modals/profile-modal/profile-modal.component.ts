@@ -16,6 +16,8 @@ import { SoundEffect, SoundService } from 'src/app/services/sound.service';
 import { AnalyticsService } from 'src/app/services/analytics.service';
 import { Router } from '@angular/router';
 import { RankedStats } from 'src/app/shared/network/json-message';
+import { NotificationService } from 'src/app/services/notification.service';
+import { NotificationType } from 'src/app/shared/models/notifications';
 
 export interface ModalData {
   dbUser: DBUser;
@@ -76,6 +78,7 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
     private readonly fetchService: FetchService,
     private readonly sound: SoundService,
     private analytics: AnalyticsService,
+    private notificationService: NotificationService,
     private location: Location,
     private router: Router,
   ) {}
@@ -112,10 +115,17 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
     const dbUserPromise: Promise<DBUser | DBUserWithOnlineStatus> = this.config?.userid ? this.apiService.getUserByID(this.config.userid) : this.meService.get();
     const ranksPromise = this.fetchService.fetch<RelativeRanks>(Method.GET, `/api/v2/leaderboard/ranks/${this.userid}`);
     const rankedStatsPromise = this.fetchService.fetch<RankedStats>(Method.GET, `/api/v2/ranked-stats/${this.userid}`);
-    const [dbUser, ranks, rankedStats] = await Promise.all([dbUserPromise, ranksPromise, rankedStatsPromise]);
 
-    const online = this.config?.userid ? (dbUser as DBUserWithOnlineStatus).online : true;
-    return { dbUser, ranks, rankedStats, online };
+    try {
+      const [dbUser, ranks, rankedStats] = await Promise.all([dbUserPromise, ranksPromise, rankedStatsPromise]);
+
+      const online = this.config?.userid ? (dbUser as DBUserWithOnlineStatus).online : true;
+      return { dbUser, ranks, rankedStats, online };
+    } catch {
+      this.notificationService.notify(NotificationType.ERROR, "This player does not exist or has been deleted!");
+      this.modalManagerService.hideModal();
+      return { dbUser: {} as DBUser, ranks: {} as RelativeRanks, rankedStats: {} as RankedStats, online: false };
+    }  
   }
 
   private async fetchActivities(): Promise<ActivityGroup[]> {

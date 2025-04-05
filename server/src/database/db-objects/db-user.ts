@@ -135,7 +135,10 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             puzzles_attempted: 0,
             puzzles_solved: 0,
             puzzle_seconds_played: 0,
+
             puzzle_rush_best: 0,
+            puzzle_rush_attempts: 0,
+            puzzle_rush_pps: 0,
 
             games_played: 0,
             highest_score: 0,

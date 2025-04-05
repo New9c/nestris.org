@@ -283,3 +283,59 @@ export class T200PuzzlesLeaderboard extends T200Leaderboard {
         return await Database.query(T200PuzzleLeaderboardQuery);
     }
 }
+
+export class T200PuzzleRushLeaderboard extends T200Leaderboard {
+
+    public override readonly type = T200LeaderboardType.PUZZLE_RUSH;
+    public override readonly resourceIDType = null;
+    public override readonly attributes = {
+        
+        puzzle_rush_best: 'Best',
+        puzzle_rush_pps: 'PPS',
+        puzzle_rush_attempts: 'Total attempts',
+        puzzle_elo: 'Puzzle Elo',
+    };
+
+    protected async populateLeaderboard(): Promise<T200LeaderboardRow[]> {
+
+        class T200PuzzleRushLeaderboardQuery extends DBQuery<T200LeaderboardRow[]> {
+            public override query = `
+                SELECT
+                    userid, username, highest_trophies, league, puzzle_elo, puzzle_rush_best, puzzle_rush_attempts, puzzle_rush_pps
+                FROM
+                    users
+                WHERE
+                    login_method != 'bot' AND puzzle_rush_best > 0
+                ORDER BY
+                    puzzle_rush_best DESC
+                LIMIT 200
+            `;
+
+            public override warningMs = null;
+
+            public override parseResult(resultRows: any[]): T200LeaderboardRow[] {
+                return resultRows.map((row) => ({
+                    rank: -1,
+                    isOnline: false,
+                    inActivity: false,
+
+                    userid: row.userid,
+                    username: row.username,
+                    league: row.league,
+                    highestTrophies: row.highest_trophies,
+
+                    puzzle_rush_best: row.puzzle_rush_best,
+                    puzzle_rush_attempts: row.puzzle_rush_attempts,
+                    puzzle_rush_pps: row.puzzle_rush_pps / 10,
+                    puzzle_elo: row.puzzle_elo,
+
+                    resourceID: null,
+
+                    score: row.puzzle_rush_best,
+                })); 
+            }
+        }
+        
+        return await Database.query(T200PuzzleRushLeaderboardQuery);
+    }
+}
