@@ -41,7 +41,7 @@ export async function generateRandomUsername(): Promise<string> {
     });
 
     // Add numbers in a realistic way (e.g., common birth years)
-    if (Math.random() < 0.3) {
+    if (Math.random() < 0.1) {
         username += random([randomInt(1, 9999), randomInt(1, 999), randomInt(1, 99)]);
     }
 

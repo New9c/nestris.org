@@ -26,6 +26,7 @@ CREATE TABLE "public"."users" (
     "puzzles_attempted" int4 NOT NULL,
     "puzzles_solved" int4 NOT NULL,
     "puzzle_seconds_played" int8 NOT NULL,
+    "puzzle_rush_best" int2 NOT NULL,
     
     "games_played" int4 NOT NULL,
     "highest_score" int4 NOT NULL,

@@ -15,10 +15,13 @@ export class BotManager {
     }
 
     /**
-     * Initialize all bots in parallel. This does not automatically connect the bots to the server. Each
+     * Initialize all bots in series. This does not automatically connect the bots to the server. Each
      * bot must call connect() to connect to the server.
      */
     public async init() {
-        await Promise.all(Array.from(this.bots.values()).map(bot => bot.init()));
+        for (const bot of this.bots.values()) {
+            await bot.init();
+        }
+        console.log("All bots initialized");
     }
 }

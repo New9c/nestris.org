@@ -2,4 +2,4 @@
 export interface Version {
 	hash: string;
 }
-export const RELEASE_HASH = '14F49DF5-4F15-4CB3-AA41-BA43D4B99C47';
+export const RELEASE_HASH = 'D5567F24-CD97-40DE-A96A-0DACF98EAC9F';
