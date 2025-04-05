@@ -1,4 +1,4 @@
-import { PuzzleSolution, PuzzleStrategy, UnsolvedPuzzle } from "./puzzle-strategy";
+import { NextButton, PuzzleSolution, PuzzleStrategy, UnsolvedPuzzle } from "./puzzle-strategy";
 import { PuzzleStrategyType } from "./puzzle-strategy-type";
 import { PuzzleSubmission } from "src/app/models/puzzles/puzzle";
 import { computeEngineMoves } from "./compute-engine-moves";
@@ -12,12 +12,18 @@ import { AnalyticsService } from "src/app/services/analytics.service";
 export class SinglePuzzleStrategy extends PuzzleStrategy {
   public readonly type = PuzzleStrategyType.SINGLE;
   public readonly isTimed = false;
-  public readonly nextButtonText = undefined;
-  public readonly displayName = "Shared Puzzle";
 
   private fetchService = this.injector.get(FetchService);
   private stackrabbitService = this.injector.get(StackrabbitService);
   private analyticsService = this.injector.get(AnalyticsService);
+
+  public override getNextButton(): NextButton {
+      return {hasNext: false, text: "Go home"};
+    }
+
+  public override getDisplayName(): string {
+    return "Shared Puzzle";
+  }
 
   public async fetchNextPuzzle(): Promise<UnsolvedPuzzle> {
     const puzzleID = this.paramMap.get('id') ?? undefined;

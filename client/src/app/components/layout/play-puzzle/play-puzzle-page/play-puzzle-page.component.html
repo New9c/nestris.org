@@ -64,7 +64,7 @@
                                 [src]="'./assets/img/display-icons/' + (state.submissionIndex === 0 ? 'correct.svg' : '/incorrect.svg')"
                             >
     
-                            <h1>{{state.id === State.SOLVING ? (state.isRetry ? 'Retry Puzzle' : strategy.displayName) : (state.submissionIndex === 0 ? "Correct" : "Incorrect")}}</h1>
+                            <h1>{{state.id === State.SOLVING ? (state.isRetry ? 'Retry Puzzle' : strategy.getDisplayName()) : (state.submissionIndex === 0 ? "Correct" : "Incorrect")}}</h1>
 
                             <p *ngIf="state.xpGained as xpGained">+{{xpGained}} XP</p>
                         </div>
@@ -106,23 +106,28 @@
                         <div *ngIf="getSinglePuzzleStrategy()" class="padding-above-puzzle-stats"></div>
 
                         <!-- Statistics for the puzzle -->
-                        <ng-container *ngIf="getRatedPuzzleStrategy()?.getRatedPuzzle() as ratedPuzzle">
+                        <ng-container *ngIf="
+                            strategy.getPuzzleRating() !== null ||
+                            strategy.getSuccessRate() !== null ||
+                            strategy.getNumAttempts() !== null ||
+                            strategy.getTheme() !== null
+                        ">
                             <div class="puzzle-stats">
-                                <div class="stat">
+                                <div class="stat" *ngIf="strategy.getPuzzleRating() as rating">
                                     <h1>Puzzle Rating</h1>
-                                    <app-rating-stars [rating]="ratedPuzzle.rating" [width]="75" />
+                                    <app-rating-stars [rating]="rating" [width]="75" />
                                 </div>
-                                <div class="stat">
+                                <div class="stat" *ngIf="strategy.getSuccessRate() as successRate">
                                     <h1>Success Rate</h1>
-                                    <p>{{ratedPuzzle.num_attempts === 0 ? '0' : (100*ratedPuzzle.num_solves / (ratedPuzzle.num_attempts+ratedPuzzle.num_solves)).toFixed(0)}}%</p>
+                                    <p>{{(successRate * 100).toFixed(0)}}%</p>
                                 </div>
-                                <div class="stat">
+                                <div class="stat" *ngIf="strategy.getNumAttempts() as numAttempts">
                                     <h1>Attempts</h1>
-                                    <p>{{ratedPuzzle.num_attempts}}</p>
+                                    <p>{{numAttempts}}</p>
                                 </div>
-                                <div class="stat">
+                                <div class="stat" *ngIf="strategy.getTheme() as theme">
                                     <h1>Theme</h1>
-                                    <p>{{PUZZLE_THEME_TEXT[ratedPuzzle.theme]}}</p>
+                                    <p>{{PUZZLE_THEME_TEXT[theme]}}</p>
                                 </div>
                             </div>
                         </ng-container>
@@ -198,19 +203,18 @@
                     </div>
 
                     <!-- If in puzzle solution mode and no next puzzle, show "Exit" button -->
-                    <app-solid-button *ngIf="state.id === State.SOLUTION && !strategy.nextButtonText"
+                    <app-solid-button *ngIf="state.id === State.SOLUTION && !strategy.getNextButton().hasNext"
                         class="new-puzzle-button"
-                        icon="./assets/img/button-icons/new-puzzle.svg"
-                        label="Back to Puzzles" [color]="ButtonColor.BLUE"
+                        [label]="strategy.getNextButton().text" [color]="ButtonColor.BLUE"
                         [stretch]="true"
-                        (click)="router.navigate(['/'])"
+                        (click)="exit()"
                     />
 
                     <!-- If in puzzle solution mode and has next puzzle, show "Next Puzzle" button -->
-                    <app-solid-button *ngIf="state.id === State.SOLUTION && strategy.nextButtonText"
+                    <app-solid-button *ngIf="state.id === State.SOLUTION && strategy.getNextButton().hasNext"
                         class="new-puzzle-button"
                         icon="./assets/img/button-icons/new-puzzle.svg"
-                        [label]="strategy.nextButtonText" [color]="ButtonColor.GREEN"
+                        [label]="strategy.getNextButton().text" [color]="ButtonColor.GREEN"
                         [stretch]="true"
                         [action]="fetchNextPuzzle.bind(this)"
                         [loadingSize]="15"

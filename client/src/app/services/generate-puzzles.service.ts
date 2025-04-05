@@ -6,17 +6,20 @@ import { BufferTranscoder } from '../shared/network/tetris-board-transcoding/buf
 import { InputSpeed } from '../shared/models/input-speed';
 import MoveableTetromino from '../shared/tetris/moveable-tetromino';
 import { ColorType, TetrisBoard } from '../shared/tetris/tetris-board';
-import { PuzzleRating } from '../shared/puzzles/puzzle-rating';
+import { PuzzleRating, PuzzleRatingDetails } from '../shared/puzzles/puzzle-rating';
 import { batchArray } from '../shared/scripts/math';
 import { encodePuzzle } from '../shared/puzzles/encode-puzzle';
 import { bothPlayerIndicies } from '../shared/room/multiplayer-room-models';
 import { cos } from '@tensorflow/tfjs';
+import { PuzzleTheme } from '../shared/puzzles/puzzle-theme';
 
 // A local puzzle encapsulates all data for the puzzle without needing any server fetches
 export interface LocalPuzzle {
   puzzleID: string; // the board, current, and next encoded into the unique puzzle id
   level: number; // level of puzzle
+  lines: number;
   rating: PuzzleRating; // puzzle difficulty
+  theme: PuzzleTheme;
 }
 
 // Represents the changing state as puzzles are generated for a game
@@ -42,6 +45,12 @@ export class GeneratePuzzlesService {
 
   public getState$(): Observable<State | null> {
     return this.state$.asObservable();
+  }
+
+  public getPuzzles(): LocalPuzzle[] {
+    const state = this.state$.getValue();
+    if (!state) return [];
+    return state.puzzles;
   }
 
   public async generatePuzzles(gameID: string, placements: AnalysisPlacement[]) {
@@ -245,11 +254,21 @@ export class GeneratePuzzlesService {
       }
     }
 
+    const details: PuzzleRatingDetails = {
+      bestNB, diff, isAdjustment,
+      hasBurn: hasAnyBurn,
+      hasTuckOrSpin: hasAnyTuckOrSpin
+   };
+
+    const theme = classifyPuzzleTheme(board, details);
+
     // Return found puzzle
     return {
       puzzleID: encodePuzzle(board, placement.current, placement.next),
       level: placement.level,
-      rating
+      lines: placement.lines,
+      rating,
+      theme
     }
   }
 }
@@ -284,5 +303,53 @@ function hasTuckOrSpin(board: TetrisBoard, placement: MoveableTetromino): boolea
     if (y < 20 && board.getAt(x, y + 1) === ColorType.EMPTY) return true;
   }
 
+  return false;
+}
+
+export function classifyPuzzleTheme(
+  board: TetrisBoard,
+  details: PuzzleRatingDetails
+): PuzzleTheme {
+
+  if (isDig(board)) return PuzzleTheme.DIG;
+  if (isSpire(board)) return PuzzleTheme.SPIRE;
+  if (details.hasBurn) return PuzzleTheme.BURN;
+  if (details.hasTuckOrSpin) return PuzzleTheme.OVERHANG;
+  return PuzzleTheme.CLEAN;
+}
+
+
+function isDig(board: TetrisBoard): boolean {
+
+  // if there is at least two minos on the right column, it is a dig
+  let rightCount = 0;
+  for (let i = 0; i < 20; i++) {
+    if (board.getAt(9, i)) {
+      rightCount++;
+    }
+  }
+  return rightCount >= 2;
+}
+
+function getColumnHeight(board: TetrisBoard, column: number): number {
+  for (let i = 0; i < 20; i++) {
+    if (board.getAt(column, i)) {
+      return 20 - i;
+    }
+  }
+  return 0;
+}
+
+function isSpire(board: TetrisBoard): boolean {
+
+  // when the average height of two adjacent columns is at least 4 greater than the columns on both sides, it is a spire
+  for (let i = 0; i < 7; i++) {
+    const leftHeight = getColumnHeight(board, i);
+    const rightHeight = getColumnHeight(board, i + 3);
+    const middleHeight = (getColumnHeight(board, i + 1) + getColumnHeight(board, i + 2)) / 2;
+    if (middleHeight >= leftHeight + 4 && middleHeight >= rightHeight + 4) {
+      return true;
+    }
+  }
   return false;
 }

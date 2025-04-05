@@ -1,5 +1,5 @@
 import { PuzzleSubmission } from "src/app/models/puzzles/puzzle";
-import { EngineMove, PuzzleSolution, PuzzleStrategy, UnsolvedPuzzle } from "./puzzle-strategy";
+import { EngineMove, NextButton, PuzzleSolution, PuzzleStrategy, UnsolvedPuzzle } from "./puzzle-strategy";
 import { PuzzleStrategyType } from "./puzzle-strategy-type";
 import { DBPuzzle } from "src/app/shared/puzzles/db-puzzle";
 import { FetchService, Method } from "src/app/services/fetch.service";
@@ -9,12 +9,12 @@ import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
 import { decodePuzzleSolution } from "./decode-puzzle-solution";
 import { xpOnPuzzleSolve } from "src/app/shared/nestris-org/xp-system";
 import { AnalyticsService } from "src/app/services/analytics.service";
+import { PuzzleRating } from "src/app/shared/puzzles/puzzle-rating";
+import { PuzzleTheme } from "src/app/shared/puzzles/puzzle-theme";
 
 export class RatedPuzzleStrategy extends PuzzleStrategy {
   public readonly type = PuzzleStrategyType.RATED;
   public readonly isTimed = true;
-  public readonly nextButtonText = "Next Puzzle";
-  public readonly displayName = "Rated Puzzle";
 
   private fetchService = this.injector.get(FetchService);
   private websocketService = this.injector.get(WebsocketService);
@@ -24,6 +24,14 @@ export class RatedPuzzleStrategy extends PuzzleStrategy {
   private startTime = Date.now();
 
   private eloHistory: number[] = [];
+
+  public override getNextButton(): NextButton {
+    return {hasNext: true, text: "Next Puzzle"};
+  }
+
+  public override getDisplayName(): string {
+    return "Rated Puzzle";
+  }
 
   public override async fetchNextPuzzle(): Promise<UnsolvedPuzzle> {
 
@@ -85,4 +93,12 @@ export class RatedPuzzleStrategy extends PuzzleStrategy {
   public getEloHistory(): number[] {
     return this.eloHistory;
   }
+
+  public override getPuzzleRating(): PuzzleRating | null { return this.currentPuzzle!.rating; }
+    public override getSuccessRate(): number | null {
+      const puzzle = this.currentPuzzle!;
+      return puzzle.num_attempts === 0 ? null : puzzle.num_solves / puzzle.num_attempts;
+    }
+    public override getNumAttempts(): number | null { return this.currentPuzzle!.num_attempts; }
+    public override getTheme(): PuzzleTheme | null { return this.currentPuzzle!.theme; }
 }

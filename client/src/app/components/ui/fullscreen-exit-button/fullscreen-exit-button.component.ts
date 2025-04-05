@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-fullscreen-exit-button',
@@ -14,7 +15,8 @@ export class FullscreenExitButtonComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private location: Location
   ) {}
 
   async exit() {

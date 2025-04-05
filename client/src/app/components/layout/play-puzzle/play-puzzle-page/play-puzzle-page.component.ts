@@ -80,6 +80,10 @@ interface PuzzleState {
   comment?: string, // comment to display to the user after submitting
 }
 
+export class PuzzleError extends Error {
+  constructor(public readonly notiferMessage: string) { super(); }
+}
+
 @Component({
   selector: 'app-play-puzzle-page',
   templateUrl: './play-puzzle-page.component.html',
@@ -153,6 +157,20 @@ export class PlayPuzzlePageComponent implements OnInit {
       return;
     }
     this.strategy = strategy;
+
+    // Initialize strategy
+    try {
+      await this.strategy.init();
+    } catch (e) {
+      console.error("Error initializing puzzle strategy:", e);
+      this.router.navigate(['/']);
+
+      if (e instanceof PuzzleError) {
+        this.notifier.notify(NotificationType.ERROR, e.notiferMessage);
+      }
+      return;
+    }
+    
     
     // Fetch the first puzzle
     await this.fetchNextPuzzle();
@@ -306,6 +324,17 @@ export class PlayPuzzlePageComponent implements OnInit {
     if (this.state$.getValue()?.id === PuzzleStateID.SOLVING) {
       await this.submitPuzzle(); // submit puzzle early
     }
+  }
+
+  exit() {
+    const exitRoute = this.route.snapshot.queryParamMap.get('exit');
+
+    let route;
+    if (exitRoute) route = decodeURIComponent(exitRoute);
+    else route = "/";
+
+    console.log("Exiting fullscreen, navigating to", route);
+    this.router.navigate([route]);
   }
 
 }

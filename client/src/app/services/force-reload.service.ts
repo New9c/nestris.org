@@ -21,7 +21,7 @@ export class ForceReloadService {
     if ( RELEASE_HASH === hash ) console.log(`SERVER HASH VERIFIED`);
     else {
       console.log("SERVER HASH MISMATCH:", RELEASE_HASH);
-      this.forceReload();
+      setTimeout(() => this.forceReload(), 500);
     }
   }
 

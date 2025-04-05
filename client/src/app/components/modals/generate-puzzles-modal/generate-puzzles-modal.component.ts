@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { GeneratePuzzlesService } from 'src/app/services/generate-puzzles.service';
 import { ButtonColor } from '../../ui/solid-button/solid-button.component';
 import { ModalManagerService } from 'src/app/services/modal-manager.service';
+import { Router } from '@angular/router';
+import { PuzzleStrategyType } from '../../layout/play-puzzle/play-puzzle-page/puzzle-states/puzzle-strategy-type';
 
 @Component({
   selector: 'app-generate-puzzles-modal',
@@ -18,10 +20,13 @@ export class GeneratePuzzlesModalComponent implements OnDestroy {
   constructor(
     private readonly generatePuzzlesService: GeneratePuzzlesService,
     private readonly modalManagerService: ModalManagerService,
+    private readonly router: Router,
   ) {}
 
   go() {
-    
+    this.router.navigate(['/online/puzzle'], {
+      queryParams: { mode: PuzzleStrategyType.GENERATED, exit: encodeURIComponent(this.router.url) },
+    });
   }
 
   hide() {
