@@ -122,6 +122,7 @@ import { LaunchPageComponent } from './components/layout/launch-page/launch-page
 import { GeneratePuzzlesModalComponent } from './components/modals/generate-puzzles-modal/generate-puzzles-modal.component';
 import { RabbitLoadingAnimationComponent } from './components/ui/rabbit-loading-animation/rabbit-loading-animation.component';
 import { UsernameComponent } from './components/ui/username/username.component';
+import { PuzzleModeModalComponent } from './components/modals/puzzle-mode-modal/puzzle-mode-modal.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -280,6 +281,7 @@ const customNotifierOptions: NotifierOptions = {
     GeneratePuzzlesModalComponent,
     RabbitLoadingAnimationComponent,
     UsernameComponent,
+    PuzzleModeModalComponent,
   ],
   imports: [
     BrowserModule,

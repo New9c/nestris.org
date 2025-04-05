@@ -1,15 +1,16 @@
 import { BehaviorSubject, Observable } from "rxjs";
 import { GameState, GameStateSnapshot, GameStateSnapshotWithoutBoard } from "src/app/shared/game-state-from-packets/game-state";
-import { Platform } from "src/app/shared/models/platform";
 import { COUNTDOWN_NOT_IN_GAME, GameAbbrBoardSchema, GameCountdownSchema, GameFullBoardSchema, GameFullStateSchema, GamePlacementSchema, GameRecoverySchema, GameStartSchema, PACKET_NAME, PacketContent, PacketOpcode } from "src/app/shared/network/stream-packets/packet";
 import MoveableTetromino from "src/app/shared/tetris/moveable-tetromino";
 import { TetrisBoard } from "src/app/shared/tetris/tetris-board";
 import { TetrominoType } from "src/app/shared/tetris/tetromino-type";
 import { PacketReplayer } from "src/app/util/packet-replayer";
-import { RoomService } from "./room.service";
 import { ClientRoom } from "./client-room";
 import { RequestRecoveryRoomEvent, RoomEventType } from "src/app/shared/room/room-models";
 import { PlayerIndex } from "src/app/shared/room/multiplayer-room-models";
+
+// The time to wait before reloading the page after a packet error
+const RELOAD_SECONDS = 6;
 
 /**
  * A ServerPlayer tracks game state of a player based on server-sent packets. It uses lag buffering to
@@ -29,7 +30,7 @@ export class ServerPlayer {
     private previousSnapshot: GameStateSnapshot | null;
 
     private sendRecoveryRequestInterval?: any;
-    private recoveryRetries: number = 0;
+    private loadTime = -1;
   
     // The constructor initializes the ServerPlayer with a buffer delay (in ms) for the PacketReplayer
     constructor(
@@ -49,6 +50,8 @@ export class ServerPlayer {
         // Create a PacketReplayer to buffer packets from the server
         this.replayer = new PacketReplayer((packets) => {
 
+          if (this.loadTime === -1)  this.loadTime = Date.now();
+
             // When PacketReplayer decides it is time for a packet(s) to be executed, update the player state with the packet(s)
             packets.forEach((packet) => { 
               try {
@@ -65,11 +68,10 @@ export class ServerPlayer {
                   this.sendRecoveryRequestInterval = setInterval(() => {
                   
                     // Recovery request still causes bugs. Quickfix for spectators is just to reload the page and try again
-                    if (!this.isPlayer && this.recoveryRetries >= 2) location.reload();
+                    if (!this.isPlayer && Date.now() - this.loadTime > RELOAD_SECONDS * 1000) location.reload();
                     else {
-                      this.recoveryRetries++;
                       this.clientRoom.sendClientRoomEvent(event);
-                      console.log("Sent request for recovery packet, attempt", this.recoveryRetries);
+                      console.log("Sent request for recovery packet");
                     }
                     
                   }, 3000);
@@ -107,7 +109,7 @@ export class ServerPlayer {
         if (this.sendRecoveryRequestInterval) {
           clearInterval(this.sendRecoveryRequestInterval);
           this.sendRecoveryRequestInterval = undefined;
-          console.log("Got recovery packet, stopping request for recovery timer");
+          console.log("Got recovery packet, stopping request for recovery timer, in", Date.now() - this.loadTime, "ms");
         }
 
         // Sent when spectator joins after game ends

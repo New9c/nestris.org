@@ -142,7 +142,7 @@ export class PlayPageComponent implements OnInit, OnDestroy {
     switch (mode) {
       case Mode.SOLO: return this.playService.playSolo();
       case Mode.RANKED: return this.playService.playRanked();
-      case Mode.PUZZLES: return this.playService.playPuzzles();
+      case Mode.PUZZLES: return this.modalManager.showModal(ModalType.PUZZLE_MODE);
     }
   }
 
