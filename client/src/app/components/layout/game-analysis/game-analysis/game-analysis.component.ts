@@ -21,6 +21,7 @@ import { InputSpeed } from 'src/app/shared/models/input-speed';
 import { RatedMove } from 'src/app/components/ui/eval-bar/eval-bar.component';
 import { GeneratePuzzlesService } from 'src/app/services/generate-puzzles.service';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
+import { AnalyticsService } from 'src/app/services/analytics.service';
 
 
 interface CurrentFrame {
@@ -151,7 +152,9 @@ export class GameAnalysisComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly stackrabbitService: StackrabbitService,
     private readonly generatePuzzlesService: GeneratePuzzlesService,
     private readonly modalManagerService: ModalManagerService,
+    private readonly analyticsService: AnalyticsService,
   ) {
+    this.analyticsService.sendEvent('game-analysis');
   }
 
   

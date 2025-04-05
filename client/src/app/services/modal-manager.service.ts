@@ -86,6 +86,17 @@ export class ModalManagerService {
     return this.activeModal$.getValue() !== null;
   }
 
+  // Not great coding practice to have this defined here instead of modal-specific code, but release is in 3 days
+  getModalBackgroundColor(): string {
+
+    const modalType = this.activeModal$.getValue();
+    console.log("Modal type: ", modalType);
+    if (modalType === ModalType.PUZZLE_MODE) return "none";
+
+    // default modal color
+    return "#161517";
+  }
+
   
 
 }

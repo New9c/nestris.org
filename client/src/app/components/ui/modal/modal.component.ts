@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostListener, Input, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { ModalManagerService } from 'src/app/services/modal-manager.service';
 
 @Component({
   selector: 'app-modal',
@@ -12,7 +13,11 @@ export class ModalComponent {
   @Input() showX: boolean = true;
   @Input() padding: boolean = true;
 
-  constructor() {
+  public backgroundColor = this.modalManager.getModalBackgroundColor();
+
+  constructor(
+    private readonly modalManager: ModalManagerService,
+  ) {
   }
 
   // if escape key is pressed, close the modal
