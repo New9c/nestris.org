@@ -274,9 +274,11 @@ export class PlayPuzzlePageComponent implements OnInit {
     if (submission.firstPiece && submission.secondPiece) {
       for (let i = 0; i < solution.moves.length; i++) {
 
+        // Allow for inverted placements if both pieces are the same type
         if (
-          solution.moves[i].firstPlacement.equals(submission.firstPiece) &&
-          solution.moves[i].secondPlacement.equals(submission.secondPiece)
+          (solution.moves[i].firstPlacement.equals(submission.firstPiece) && solution.moves[i].secondPlacement.equals(submission.secondPiece))
+          ||
+          (solution.moves[i].firstPlacement.equals(submission.secondPiece) && solution.moves[i].secondPlacement.equals(submission.firstPiece))
         ) {
           submissionIndex = i;
           break;
