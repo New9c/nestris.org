@@ -77,8 +77,8 @@ export abstract class PlacementAI {
 
         let multiplier: number = 0.5;
         let gravity = getGravity(level);
-        if (gravity === 2) multiplier = 2.5;
-        else if (gravity === 1) multiplier = 5;
+        if (gravity === 2) multiplier = 3;
+        else if (gravity === 1) multiplier = 8;
 
         const isMisdrop = Math.random() < this.config.misdrop * multiplier;
         const isMistake = !isMisdrop && Math.random() < this.config.mistake * multiplier;

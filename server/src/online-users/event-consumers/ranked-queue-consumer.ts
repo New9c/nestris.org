@@ -295,7 +295,7 @@ export class RankedQueueConsumer extends EventConsumer {
         const roomConsumer = EventConsumerManager.getInstance().getConsumer(RoomConsumer);
         const ongoingMatchCount = roomConsumer.getRoomCount(room => room instanceof RankedMultiplayerRoom);
         if (EventConsumerManager.getInstance().getConsumer(ServerRestartWarningConsumer).isServerRestartWarning()) return;
-        if (this.matches.length + ongoingMatchCount > 1) return;
+        if (this.matches.length + ongoingMatchCount > 3) return;
         if (newestBots) this.match(newestBots.bot1, newestBots.bot2);
     }
 

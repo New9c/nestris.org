@@ -57,7 +57,7 @@ print(f"Mean Squared Error on Test Set: {mse}")
 def trophies_from_score(score):
     if score <= 0:
         raise ValueError("Score must be greater than zero for trophies calculation.")
-    return 3.4 * math.pow(score, 0.5)
+    return 3.6 * math.pow(score, 0.5)
 
 def predict_score(input_speed, inaccuracy, mistake, misdrop):
     # Predict the score using the trained model
@@ -95,14 +95,7 @@ def remove_percentage(bots, percentage):
 
     return result
 
-# Function to generate all configurations, calculate the scores and trophies, and write to TypeScript file
-def generate_bot_configs_and_write_to_file():
-    # Define the possible values for each parameter
-    input_speeds = [6, 8, 10, 12, 14, 17, 20, 25]
-    inaccuracies = [0.9, 0.6, 0.3, 0.1]
-    mistakes = [0.3, 0.1, 0.05, 0.03, 0.01, 0.005]
-    misdrops = [0.03, 0.01, 0.005, 0.001, 0.0005]
-
+def generate_bot_configs(remove_percent, input_speeds, inaccuracies, mistakes, misdrops):
 
     # Generate all permutations of the configurations
     bot_configs = list(itertools.product(input_speeds, inaccuracies, mistakes, misdrops))
@@ -150,7 +143,39 @@ def generate_bot_configs_and_write_to_file():
     
     # Sort bots by trophies in ascending order
     bots = sorted(bots, key=lambda bot: bot['trophies'])
-    bots = remove_percentage(bots, 0.7)
+    bots = remove_percentage(bots, remove_percent)
+
+    return bots
+
+
+# Function to generate all configurations, calculate the scores and trophies, and write to TypeScript file
+def generate_bot_configs_and_write_to_file():
+    # Define the possible values for each parameter
+    # input_speeds = [6, 8, 10, 12, 14, 17, 20, 25]
+    # inaccuracies = [0.9, 0.6, 0.3, 0.1]
+    # mistakes = [0.3, 0.1, 0.05, 0.03, 0.01, 0.005]
+    # misdrops = [0.03, 0.01, 0.005, 0.001, 0.0005]
+
+    bots = []
+
+    # normal bots
+    bots.extend(generate_bot_configs(
+        0.75, # remove percent
+        [6, 8, 10, 12, 14, 17, 20, 25], # input speeds
+        [0.9, 0.6, 0.3, 0.1], # inaccuracies
+        [0.3, 0.1, 0.05, 0.03, 0.01, 0.005], # mistakes,
+        [0.03, 0.01, 0.005, 0.001, 0.0005], # misdrops
+    ))
+
+    # add additional bots that play really well at low hz (it's more fun)
+    bots.extend(generate_bot_configs(
+        0, # remove percent
+        [10, 11, 12, 13, 14], # input speeds
+        [0.3, 0.2, 0.1, 0.05], # inaccuracies
+        [0.005], # mistakes,
+        [0.0005], # misdrops
+    ))
+
 
     print("num bots:", len(bots))
 
@@ -180,14 +205,12 @@ def generate_bot_configs_and_write_to_file():
 # misdrop_entry = tk.Entry(window)
 # misdrop_entry.grid(row=2, column=1)
 
-# Function to trigger bot generation
-def generate_bot_configs():
-    generate_bot_configs_and_write_to_file()
+
 
 # Create a button to trigger bot config generation
 # generate_button = tk.Button(window, text="Generate Bots and Write to File", command=generate_bot_configs)
 # generate_button.grid(row=3, column=0, columnspan=2)
 
-generate_bot_configs()
+generate_bot_configs_and_write_to_file()
 # # Start the Tkinter event loop
 # window.mainloop()
