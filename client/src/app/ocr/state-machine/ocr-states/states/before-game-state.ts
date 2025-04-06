@@ -10,7 +10,7 @@ import { OCRConfig } from "../../ocr-state-machine";
 import { GymRNG } from "src/app/shared/tetris/piece-sequence-generation/gym-rng";
 import { RecoveryEvent } from "../events/recovery-event";
 
-export const NOISE_THRESHOLD = 40;
+export const NOISE_THRESHOLD = 30;
 
 export class BeforeGameState extends OCRState {
     public override readonly id = OCRStateID.BEFORE_GAME;
@@ -30,7 +30,6 @@ export class BeforeGameState extends OCRState {
         const frame = ocrFrame.getBinaryBoard();
         const consistency = ocrFrame.getBoardNoise();
         const nextType = ocrFrame.getNextType();
-        //console.log("board noise", consistency);
     }
 }
 
@@ -41,7 +40,7 @@ export class BeforeGameState extends OCRState {
  */
 export class StartGameEvent extends StateEvent {
     public override readonly name: string = "StartGameEvent";
-    public override readonly persistence = new ConsecutivePersistenceStrategy(5);
+    public override readonly persistence = new ConsecutivePersistenceStrategy(2);
 
     /**
      * @param startLevel If the level is specified, the level must match for the game to start

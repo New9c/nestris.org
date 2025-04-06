@@ -160,12 +160,12 @@ export class ExitEvent extends StateEvent {
     public override readonly persistence = new ConsecutivePersistenceStrategy(10);
 
     /**
-     * If noisy levels are high, that the board is showing is unlikely
+     * If noisy levels are high, board is not likely showing. double check that the text ocr fails too
      */
     protected override async precondition(ocrFrame: OCRFrame): Promise<boolean> {
         const noise = ocrFrame.getBoardNoise()!;
-        //console.log("board noise", noise);
-        return noise > NOISE_THRESHOLD;
+
+        return noise > NOISE_THRESHOLD && (await ocrFrame.getLevel() === -1 || await ocrFrame.getLines(true) === -1 || await ocrFrame.getScore(true) === -1)
     };
 
     /**
