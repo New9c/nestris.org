@@ -58,14 +58,18 @@ export class FriendElementComponent implements OnInit {
       [OnlineUserActivityType.SOLO] : { canSpectate: true, tooltip: `Watch ${this.friendInfo.username}'s solo game!` },
       [OnlineUserActivityType.MULTIPLAYER] : { canSpectate: true, tooltip: `Watch ${this.friendInfo.username}'s ranked match!` },
       [OnlineUserActivityType.QUEUEING] : { canSpectate: false, tooltip: `${this.friendInfo.username} is currently queuing` },
-      [OnlineUserActivityType.PUZZLES] : { canSpectate: false, tooltip: `${this.friendInfo.username} is solving a puzzle` }
+      [OnlineUserActivityType.PUZZLES] : { canSpectate: false, tooltip: `${this.friendInfo.username} is solving a puzzle` },
+      [OnlineUserActivityType.PUZZLE_RUSH] : { canSpectate: false, tooltip: `${this.friendInfo.username} is in Puzzle Blitz!` },
+      [OnlineUserActivityType.PUZZLE_BATTLES] : { canSpectate: false, tooltip: `${this.friendInfo.username} is playing Puzzle Wars!` },
     };
 
     this.busyActivities = {
       [OnlineUserActivityType.SOLO] : `${this.friendInfo.username} is busy playing a solo game!`,
       [OnlineUserActivityType.MULTIPLAYER] : `${this.friendInfo.username} is busy playing a match!`,
       [OnlineUserActivityType.QUEUEING] : `${this.friendInfo.username} is busy queuing for a ranked match!`,
-      [OnlineUserActivityType.PUZZLES] : `${this.friendInfo.username} is busy solving a puzzle!`
+      [OnlineUserActivityType.PUZZLES] : `${this.friendInfo.username} is busy solving a puzzle!`,
+      [OnlineUserActivityType.PUZZLE_RUSH] : `${this.friendInfo.username} is busy playing Puzzle Blitz!`,
+      [OnlineUserActivityType.PUZZLE_BATTLES] : `${this.friendInfo.username} is busy playing Puzzle Wars!`
     };
 
     this.noActivityTooltip = `${this.friendInfo.username} is currently idle`;

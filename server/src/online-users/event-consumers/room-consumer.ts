@@ -81,6 +81,7 @@ export abstract class Room<T extends RoomState = RoomState> {
     constructor(
         activity: OnlineUserActivityType, // The type of activity the user is currently doing
         userSessionIDs: UserSessionID[], // A list of session ids of players in the room
+        public readonly allowSpectators: boolean,
     ) {
 
         // Assert all sessions are online. Otherwise, throw an abort error.
@@ -549,6 +550,9 @@ export class RoomConsumer extends EventConsumer {
 
         // Room not found
         if (!spectateRoom) return null;
+
+        // Spectating disabled for room
+        if (!spectateRoom.allowSpectators) return null;
 
         // Session already in room
         if (spectateRoom.spectatorSessionIDs.includes(sessionID)) return null;

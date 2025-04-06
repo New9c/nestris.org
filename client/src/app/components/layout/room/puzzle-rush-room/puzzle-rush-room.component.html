@@ -1,0 +1,58 @@
+<div class="root" *ngIf="state$ | async as state"
+[ngClass]="{
+    'incorrect': false
+}">
+
+
+    <app-xp-status />
+
+    <div class="content">
+
+        <header>
+            <h1 class="title">PUZZLE RUSH</h1>
+        </header>
+
+        <p class="instructions">
+            Solve as many puzzles as you can in 3 minutes, but 3 strikes and you're out!
+        </p>
+
+        <div class="main-row">
+
+            <!-- show undo button if in puzzle solving mode and can undo -->
+            <app-outline-button class="undo-button" label="Undo"
+            [ngStyle]="{visibility: true ? 'visible' : 'hidden'}" />
+
+            <!-- show puzzle board if it's in puzzle solving mode and a puzzle is loaded -->
+            <app-puzzle-nes-board *ngIf="puzzleData$ | async as puzzleData"
+                class="board" [scale]="3.3" [level]="18"
+                [puzzle]="puzzleData"
+            />
+
+
+            <div class="puzzle-details">
+
+                <div class="puzzle-details-top">
+                    
+
+                </div>
+                
+                <div class="puzzle-details-bottom">
+
+                    <!-- If in puzzle solution mode and has next puzzle, show "Next Puzzle" button -->
+                    <app-solid-button
+                        label="Skip Puzzle" [color]="ButtonColor.RED"
+                        [stretch]="true"
+                        [loadingSize]="15"
+                    />
+                </div>
+
+            </div>
+
+            <!-- spacer purposes -->
+            <app-outline-button class="undo-button" label="Undo"
+            [ngStyle]="{visibility: 'hidden'}" />
+
+        </div>
+    </div>
+
+</div>

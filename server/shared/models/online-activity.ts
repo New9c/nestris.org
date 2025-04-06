@@ -4,4 +4,6 @@ export enum OnlineUserActivityType {
     MULTIPLAYER = "MULTIPLAYER",
     PUZZLES = "PUZZLES",
     QUEUEING = "QUEUEING",
+    PUZZLE_RUSH = "PUZZLE_RUSH",
+    PUZZLE_BATTLES = "PUZZLE_BATTLES",
 }

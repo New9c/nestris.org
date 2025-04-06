@@ -37,3 +37,10 @@ export interface DBPuzzle extends DBPuzzleBuilder {
     num_likes: number;
     num_dislikes: number;
 }
+
+export interface RushPuzzle {
+    id: string;
+    current: number; // MTPose of current placement
+    next: number; // MTPose of next placement
+    rating: PuzzleRating;
+}

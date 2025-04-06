@@ -77,6 +77,7 @@ import { AnalyticsConsumer } from './src/online-users/event-consumers/analytics-
 import { GetVersionRoute } from './src/routes/misc/get-version-route';
 import { GetRankedStatsRoute } from './src/routes/user/get-ranked-stats-route';
 import { PuzzleRushConsumer } from './src/online-users/event-consumers/puzzle-rush-consumer';
+import { StartPuzzleRushRoute } from './src/routes/room/start-puzzle-rush';
 
 // Load environment variables
 require('dotenv').config();
@@ -204,6 +205,7 @@ async function main() {
   routes.registerRoute(LeaveRankedQueueRoute);
   routes.registerRoute(SpectateRoomRoute);
   routes.registerRoute(SpectateRoomOfUserRoute);
+  routes.registerRoute(StartPuzzleRushRoute);
   routes.registerRoute(GetUsernamesListRoute);
   routes.registerRoute(GetInvitationsRoute);
   routes.registerRoute(RemoveFriendRoute);

@@ -214,8 +214,6 @@ export class SoloClientRoom extends ClientRoom {
         this.ocrSubscription?.unsubscribe();
         this.packetGroupSubscription?.unsubscribe();
         this.spectatorPlayer?.onDelete();
-
-        this.analytics.sendEvent("leave-solo");
     }
 
 }

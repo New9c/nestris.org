@@ -11,7 +11,7 @@
                         <p class="prevent-select">Solve rated puzzles. Your puzzle elo:</p>
                         <app-puzzle-elo [puzzleElo]="me.puzzle_elo" [size]="12" />
                     </ng-container>
-                    <p *ngIf="mode === PuzzleMode.RUSH" class="prevent-select">Solve as many puzzles as you can in 2 minutes</p>
+                    <p *ngIf="mode === PuzzleMode.RUSH" class="prevent-select">Solve as many puzzles as you can in 3 minutes!</p>
                     <p *ngIf="mode === PuzzleMode.BATTLE" class="prevent-select">Battle other players in Puzzle Blitz!</p>
                 </div>
                 <div class="lock-text" *ngIf="!canPlay(me, mode)">

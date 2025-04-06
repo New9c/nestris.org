@@ -1,6 +1,8 @@
 export enum RoomType {
     SOLO = 'SOLO',
     MULTIPLAYER = 'MULTIPLAYER',
+    PUZZLE_RUSH = 'PUZZLE_RUSH',
+    PUZZLE_BATTLES = 'PUZZLE_BATTLES',
 }
 
 export const SPECTATOR_ONLY_CHAT_TYPES: RoomType[] = [

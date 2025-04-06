@@ -46,6 +46,7 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         super(
             OnlineUserActivityType.MULTIPLAYER,
             [player1SessionID, player2SessionID],
+            true
         )
 
         // Create the players in the room

@@ -1,8 +1,9 @@
-import { DBPuzzle } from "../../../shared/puzzles/db-puzzle";
+import { DBPuzzle, RushPuzzle } from "../../../shared/puzzles/db-puzzle";
 import { PuzzleRating } from "../../../shared/puzzles/puzzle-rating";
 import { Database } from "../../database/db-query";
 import { EventConsumer } from "../event-consumer";
 import { SamplePuzzlesQuery } from "./rated-puzzle-consumer";
+import { v4 as uuid } from "uuid";
 
 /**
  * The puzzle rush consumer handlers the generation and caching of puzzle rush sets for use in puzzle rush and puzzle battles. A set
@@ -66,7 +67,7 @@ function smartMostlySorted(puzzles: RatedObject[]): RatedObject[] {
  * @param totalCount the total number of puzzles to generates
  * @param categoryCount the number of puzzles to generate for each rating 1-4, where remaining goes to 5
  */
-async function generatePuzzleRushSet(totalCount: number = 200, categoryCount: number = 20): Promise<DBPuzzle[]> {
+async function generatePuzzleRushSet(totalCount: number = 200, categoryCount: number = 20): Promise<RushPuzzle[]> {
 
     const puzzleCountForRating = (rating: PuzzleRating) => rating === PuzzleRating.FIVE_STAR ? (totalCount - categoryCount*4) : categoryCount;
     if (puzzleCountForRating(PuzzleRating.FIVE_STAR) <= 0) throw new Error("Not enough total count for 5 star puzzles");
@@ -89,7 +90,12 @@ async function generatePuzzleRushSet(totalCount: number = 200, categoryCount: nu
     const puzzles: DBPuzzle[] = puzzleSets.flat();
 
     // Return the full set of puzzles, sorted with some noise
-    return smartMostlySorted(puzzles) as DBPuzzle[];
+    return (smartMostlySorted(puzzles) as DBPuzzle[]).map(puzzle => ({
+        id: puzzle.id,
+        current: puzzle.current_1,
+        next: puzzle.next_1,
+        rating: puzzle.rating
+    }));
 }
 
 
@@ -98,9 +104,13 @@ class PuzzleRushSet {
     // Set of userids that were given this set
     private userids = new Set<string>();
 
+    public readonly id = uuid();
+
     constructor(
-        public readonly set: DBPuzzle[] // Ordered set of puzzle rush puzzles
-    ) {}
+        public readonly set: RushPuzzle[] // Ordered set of puzzle rush puzzles
+    ) {
+        console.log("new set", this.id);
+    }
 
     // When a puzzle rush set is given a user, add to the set
     markAsUsed(userid: string) {
@@ -155,7 +165,7 @@ export class PuzzleRushConsumer extends EventConsumer {
      * If there exists a set in the cache, return it and mark them as visited by the users.
      * If no puzzle set exists in the cache that has not been used by any of the users, return a new puzzle set
      */
-    public async fetchPuzzleSetForUsers(userids: string[]): Promise<DBPuzzle[]> {
+    public async fetchPuzzleSetForUsers(userids: string[]): Promise<RushPuzzle[]> {
 
         // The sets that haven't been used by any of the userids
         const unusedPuzzleSets = this.sets.filter(set => userids.every(userid => !set.usedBy(userid)));
@@ -178,7 +188,7 @@ export class PuzzleRushConsumer extends EventConsumer {
 
         // Check if any of the requesting users now exceed max cache usage, forcing a replenish
         if (userids.some(userid => this.userExceedsMaxCacheUsage(userid))) {
-            console.log("exceed max cache usage, replacing set")
+            console.log("exceed max cache usage, replacing set", selectedPuzzleSet.id);
 
             // Remove the most used set from the cache
             this.sets.splice(this.sets.indexOf(selectedPuzzleSet), 1);
@@ -188,7 +198,7 @@ export class PuzzleRushConsumer extends EventConsumer {
         }
 
         // Return the puzzle rush set
-        console.log("fetch from cache with set used by", selectedPuzzleSet.getUserIds());
+        console.log(userids, "fetch from cache with set", selectedPuzzleSet.id);
         return selectedPuzzleSet.set;
     }
 

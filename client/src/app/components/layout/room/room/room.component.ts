@@ -7,10 +7,6 @@ import { PlatformInterfaceService } from 'src/app/services/platform-interface.se
 import { QuestService } from 'src/app/services/quest.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { FetchService, Method } from 'src/app/services/fetch.service';
-import { NotificationService } from 'src/app/services/notification.service';
-import { NotificationType } from 'src/app/shared/models/notifications';
-import { SoundEffect, SoundService } from 'src/app/services/sound.service';
-import { MultiplayerRoomState } from 'src/app/shared/room/multiplayer-room-models';
 import { InRoomStatus } from 'src/app/shared/network/json-message';
 
 export enum RoomModal {
@@ -36,7 +32,7 @@ export class RoomComponent implements OnInit, OnDestroy {
 
   public roomChatTypes: RoomType[] = [
     RoomType.MULTIPLAYER,
-    RoomType.SOLO
+    RoomType.PUZZLE_BATTLES,
   ];
 
   public globalChatTypes: RoomType[] = [
@@ -54,7 +50,6 @@ export class RoomComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly activatedRoute: ActivatedRoute,
     private readonly cdr: ChangeDetectorRef,
-    private readonly sound: SoundService,
   ) {}
 
   

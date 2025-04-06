@@ -11,6 +11,7 @@ import { RoomModal } from 'src/app/components/layout/room/room/room.component';
 import { v4 as uuid } from 'uuid';
 import { MultiplayerClientRoom } from './multiplayer-client-room';
 import { FetchService, Method } from '../fetch.service';
+import { PuzzleRushClientRoom } from './puzzle-rush-client-room';
 
 const MAX_MESSAGES = 15;
 export interface Message extends ChatMessage {
@@ -104,8 +105,17 @@ export class RoomService {
 
     // Create the client room based on the room type
     switch (event.roomState!.type) {
-      case RoomType.SOLO: return new SoloClientRoom(this.injector, this.modal$, event);
-      case RoomType.MULTIPLAYER: return new MultiplayerClientRoom(this.injector, this.modal$, event);
+
+      case RoomType.SOLO:
+        return new SoloClientRoom(this.injector, this.modal$, event);
+
+      case RoomType.MULTIPLAYER:
+        return new MultiplayerClientRoom(this.injector, this.modal$, event);
+
+      case RoomType.PUZZLE_RUSH:
+      case RoomType.PUZZLE_BATTLES:
+        return new PuzzleRushClientRoom(this.injector, this.modal$, event);
+
       default: throw new Error(`Unknown room type ${event.roomState!.type}`);
     }
   }

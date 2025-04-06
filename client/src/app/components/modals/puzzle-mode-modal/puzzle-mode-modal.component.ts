@@ -64,7 +64,9 @@ export class PuzzleModeModalComponent {
 
     this.modalManager.hideModal();
     switch (mode) {
-      case PuzzleMode.NORMAL: this.playService.playPuzzles();
+      case PuzzleMode.NORMAL: return this.playService.playPuzzles();
+      case PuzzleMode.RUSH: return this.playService.playPuzzleRush();
+      default: return;
     }
   }
 }

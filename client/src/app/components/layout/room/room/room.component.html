@@ -1,6 +1,7 @@
 <ng-container *ngIf="roomType$ | async as roomType">
     <app-solo-room *ngIf="roomType === RoomType.SOLO" />
     <app-multiplayer-room *ngIf="roomType === RoomType.MULTIPLAYER" />
+    <app-puzzle-rush-room *ngIf="[RoomType.PUZZLE_RUSH, RoomType.PUZZLE_BATTLES].includes(roomType)" />
 </ng-container>
 
 <app-fullscreen-exit-button />

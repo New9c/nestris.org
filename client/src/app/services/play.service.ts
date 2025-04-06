@@ -99,4 +99,11 @@ export class PlayService {
       queryParams: { mode: 'rated' } 
     });
   }
+
+  async playPuzzleRush() {
+    if (this.checkWarning()) return;
+
+    const sessionID = this.websocketService.getSessionID();
+    this.fetchService.fetch(Method.POST, `/api/v2/start-puzzle-rush/${sessionID}`);
+  }
 }

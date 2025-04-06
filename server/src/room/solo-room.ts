@@ -25,6 +25,7 @@ export class SoloRoom extends Room<SoloRoomState> {
         super(
             OnlineUserActivityType.SOLO,
             [playerSessionID],
+            true,
         )
 
         const username = SoloRoom.Users.getUserInfo(playerSessionID.userid)!.username;

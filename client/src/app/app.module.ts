@@ -123,6 +123,7 @@ import { GeneratePuzzlesModalComponent } from './components/modals/generate-puzz
 import { RabbitLoadingAnimationComponent } from './components/ui/rabbit-loading-animation/rabbit-loading-animation.component';
 import { UsernameComponent } from './components/ui/username/username.component';
 import { PuzzleModeModalComponent } from './components/modals/puzzle-mode-modal/puzzle-mode-modal.component';
+import { PuzzleRushRoomComponent } from './components/layout/room/puzzle-rush-room/puzzle-rush-room.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -282,6 +283,7 @@ const customNotifierOptions: NotifierOptions = {
     RabbitLoadingAnimationComponent,
     UsernameComponent,
     PuzzleModeModalComponent,
+    PuzzleRushRoomComponent,
   ],
   imports: [
     BrowserModule,
