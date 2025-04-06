@@ -4,6 +4,9 @@ import { DBUser } from 'src/app/shared/models/db-user';
 import { Mode } from '../../ui/mode-icon/mode-icon.component';
 import { PlayService } from 'src/app/services/play.service';
 import { ModalManagerService } from 'src/app/services/modal-manager.service';
+import { ServerStatsService } from 'src/app/services/server-stats.service';
+import { map } from 'rxjs';
+import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
 
 enum PuzzleMode {
   NORMAL = 'normal',
@@ -45,9 +48,18 @@ export class PuzzleModeModalComponent {
     public readonly meService: MeService,
     public readonly modalManager: ModalManagerService,
     private readonly playService: PlayService,
+    private readonly serverStatsService: ServerStatsService,
   ) {}
 
-  public canPlay(me: DBUser, mode: PuzzleMode) {
+  public environmentDisable(environment: DeploymentEnvironment) {
+    return environment === DeploymentEnvironment.STAGING;
+  }
+
+  public canPlay(me: DBUser, mode: PuzzleMode, environment: DeploymentEnvironment) {
+
+    // Puzzle rush and battles disabled for now
+    if (mode !== PuzzleMode.NORMAL && this.environmentDisable(environment)) return false;
+
     switch (mode) {
       case PuzzleMode.NORMAL: return true;
       case PuzzleMode.RUSH: return me.highest_puzzle_elo >= this.PUZZLE_RUSH_UNLOCK_ELO;
@@ -55,12 +67,16 @@ export class PuzzleModeModalComponent {
     }
   }
 
-  public onClick(me: DBUser, mode: PuzzleMode, event: MouseEvent) {
+  public environment$ = this.serverStatsService.getServerStats$().pipe(
+    map(stats => stats.environment)
+  );
+
+  public onClick(me: DBUser, mode: PuzzleMode, environment: DeploymentEnvironment, event: MouseEvent) {
     
     event.stopPropagation();
     event.preventDefault();
 
-    if (!this.canPlay(me, mode)) return;
+    if (!this.canPlay(me, mode, environment)) return;
 
     this.modalManager.hideModal();
     switch (mode) {
