@@ -1,16 +1,22 @@
 import { ClientRoom } from "./client-room";
 import { InRoomStatus, InRoomStatusMessage } from "src/app/shared/network/json-message";
 import { AnalyticsService } from "../analytics.service";
-import { PuzzleRushRoomState } from "src/app/shared/room/puzzle-rush-models";
+import { PuzzleRushEventType, PuzzleRushRoomState, PuzzleRushStatus } from "src/app/shared/room/puzzle-rush-models";
 import { MeService } from "../state/me.service";
+import { StartableTimer, Timer } from "src/app/util/timer";
+import { SoundEffect, SoundService } from "../sound.service";
 
 
 export class PuzzleRushClientRoom extends ClientRoom {
 
     readonly analytics = this.injector.get(AnalyticsService);
+    readonly sound = this.injector.get(SoundService);
     readonly me = this.injector.get(MeService);
 
     private myIndex!: number;
+
+    public readonly rushTimer = new StartableTimer(60 * 3, () => this.onTimeout());
+    public readonly countdownTimer = new StartableTimer(3, () => this.rushTimer.start(), () => this.sound.play(SoundEffect.NOTE_HIGH));
 
     public override async init(event: InRoomStatusMessage): Promise<void> {
         const state = event.roomState as PuzzleRushRoomState;
@@ -27,6 +33,18 @@ export class PuzzleRushClientRoom extends ClientRoom {
 
     protected override async onStateUpdate(oldState: PuzzleRushRoomState, newState: PuzzleRushRoomState): Promise<void> {
         
+        if (oldState.status === PuzzleRushStatus.BEFORE_GAME && newState.status === PuzzleRushStatus.DURING_GAME) {
+            this.countdownTimer.start();
+        }
+
+    }
+
+    private onTimeout() {
+
+    }
+
+    public sendReadyEvent() {
+        this.sendClientRoomEvent({type: PuzzleRushEventType.READY });
     }
 
     public override destroy(): void {

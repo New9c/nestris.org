@@ -1,7 +1,7 @@
 import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { RushPuzzle } from "../../shared/puzzles/db-puzzle";
-import { PuzzleRushRoomState, PuzzleRushStatus } from "../../shared/room/puzzle-rush-models";
-import { RoomType } from "../../shared/room/room-models";
+import { PuzzleRushEventType, PuzzleRushRoomState, PuzzleRushStatus } from "../../shared/room/puzzle-rush-models";
+import { ClientRoomEvent, RoomType } from "../../shared/room/room-models";
 import { DBUserObject } from "../database/db-objects/db-user";
 import { EventConsumerManager } from "../online-users/event-consumer";
 import { PuzzleRushConsumer } from "../online-users/event-consumers/puzzle-rush-consumer";
@@ -12,6 +12,9 @@ import { UserSessionID } from "../online-users/online-user";
 export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
 
     private puzzleSet!: RushPuzzle[];
+
+    // Whether each player is ready
+    private playerReady: boolean[];
 
     constructor(
         private readonly playerIDs: UserSessionID[],
@@ -24,6 +27,13 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
             playerIDs,
             false // cannot spectate puzzle rush/battles
         );
+
+        // All players are not ready at first
+        this.playerReady = this.playerIDs.map(_ => false);
+    }
+
+    private getPlayerIndex(userid: string) {
+        return this.playerIDs.map(playerID => playerID.userid).indexOf(userid);
     }
 
     protected override async initRoomState(): Promise<PuzzleRushRoomState> {
@@ -46,6 +56,32 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
                 currentPuzzleID: this.puzzleSet[0].id
             }))
         };
+    }
+
+    /**
+     * Handle a event sent by a client in the room
+     * @param sessionID The sessionID of the player
+     * @param event The event sent by the player
+     */
+    protected async onClientRoomEvent(userid: string, sessionID: string, event: ClientRoomEvent): Promise<void> {
+        const playerIndex = this.getPlayerIndex(userid);
+        if (playerIndex === -1) return;
+
+        const state = this.getRoomState();
+
+        switch (event.type) {
+
+            // Change player ready status to ready. If all ready, change state to DURING_GAME
+            case PuzzleRushEventType.READY:
+
+                this.playerReady[playerIndex] = true;
+                if (this.playerReady.every(ready => ready)) {
+                    state.status = PuzzleRushStatus.DURING_GAME;
+                    this.updateRoomState(state);
+                }
+                return;
+        }
+
     }
 
 }

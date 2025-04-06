@@ -22,12 +22,37 @@
             <app-outline-button class="undo-button" label="Undo"
             [ngStyle]="{visibility: true ? 'visible' : 'hidden'}" />
 
-            <!-- show puzzle board if it's in puzzle solving mode and a puzzle is loaded -->
-            <app-puzzle-nes-board *ngIf="puzzleData$ | async as puzzleData"
-                class="board" [scale]="3.3" [level]="18"
-                [puzzle]="puzzleData"
-            />
+            <ng-container *ngIf="currentPuzzle$ | async as currentPuzzle">
 
+                <!-- If before game, show ready button -->
+                <app-nes-board *ngIf="state.status === PuzzleRushStatus.BEFORE_GAME"
+                    class="board" [scale]="3.3"
+                    [gameOver]="GameOverMode.READY"
+                    [gameOverShowNext]="true"
+                    (clickNext)="puzzleRushRoom.sendReadyEvent()"
+                />
+
+                <ng-container *ngIf="state.status === PuzzleRushStatus.DURING_GAME">
+
+                    <!-- If in countdown, show countdown -->
+                    <app-nes-board *ngIf="puzzleRushRoom.countdownTimer.time$ | async as time; else duringGame"
+                        class="board" [scale]="3.3"
+                        [countdown]="time"
+                    />
+
+                    <ng-template #duringGame>
+                        <!-- If in game, show current puzzle -->
+                        <app-puzzle-nes-board *ngIf="state.status === PuzzleRushStatus.DURING_GAME"
+                            class="board" [scale]="3.3" [level]="18" [puzzle]="currentPuzzle"
+                        />
+                    </ng-template>
+
+                </ng-container>
+                
+
+            </ng-container>
+
+    
 
             <div class="puzzle-details">
 
@@ -53,6 +78,9 @@
             [ngStyle]="{visibility: 'hidden'}" />
 
         </div>
+
+        <div class="bottom"></div>
+
     </div>
 
 </div>

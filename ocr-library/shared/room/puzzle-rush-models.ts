@@ -28,3 +28,9 @@ export interface PuzzleRushRoomState extends RoomState {
 export function puzzleRushScore(player: PuzzleRushPlayer) {
     return player.progress.filter(attempt => attempt).length;
 }
+
+export enum PuzzleRushEventType {
+    READY = 'READY',
+    ATTEMPT = 'ATTEMPT',
+    TIMEOUT = 'TIMEOUT',
+}

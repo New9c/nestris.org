@@ -29,54 +29,31 @@ header {
 }
 
 
-
-
 .content {
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     height: 100%;
     box-sizing: border-box;
 }
 
-.title, .subtitle {
+.title {
     font-family: 'NES';
     color: white;
     text-wrap: nowrap;
-}
-
-.title {
     font-size: 55px;
     margin-top: 10px;
     margin-bottom: 0px;
 }
 
-.subtitle {
-    font-size: 25px;
-    margin: 0px;
-}
-
-.subtitle-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    width: 75%;
-    gap: 30px;
-}
-
-.subtitle-container hr {
-    width: 100%;
-    margin: 0;
-    border: solid 1.5px;
-}
 
 .main-row {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    transform: translateX(20px);
 }
 
 .puzzle-details {
@@ -86,7 +63,7 @@ header {
     justify-content: space-between;
     align-items: center;
 
-    width: 320px;
+    width: 360px;
     border-radius: 10px;
     background-color: rgba(255, 255, 255, 0.10);;
 }
@@ -182,14 +159,6 @@ header {
 }
 
 
-.left-col {
-    width: 400px;
-    margin-left: 20px;
-
-    display: flex;
-    flex-direction: column;
-}
-
 
 .instructions {
     color: #FFF;
@@ -202,173 +171,12 @@ header {
     margin: 0;
 }
 
-.instructions.narrow {
-    font-size: 18px;
-    width: 80%;
-}
 
 .undo-button {
     align-self: flex-end;
-    margin-right: 5px;
+    margin-inline: 7px;
 }
 
-.timer {
-    width: calc(100dvw - 40px);
-    margin-bottom: 20px;
-}
-
-// .elo-container {
-//     margin-bottom: 20px;
-// }
-
-
-.engine-div {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-
-    width: 80%;
-  }
-
-.engine-div h2, .feedback-container h2 {
-    font-family: $main-font;
-    text-align: center;
-    font-size: 14px;
-    font-weight: 700;
-    margin: 5px;
-}
-  
-  .engine-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .row-container {
-    display: grid;
-    grid-template-columns: 40px 10px 1fr;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  
-  .table-rows {
-    display: grid;
-    grid-template-columns: 1fr 1.5fr 1.2fr 1.2fr;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  
-  .labels p {
-    font-family: Montserrat;
-    font-size: 9px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    text-align: center;
-    text-wrap: nowrap;
-    opacity: 0.7;
-    margin: 2px;
-  }
-  
-  .engine-move {
-    background-color: rgb(255, 255, 255, 0.2);
-    border-radius: 10px;
-    margin-bottom: 4px;
-  
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-  }
-
-  .engine-move.player-move {
-    border: solid 1px white;
-    background-color: rgba(255, 255, 255, 0.3);
-  }
-  
-  .engine-move.first-move {
-    background-color: #156241;
-  }
-
-  .engine-move:hover {
-    opacity: 0.7;
-  }
-  
-  .engine-move p, .guesses p {
-    font-family: Montserrat;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    text-align: center;
-    text-wrap: nowrap;
-    margin: 3px;
-  }
-
-  .guesses p {
-    opacity: 0.7;
-  }
-  
-  .left {
-    text-align: left !important;
-    margin-left: 10px !important;
-  }
-  
-  .two-button-container {
-    width: 100%;
-    box-sizing: border-box;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: 6px;
-  }
-
-  .puzzle-stats {
-    width: 100%;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column; 
-    padding-inline: 16px;
-  }
-
-  .puzzle-stats .stat {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .puzzle-stats .stat h1 {
-    font-family: $main-font;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
-    margin-block: 2px;
-  }
-
-  .puzzle-stats .stat p {
-    font-family: $main-font;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: normal;
-    margin-block: 2px;
-  }
-
-  .feedback-container {
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .view-solution-button {
-    margin-top: 25px;
-  }
-
-  .padding-above-puzzle-stats {
-    height: 10px;
-  }
 
 @media screen and (max-width: 1200px) {
   app-xp-status {

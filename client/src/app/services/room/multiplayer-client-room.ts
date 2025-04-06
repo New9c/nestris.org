@@ -1,6 +1,6 @@
 import { ClientRoom } from "./client-room";
 import { RoomModal } from "src/app/components/layout/room/room/room.component";
-import { BehaviorSubject, map, Observable, of, Subscription, switchMap } from "rxjs";
+import { BehaviorSubject, map, Observable, Subscription } from "rxjs";
 import { EmulatorService } from "../emulator/emulator.service";
 import { PlatformInterfaceService } from "../platform-interface.service";
 import { bothPlayerIndicies, MultiplayerRoomEventType, MultiplayerRoomState, MultiplayerRoomStatus, PlayerIndex } from "src/app/shared/room/multiplayer-room-models";
@@ -17,52 +17,13 @@ import { OCRStateID } from "src/app/ocr/state-machine/ocr-states/ocr-state-id";
 import { InRoomStatusMessage } from "src/app/shared/network/json-message";
 import { RoomService } from "./room.service";
 import { AnalyticsService } from "../analytics.service";
+import { Timer } from "src/app/util/timer";
 
 export enum OCRStatus {
     NOT_OCR,
     OCR_BEFORE_GAME,
     OCR_IN_GAME,
     OCR_AFTER_GAME,
-}
-
-class Timer {
-
-    private _time$: BehaviorSubject<number | null>;
-    public time$: Observable<number | null>;
-
-    private interval: any;
-
-    constructor(seconds: number, private readonly onExpire: () => void) {
-        if (seconds <= 0) throw new Error("Seconds must be positive");
-
-        this._time$ = new BehaviorSubject<number | null>(seconds);
-        this.time$ = this._time$.asObservable();
-
-        this.interval = setInterval(() => {
-            if (this.secondsLeft === null) return;
-            this._time$.next(this.secondsLeft - 1);
-            if (this.secondsLeft === 0) {
-                clearInterval(this.interval);
-                this.onExpire();
-            }
-        }, 1000);
-    }
-
-    get secondsLeft() {
-        return this._time$.getValue();
-    }
-
-    // An observable that emits values once time goes at or under the specified seconds
-    timeVisibleAt$(seconds: number): Observable<number | null> {
-        return this._time$.pipe(
-            map(time => (time !== null && time <= seconds) ? time : null),
-        );
-    }
-
-    stop() {
-        clearInterval(this.interval);
-        this._time$.next(null);
-    }
 }
 
 export class MultiplayerClientRoom extends ClientRoom {
