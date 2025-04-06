@@ -17,7 +17,6 @@ export class CreateSoloRoomRoute extends PostRoute {
         const sessionID = pathParams.sessionid as string;
 
         const users = EventConsumerManager.getInstance().getUsers();
-        const roomConsumer = EventConsumerManager.getInstance().getConsumer(RoomConsumer);
         const activityConsumer = EventConsumerManager.getInstance().getConsumer(ActivityConsumer);
 
         // Make sure sessionID corresponds to the user

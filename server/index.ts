@@ -76,6 +76,7 @@ import { MatchInvitationManager } from './src/invitations/match-invitation';
 import { AnalyticsConsumer } from './src/online-users/event-consumers/analytics-consumer';
 import { GetVersionRoute } from './src/routes/misc/get-version-route';
 import { GetRankedStatsRoute } from './src/routes/user/get-ranked-stats-route';
+import { PuzzleRushConsumer } from './src/online-users/event-consumers/puzzle-rush-consumer';
 
 // Load environment variables
 require('dotenv').config();
@@ -149,6 +150,7 @@ async function main() {
   consumers.registerConsumer(RankedAbortConsumer, {});
   consumers.registerConsumer(InvitationConsumer, {});
   consumers.registerConsumer(RatedPuzzleConsumer, {batchSize: NODE_ENV === DeploymentEnvironment.DEV ? 3 : 97});
+  consumers.registerConsumer(PuzzleRushConsumer, {});
   consumers.registerConsumer(ActivityConsumer, {});
   consumers.registerConsumer(GlobalChatConsumer, {});
   consumers.registerConsumer(ServerRestartWarningConsumer, {});

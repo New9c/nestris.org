@@ -15,7 +15,7 @@ import { QuestConsumer, QuestUpdate } from "./quest-consumer";
 /**
  * Query to fetch a random sample of puzzles of a given rating from the database.
  */
-class SamplePuzzlesQuery extends DBQuery<DBPuzzle[]> {
+export class SamplePuzzlesQuery extends DBQuery<DBPuzzle[]> {
     public override query = `
         SELECT * FROM rated_puzzles WHERE rating = $1 ORDER BY RANDOM() LIMIT $2
     `;
