@@ -9,4 +9,5 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 export class PuzzleEloComponent {
   @Input() puzzleElo!: number;
   @Input() size!: number;
+  @Input() purple: boolean = true;
 }

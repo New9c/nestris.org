@@ -124,6 +124,7 @@ import { RabbitLoadingAnimationComponent } from './components/ui/rabbit-loading-
 import { UsernameComponent } from './components/ui/username/username.component';
 import { PuzzleModeModalComponent } from './components/modals/puzzle-mode-modal/puzzle-mode-modal.component';
 import { PuzzleRushRoomComponent } from './components/layout/room/puzzle-rush-room/puzzle-rush-room.component';
+import { CorrectnessIconSquareComponent } from './components/ui/correctness-icon-square/correctness-icon-square.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -284,6 +285,7 @@ const customNotifierOptions: NotifierOptions = {
     UsernameComponent,
     PuzzleModeModalComponent,
     PuzzleRushRoomComponent,
+    CorrectnessIconSquareComponent,
   ],
   imports: [
     BrowserModule,

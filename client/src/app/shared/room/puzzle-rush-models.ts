@@ -1,4 +1,4 @@
-import { RoomState, RoomType } from "./room-models";
+import { ClientRoomEvent, RoomState, RoomType } from "./room-models";
 
 // Client-to-server: send ready, send submit, send game end (with pps)
 
@@ -29,8 +29,19 @@ export function puzzleRushScore(player: PuzzleRushPlayer) {
     return player.progress.filter(attempt => attempt).length;
 }
 
+// number of incorrect puzzles (number of false elements in progress array)
+export function puzzleRushIncorrect(player: PuzzleRushPlayer) {
+    return player.progress.filter(attempt => !attempt).length;
+}
+
 export enum PuzzleRushEventType {
     READY = 'READY',
     ATTEMPT = 'ATTEMPT',
     TIMEOUT = 'TIMEOUT',
+}
+
+export interface PuzzleRushAttemptEvent extends ClientRoomEvent {
+    type: PuzzleRushEventType.ATTEMPT;
+    current?: number; // first placement int2, if submitted
+    next?: number; // second placement int2, if submitted
 }

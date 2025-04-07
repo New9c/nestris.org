@@ -1,4 +1,5 @@
-<div class="container" [ngStyle]="{'gap' : (size * 0.15)+'px'}">
-    <img src="./assets/img/elements/puzzle-elo.svg" [attr.height]="size * 0.7 + 'px'">
+<div class="container" [ngStyle]="{'gap' : (size * 0.15)+'px'}" [ngClass]="{'purple' : purple}">
+    <img *ngIf="purple" src="./assets/img/elements/puzzle-elo.svg" [attr.height]="size * 0.7 + 'px'">
+    <img *ngIf="!purple" src="./assets/img/tab-icons/puzzles.svg" [attr.height]="size * 0.7 + 'px'">
     <h1 class="prevent-select" [ngStyle]="{'font-size' : size + 'px'}">{{puzzleElo}}</h1>        
 </div>

@@ -1,10 +1,12 @@
 import { ClientRoom } from "./client-room";
 import { InRoomStatus, InRoomStatusMessage } from "src/app/shared/network/json-message";
 import { AnalyticsService } from "../analytics.service";
-import { PuzzleRushEventType, PuzzleRushRoomState, PuzzleRushStatus } from "src/app/shared/room/puzzle-rush-models";
+import { PuzzleRushAttemptEvent, PuzzleRushEventType, PuzzleRushRoomState, PuzzleRushStatus } from "src/app/shared/room/puzzle-rush-models";
 import { MeService } from "../state/me.service";
 import { StartableTimer, Timer } from "src/app/util/timer";
 import { SoundEffect, SoundService } from "../sound.service";
+import { PuzzleSubmission } from "src/app/models/puzzles/puzzle";
+import { RoomType } from "src/app/shared/room/room-models";
 
 
 export class PuzzleRushClientRoom extends ClientRoom {
@@ -31,6 +33,10 @@ export class PuzzleRushClientRoom extends ClientRoom {
         return this.myIndex;
     }
 
+    public isSinglePlayer() {
+        return (this.getState() as PuzzleRushRoomState).type === RoomType.PUZZLE_RUSH;
+    }
+
     protected override async onStateUpdate(oldState: PuzzleRushRoomState, newState: PuzzleRushRoomState): Promise<void> {
         
         if (oldState.status === PuzzleRushStatus.BEFORE_GAME && newState.status === PuzzleRushStatus.DURING_GAME) {
@@ -40,11 +46,20 @@ export class PuzzleRushClientRoom extends ClientRoom {
     }
 
     private onTimeout() {
-
+        this.sendClientRoomEvent({type: PuzzleRushEventType.TIMEOUT });
     }
 
     public sendReadyEvent() {
         this.sendClientRoomEvent({type: PuzzleRushEventType.READY });
+    }
+
+    public submitPuzzle(submission: PuzzleSubmission) {
+        const attemptEvent: PuzzleRushAttemptEvent = {
+            type: PuzzleRushEventType.ATTEMPT,
+            current: submission.firstPiece?.getInt2(),
+            next: submission.secondPiece?.getInt2(),
+        }
+        this.sendClientRoomEvent(attemptEvent);
     }
 
     public override destroy(): void {

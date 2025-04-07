@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { PuzzleSubmission } from 'src/app/models/puzzles/puzzle';
 import { PuzzleRating } from 'src/app/shared/puzzles/puzzle-rating';
@@ -19,7 +19,7 @@ Takes in an undo$ subject, and subscribes to it to undo the first piece placemen
   styleUrls: ['./puzzle-nes-board.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PuzzleNesBoardComponent implements OnInit, OnDestroy {
+export class PuzzleNesBoardComponent implements OnInit, OnChanges, OnDestroy {
 
   readonly PuzzleRating = PuzzleRating;
 
@@ -59,6 +59,12 @@ export class PuzzleNesBoardComponent implements OnInit, OnDestroy {
       this.undoSubscription = this.undo$.subscribe(() => {
         this.undo();
       });
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['puzzle']) {
+      this.undo();
     }
   }
 
@@ -194,9 +200,8 @@ export class PuzzleNesBoardComponent implements OnInit, OnDestroy {
 
   // undo the first piece placement
   undo() {
-    if (!(this.placedFirstPiece$.getValue() !== undefined) && (this.placedSecondPiece$.getValue() === undefined)) return;
-
     this.placedFirstPiece$.next(undefined); // reset first piece placement
+    this.placedSecondPiece$.next(undefined);
     this.currentBoard$.next(this.puzzle.board.copy()); // reset board
     this.rotation = 0; // reset rotation
     this.computeHoveredPiece(); // update hovered piece

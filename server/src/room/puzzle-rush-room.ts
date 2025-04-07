@@ -1,6 +1,6 @@
 import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { RushPuzzle } from "../../shared/puzzles/db-puzzle";
-import { PuzzleRushEventType, PuzzleRushRoomState, PuzzleRushStatus } from "../../shared/room/puzzle-rush-models";
+import { PuzzleRushAttemptEvent, PuzzleRushEventType, PuzzleRushRoomState, PuzzleRushStatus } from "../../shared/room/puzzle-rush-models";
 import { ClientRoomEvent, RoomType } from "../../shared/room/room-models";
 import { DBUserObject } from "../database/db-objects/db-user";
 import { EventConsumerManager } from "../online-users/event-consumer";
@@ -80,8 +80,42 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
                     this.updateRoomState(state);
                 }
                 return;
-        }
 
+            case PuzzleRushEventType.ATTEMPT:
+                this.onSubmitAttempt(playerIndex, event as PuzzleRushAttemptEvent);
+                return;
+
+        }
+    }
+
+    private onSubmitAttempt(playerIndex: number, attempt: PuzzleRushAttemptEvent) {
+
+        // Only relevant while in game
+        const state = this.getRoomState();
+        if (state.status != PuzzleRushStatus.DURING_GAME) return;
+
+        // Get the puzzle the player is submitting for
+        const currentPuzzleID = state.players[playerIndex].currentPuzzleID;
+        const puzzle = this.puzzleSet.find(puzzle => puzzle.id === currentPuzzleID);
+        if (puzzle === undefined) return;
+
+        // Check whether submission is correct, allowing for inverse placements for same pieces
+        const isCorrect = (
+            (puzzle.current === attempt.current && puzzle.next === attempt.next)
+            ||
+            (puzzle.current === attempt.next && puzzle.next === attempt.current)
+        );
+        console.log(currentPuzzleID, puzzle, attempt);
+
+        // Update the puzzle progress for the user
+        state.players[playerIndex].progress.push(isCorrect);
+
+        // Go to next puzzle for user
+        const currentIndex = this.puzzleSet.findIndex(puzzle => puzzle.id === currentPuzzleID);
+        state.players[playerIndex].currentPuzzleID = this.puzzleSet[currentIndex + 1].id;
+
+        // Send updated progress and puzzle to user
+        this.updateRoomState(state);
     }
 
 }

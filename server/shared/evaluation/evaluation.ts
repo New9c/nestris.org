@@ -21,7 +21,7 @@ export const EVALUATION_TO_COLOR: { [key in EvaluationRating]: string } = {
 };
 
 export const EVALUATION_ORDER = [
-    EvaluationRating.BRILLIANT,
+    //EvaluationRating.BRILLIANT,
     EvaluationRating.BEST,
     EvaluationRating.EXCELLENT,
     EvaluationRating.GOOD,

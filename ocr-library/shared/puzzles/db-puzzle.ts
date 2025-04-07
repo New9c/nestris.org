@@ -40,7 +40,7 @@ export interface DBPuzzle extends DBPuzzleBuilder {
 
 export interface RushPuzzle {
     id: string;
-    current: number; // MTPose of current placement
-    next: number; // MTPose of next placement
+    current: number; // int2 of current placement solution
+    next: number; // int2 of next placement solution
     rating: PuzzleRating;
 }
