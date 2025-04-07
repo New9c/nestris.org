@@ -1,8 +1,9 @@
-<ng-container *ngIf="isCorrect$ | async as isCorrect">
+<ng-container *ngIf="result$ | async as result">
     <div class="root" *ngIf="state$ | async as state"
     [ngClass]="{
-        'correct': isCorrect === PuzzleCorrect.CORRECT,
-        'incorrect': isCorrect === PuzzleCorrect.INCORRECT,
+        'correct': [PuzzleRushResult.VICTORY, PuzzleRushResult.SOLO].includes(result),
+        'incorrect': result === PuzzleRushResult.DEFEAT,
+        'tie': result === PuzzleRushResult.TIE,
         'rush' : state.players.length === 1,
         'battle' : state.players.length === 2,
     }">
@@ -16,15 +17,13 @@
                 <h1 class="title">PUZZLE RUSH</h1>
             </header>
 
-            <p class="instructions">
-                Solve as many puzzles as you can in 3 minutes, but 3 strikes and you're out!
-            </p>
+            <p class="instructions">{{puzzleRushRoom.text$ | async}}</p>
 
             <div class="main-row">
 
                 <!-- show undo button if in puzzle solving mode and can undo -->
                 <app-outline-button class="undo-button" label="Undo"
-                [ngStyle]="{visibility: (canUndo$ | async) ? 'visible' : 'hidden'}" (click)="clickUndo$.next()" />
+                [ngStyle]="{visibility: (canUndo$ | async) && (state.status === PuzzleRushStatus.DURING_GAME) ? 'visible' : 'hidden'}" (click)="clickUndo$.next()" />
 
                 <ng-container *ngIf="currentPuzzle$ | async as currentPuzzle">
 
@@ -55,6 +54,13 @@
                         </ng-template>
 
                     </ng-container>
+
+                    <!-- If after game, show last puzzle -->
+                    <app-nes-board *ngIf="state.status === PuzzleRushStatus.AFTER_GAME"
+                        class="board" [scale]="3.3"
+                        [defaultOpacity]="0.4"
+                        [board]="getCurrentBoard(state)"
+                    />
                     
 
                 </ng-container>
@@ -80,6 +86,18 @@
                                 />
                             </div>
 
+                        </ng-container>
+
+                        <ng-container *ngIf="state.status === PuzzleRushStatus.AFTER_GAME">
+                            <h1 class="header green" *ngIf="state.players.length === 1">Score: {{puzzleRushScore(state.players[0])}}</h1>
+
+                            <div class="stats" *ngIf="state.stats as stats">
+                                <div class="stat" *ngFor="let stat of stats">
+                                    <h1>{{stat.value[puzzleRushRoom.getMyIndex()]}}</h1>
+                                    <p>{{stat.label}}</p>
+                                    <h1 *ngIf="!puzzleRushRoom.isSinglePlayer()">{{stat.value[(puzzleRushRoom.getMyIndex()+1) % 2]}}</h1>
+                                </div>
+                            </div>
                         </ng-container>
 
                         

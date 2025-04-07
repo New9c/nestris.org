@@ -15,5 +15,11 @@ export const soloXPStrategy: XPStrategy = (score: number) => {
 
 export function xpOnPuzzleSolve(puzzleElo: number) {
     // https://www.desmos.com/calculator/fcwni9mptv
-    return Math.ceil(Math.pow(puzzleElo / 1000, 1.8));
+    return Math.ceil(Math.pow(puzzleElo / 1000, 1.7));
+}
+
+export function xpOnPuzzleRush(score: number) {
+    // https://www.desmos.com/calculator/tanutygwyj
+    // Grows slower than solving puzzles early on, but on high scores grows faster
+    return Math.ceil(2 * Math.pow(score / 5, 2));
 }

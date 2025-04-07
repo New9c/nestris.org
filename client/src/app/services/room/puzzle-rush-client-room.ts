@@ -7,6 +7,7 @@ import { StartableTimer, Timer } from "src/app/util/timer";
 import { SoundEffect, SoundService } from "../sound.service";
 import { PuzzleSubmission } from "src/app/models/puzzles/puzzle";
 import { RoomType } from "src/app/shared/room/room-models";
+import { BehaviorSubject } from "rxjs";
 
 
 export class PuzzleRushClientRoom extends ClientRoom {
@@ -17,8 +18,13 @@ export class PuzzleRushClientRoom extends ClientRoom {
 
     private myIndex!: number;
 
-    public readonly rushTimer = new StartableTimer(4* 3, true, () => this.onTimeout());
+    public readonly rushTimer = new StartableTimer(60 * 3, true, () => this.onTimeout());
     public readonly countdownTimer = new StartableTimer(3, false, () => this.rushTimer.start(), () => this.sound.play(SoundEffect.NOTE_HIGH));
+
+    private readonly _text$ = new BehaviorSubject<string>("Solve as many puzzles as you can in 3 minutes, but 3 strikes and you're out!");
+    public readonly text$ = this._text$.asObservable();
+
+    private endByTimeout: boolean = false;
 
     public override async init(event: InRoomStatusMessage): Promise<void> {
         const state = event.roomState as PuzzleRushRoomState;
@@ -43,9 +49,18 @@ export class PuzzleRushClientRoom extends ClientRoom {
             this.countdownTimer.start();
         }
 
+        if (oldState.status === PuzzleRushStatus.DURING_GAME && newState.status === PuzzleRushStatus.AFTER_GAME) {
+            // Cancel timer if already lost
+            this.rushTimer.stop();
+
+            this._text$.next(this.endByTimeout ? "Time's up!" : "That's three strikes!");
+        }
+
     }
 
     private onTimeout() {
+        this.endByTimeout = true;
+        this.sound.play(SoundEffect.NOTES_DOWN);
         this.sendClientRoomEvent({type: PuzzleRushEventType.TIMEOUT });
     }
 

@@ -81,8 +81,6 @@ export class StartableTimer {
     }
 
     stop() {
-        if (!this.interval) throw new Error("Did not start yet");
-
         clearInterval(this.interval);
         this._time$.next(null);
     }

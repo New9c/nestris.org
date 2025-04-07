@@ -9,6 +9,7 @@ export interface PuzzleRushPlayer {
     puzzleElo: number;
     progress: boolean[]; // for each puzzle attempted, add true/false based on whether it was solved
     currentPuzzleID: string; // current ongoing puzzle for the player
+    ended: boolean;
 }
 
 export enum PuzzleRushStatus {
@@ -22,6 +23,8 @@ export interface PuzzleRushRoomState extends RoomState {
 
     status: PuzzleRushStatus;
     players: PuzzleRushPlayer[];
+
+    stats?: { label: string, value: string[] }[]; // post-match display-ready stats for each player
 }
 
 // number of correct puzzles (number of true elements in progress array)

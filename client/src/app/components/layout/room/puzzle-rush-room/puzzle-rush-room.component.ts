@@ -16,6 +16,14 @@ export enum PuzzleCorrect {
   INCORRECT = 'incorrect',
 }
 
+export enum PuzzleRushResult {
+  NONE = 'none',
+  VICTORY = 'victory',
+  TIE = 'tie',
+  DEFEAT = 'defeat',
+  SOLO = 'SOLO'
+}
+
 @Component({
   selector: 'app-puzzle-rush-room',
   templateUrl: './puzzle-rush-room.component.html',
@@ -72,6 +80,7 @@ export class PuzzleRushRoomComponent {
     )
   );
 
+  // Number of incorrect attempts
   public incorrectCount$ = this.state$.pipe(
     map(state => puzzleRushIncorrect(state.players[this.puzzleRushRoom.getMyIndex()])),
     startWith(0),
@@ -94,11 +103,32 @@ export class PuzzleRushRoomComponent {
     })
   )
 
+  // Match end result
+  public result$ = this.state$.pipe(
+    map(state => {
+
+      if (state.status !== PuzzleRushStatus.AFTER_GAME) return PuzzleRushResult.NONE;
+      if (state.players.length === 1) return PuzzleRushResult.SOLO;
+
+      const myIndex = this.puzzleRushRoom.getMyIndex();
+      const opponentIndex = (myIndex + 1) % 2;
+
+      const myScore = puzzleRushScore(state.players[myIndex]);
+      const opponentScore = puzzleRushScore(state.players[opponentIndex]);
+      
+      if (myScore > opponentScore) return PuzzleRushResult.VICTORY;
+      if (myScore === opponentScore) return PuzzleRushResult.TIE;
+      return PuzzleRushResult.DEFEAT;
+    }),
+    shareReplay(1)
+  );
+
   readonly ButtonColor = ButtonColor;
   readonly PuzzleRushStatus = PuzzleRushStatus;
   readonly GameOverMode = GameOverMode;
   readonly PuzzleCorrect = PuzzleCorrect;
   readonly Correctness = Correctness;
+  readonly PuzzleRushResult = PuzzleRushResult;
   readonly puzzleRushScore = puzzleRushScore;
   readonly puzzleRushIncorrect = puzzleRushIncorrect;
 
@@ -119,6 +149,10 @@ export class PuzzleRushRoomComponent {
   timerRed(seconds: number | null) {
     if (seconds !== null && seconds <= 10) return true;
     return false;
+  }
+
+  getCurrentBoard(state: PuzzleRushRoomState) {
+    return decodePuzzle(state.players[this.puzzleRushRoom.getMyIndex()].currentPuzzleID).board;
   }
 
 }

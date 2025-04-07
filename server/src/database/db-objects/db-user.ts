@@ -57,6 +57,9 @@ export class XPEvent<T extends XPArgs = XPArgs> extends GenericEvent<T> {}
 interface PuzzleSubmitArgs extends XPArgs { newElo: number, isCorrect: boolean, seconds: number }
 export class DBPuzzleSubmitEvent extends XPEvent<PuzzleSubmitArgs> {}
 
+interface PuzzleRushArgs extends XPArgs { score: number, pps: number }
+export class DBPuzzleRushEvent extends XPEvent<PuzzleRushArgs> {}
+
 // Update highest stats on game end
 interface GameEndArgs extends XPArgs {
     gameID: string,
@@ -254,7 +257,17 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 this.inMemoryObject.puzzles_attempted++;
                 this.inMemoryObject.puzzles_solved += puzzleArgs.isCorrect ? 1 : 0;
                 this.inMemoryObject.puzzle_seconds_played += Math.round(puzzleArgs.seconds);
-                console.log(`Adding ${Math.round(puzzleArgs.seconds)} seconds to puzzle_seconds_played=${this.inMemoryObject.puzzle_seconds_played}`);
+                break;
+
+            // On puzzle rush, update puzzle rush record if it's higher, and increment attempts
+            case DBPuzzleRushEvent:
+                const puzzleRushArgs = (event as DBPuzzleRushEvent).args;
+                this.inMemoryObject.puzzle_rush_attempts++;
+                // If new record, update score and pps
+                if (puzzleRushArgs.score > this.inMemoryObject.puzzle_rush_best) {
+                    this.inMemoryObject.puzzle_rush_best = puzzleRushArgs.score;
+                    this.inMemoryObject.puzzle_rush_pps = Math.round(puzzleRushArgs.pps * 10); // stored multipled by 10 for space
+                }
                 break;
 
             // On game end, update highest stats
@@ -270,7 +283,6 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
 
                 // If highscore, start query to update the highscore game
                 if (isHighscore) {
-                    console.log(`Updating highscore game for user ${this.id} with gameID ${gameEndArgs.gameID} and score ${gameEndArgs.score}`);
                     Database.query(SetHighscoreGameQuery, this.inMemoryObject.userid, gameEndArgs.gameID);
                 }
                 break;
@@ -302,8 +314,6 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 (this.inMemoryObject as any)[attributeArgs.attribute] = attributeArgs.value;
                 break;
         }
-
-        //console.log(`Altered user ${this.id} with event ${event.toString()}`);
 
         // Update xp gained
         if (event instanceof XPEvent) incrementXP((event as XPEvent).args.xpGained);

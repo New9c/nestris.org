@@ -39,25 +39,27 @@
     height: 100%;
 
     /* Use the custom properties in the gradient */
-    --color1: rgba(182, 117, 4, 0.5);
+    --color1: rgba(126, 4, 182, 0.5);
     --color2: rgba(0, 0, 0, 1);
     background: linear-gradient(7deg, var(--color1) 0%, var(--color2) 70%);
 
     transition: --color1 0.3s ease-in-out, --color2 0.3s ease-in-out;
 }
 
-/* Correct state */
 .root.correct {
     --color1: rgba(4, 182, 32, 0.5);
     --color2: rgba(0, 0, 0, 1);
 }
 
-/* Incorrect state */
 .root.incorrect {
     --color1: rgba(182, 4, 4, 0.5);
     --color2: rgba(0, 0, 0, 1);
 }
 
+.root.tie {
+    --color1: rgba(182, 179, 4, 0.5);
+    --color2: rgba(0, 0, 0, 1);
+}
 
 app-xp-status {
     position: absolute;
@@ -225,6 +227,23 @@ img {
     display: block;
 }
 
+h1.header {
+    font-family: $main-font;
+    font-size: 25px;
+    font-weight: 800;
+    margin: 0;
+    padding: 0;
+    padding-top: 25px;
+}
+
+h1.header.green {
+    color: $ui-green-color;
+}
+
+h1.header.red {
+    color: $ui-red-color;
+}
+
 .timer {
     display: flex;
     flex-direction: row;
@@ -262,6 +281,41 @@ img {
     fill: $ui-red-color;
 }
 
+
+.stats {
+    display: flex;
+    flex-direction: column;
+    width: 85%;
+    box-sizing: border-box;
+    gap: 5px;
+
+    margin-block: 15px;
+}
+
+.stats .stat {
+    display: flex;
+    flex-direction: row-reverse;
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat h1, .stat p {
+    font-family: $main-font;
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+}
+
+.stat h1 {
+    font-weight: 700;
+}
+
+.stat p {
+    font-weight: 400;
+}
+
 .battle .players {
     width: 100%;
     box-sizing: border-box;
@@ -270,7 +324,7 @@ img {
 }
 
 .players {
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .player {
@@ -301,7 +355,7 @@ h1.score {
     font-family: $main-font;
     font-size: 35px;
     font-weight: 700;
-    margin: 0;
+    margin-block: 5px;
     padding: 0;
 }
 
