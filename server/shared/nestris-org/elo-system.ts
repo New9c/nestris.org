@@ -1,4 +1,4 @@
-// https://www.desmos.com/calculator/00wjoi10cv
+// https://www.desmos.com/calculator/k7qte28zau
 
 /**
  * The expected value for the score (W=1, D=0.5, L=0) of a player against their opponent based on their Elo ratings.
@@ -17,7 +17,7 @@ function expectedScore(playerElo: number, opponentElo: number) {
  * @returns The K-factor for the player
  */
 function getKFactor(numMatches: number) {
-    return 300 / Math.pow(numMatches + 2, 0.7) + 35;
+    return 300 / Math.pow(numMatches + 2, 0.5) + 35;
 }
 
 /**

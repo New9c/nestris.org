@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ModalManagerService, ModalType } from 'src/app/services/modal-manager.service';
 import { ProfileModalConfig } from '../../modals/profile-modal/profile-modal.component';
 
-export const GM_REQUIREMENT = 3200;
-export const IM_REQUIREMENT = 2800;
+export const GM_REQUIREMENT = 3600;
+export const IM_REQUIREMENT = 3200;
 
 export function getTitle(highestTrophies: number) {
   if (highestTrophies >= GM_REQUIREMENT) return "GM";

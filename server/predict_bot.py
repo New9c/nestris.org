@@ -160,7 +160,7 @@ def generate_bot_configs_and_write_to_file():
 
     # normal bots
     bots.extend(generate_bot_configs(
-        0.75, # remove percent
+        0.8, # remove percent
         [6, 8, 10, 12, 14, 17, 20, 25], # input speeds
         [0.9, 0.6, 0.3, 0.1], # inaccuracies
         [0.3, 0.1, 0.05, 0.03, 0.01, 0.005], # mistakes,
@@ -172,7 +172,7 @@ def generate_bot_configs_and_write_to_file():
         0, # remove percent
         [10, 11, 12, 13, 14], # input speeds
         [0.3, 0.2, 0.1, 0.05], # inaccuracies
-        [0.005], # mistakes,
+        [0.01, 0.005], # mistakes,
         [0.0005], # misdrops
     ))
 
