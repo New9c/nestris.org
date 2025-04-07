@@ -149,7 +149,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
         while (true) {
 
             // Wait some time before joining the queue
-            await sleep(randomInt(5000, 30000));
+            await sleep(randomInt(5000, 20000));
 
             // Find a match in the ranked queue
             const matchFound = await this.handleFindMatch(60);
@@ -173,7 +173,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
                 await this.handleMatchEnd(leftRoom$, error);
 
                 // After match, chance of disconnecting for a bit
-                if (Math.random() < 0.5) await this.takeBreak(randomInt(100, 1000));
+                if (Math.random() < 0.5) await this.takeBreak(randomInt(100, 500));
 
             } catch (error) {
                 if (error instanceof LeftRoomEarlyError) {
