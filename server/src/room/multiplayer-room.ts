@@ -12,6 +12,7 @@ import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { DBGameType } from "../../shared/models/db-game";
 import { EventConsumerManager } from "../online-users/event-consumer";
 import { RankedAbortConsumer } from "../online-users/event-consumers/ranked-abort-consumer";
+import { LoginMethod } from "../../shared/models/db-user";
 
 export class MultiplayerRoom extends Room<MultiplayerRoomState> {
 
@@ -27,6 +28,8 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         [PlayerIndex.PLAYER_1]: [],
         [PlayerIndex.PLAYER_2]: [],
     }
+
+    private humanCount!: number;
 
     /**
      * Creates a new SoloRoom for the single player with the given playerSessionID
@@ -115,6 +118,18 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
      * Define the initial state of multiplayer room
      */
     protected override async initRoomState(): Promise<MultiplayerRoomState> {
+
+
+        // Calculate number of humans in the room
+        const userids = this.allSessionIDs.map(
+            sessionID => Room.Users.getUserIDBySessionID(sessionID)
+        ).filter(
+            userid => userid !== undefined
+        );
+        this.humanCount = (await Promise.all(userids.map(userid => DBUserObject.get(userid)))).filter(
+            user => user.login_method !== LoginMethod.BOT
+        ).length;
+
 
         return {
             type: RoomType.MULTIPLAYER,
@@ -390,5 +405,9 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
     private sendRecovery(playerIndex: PlayerIndex.PLAYER_1 | PlayerIndex.PLAYER_2, sessionID: string) {
         if (this.gamePlayers[playerIndex].isInGame()) this.pendingSessionRecovery[playerIndex].push(sessionID);
         else this.gamePlayers[playerIndex].sendRecoveryPacket(sessionID);
+    }
+
+    public getHumanCount() {
+        return this.humanCount;
     }
 }

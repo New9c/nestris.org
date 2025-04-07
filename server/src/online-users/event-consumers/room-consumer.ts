@@ -10,6 +10,10 @@ import { UserSessionID } from "../online-user";
 import { OnlineUserActivityType } from "../../../shared/models/online-activity";
 import { bothPlayerIndicies, MultiplayerRoomState, MultiplayerRoomStatus } from "../../../shared/room/multiplayer-room-models";
 import { average } from "../../../shared/scripts/math";
+import { MultiplayerRoom } from "../../room/multiplayer-room";
+import { DBUserObject } from "../../database/db-objects/db-user";
+import { LoginMethod } from "../../../shared/models/db-user";
+import { RankedMultiplayerRoom } from "../../room/ranked-multiplayer-room";
 
 export class RoomError extends Error {
     constructor(message: string) {
@@ -503,7 +507,12 @@ export class RoomConsumer extends EventConsumer {
                 const state = room.getRoomState() as MultiplayerRoomState;
                 return state.ranked && [MultiplayerRoomStatus.BEFORE_GAME, MultiplayerRoomStatus.IN_GAME].includes(state.status);
             }
-        );
+        ) as RankedMultiplayerRoom[];
+
+
+        let humanRooms = rankedRooms.filter(room => room.getHumanCount() === 2);
+        if (humanRooms.length === 0) humanRooms = rankedRooms.filter(room => room.getHumanCount() === 1);
+        if (humanRooms.length === 0) humanRooms = rankedRooms;
 
         const getAverageTrophies = (room: Room) => average(
             bothPlayerIndicies.map(
@@ -512,7 +521,7 @@ export class RoomConsumer extends EventConsumer {
         );
 
         let bestRoom: Room | undefined = undefined;
-        for (let room of rankedRooms) {
+        for (let room of humanRooms) {
             if (bestRoom === undefined || getAverageTrophies(room) > getAverageTrophies(bestRoom)) {
                 bestRoom = room;
             }
