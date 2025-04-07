@@ -20,7 +20,7 @@
 
             <!-- show undo button if in puzzle solving mode and can undo -->
             <app-outline-button class="undo-button" label="Undo"
-            [ngStyle]="{visibility: true ? 'visible' : 'hidden'}" />
+            [ngStyle]="{visibility: (canUndo$ | async) ? 'visible' : 'hidden'}" (click)="clickUndo$.next()" />
 
             <ng-container *ngIf="currentPuzzle$ | async as currentPuzzle">
 
@@ -44,6 +44,7 @@
                         <!-- If in game, show current puzzle -->
                         <app-puzzle-nes-board *ngIf="state.status === PuzzleRushStatus.DURING_GAME"
                             class="board" [scale]="3.3" [level]="18" [puzzle]="currentPuzzle"
+                            [undo$]="clickUndo$" (canUndo)="canUndo$.next($event)"
                         />
                     </ng-template>
 
@@ -57,6 +58,25 @@
             <div class="puzzle-details">
 
                 <div class="puzzle-details-top">
+
+                    <ng-container *ngIf="state.status !== PuzzleRushStatus.AFTER_GAME">
+
+                        <div class="timer" [ngClass]="{'red' : timerRed(rushTimer$ | async)}">
+                            <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11.5 0C5.15871 0 0 5.15871 0 11.5C0 17.8413 5.15871 23 11.5 23C17.8413 23 23 17.8413 23 11.5C23 5.15871 17.8413 0 11.5 0ZM15.3333 12.4583H11.5C10.971 12.4583 10.5417 12.03 10.5417 11.5V5.75C10.5417 5.22004 10.971 4.79167 11.5 4.79167C12.029 4.79167 12.4583 5.22004 12.4583 5.75V10.5417H15.3333C15.8633 10.5417 16.2917 10.97 16.2917 11.5C16.2917 12.03 15.8633 12.4583 15.3333 12.4583Z"/>
+                            </svg>
+                            <p>{{timerText(rushTimer$ | async)}}</p>
+                        </div>
+    
+                        <div class="next-box-container">
+                            <app-nes-piece  [scale]="3" *ngIf="currentPuzzle$ | async as currentPuzzle"
+                                [piece]="currentPuzzle.next" [level]="18"
+                            />
+                        </div>
+
+                    </ng-container>
+
+                    
                     
 
                 </div>

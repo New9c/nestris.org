@@ -15,8 +15,8 @@ export class PuzzleRushClientRoom extends ClientRoom {
 
     private myIndex!: number;
 
-    public readonly rushTimer = new StartableTimer(60 * 3, () => this.onTimeout());
-    public readonly countdownTimer = new StartableTimer(3, () => this.rushTimer.start(), () => this.sound.play(SoundEffect.NOTE_HIGH));
+    public readonly rushTimer = new StartableTimer(4* 3, true, () => this.onTimeout());
+    public readonly countdownTimer = new StartableTimer(3, false, () => this.rushTimer.start(), () => this.sound.play(SoundEffect.NOTE_HIGH));
 
     public override async init(event: InRoomStatusMessage): Promise<void> {
         const state = event.roomState as PuzzleRushRoomState;

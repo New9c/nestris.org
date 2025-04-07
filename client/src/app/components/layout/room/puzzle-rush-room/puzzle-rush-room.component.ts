@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { distinctUntilChanged, map, Observable, tap } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, map, Observable, Subject, tap } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { PuzzleRushClientRoom } from 'src/app/services/room/puzzle-rush-client-room';
 import { RoomService } from 'src/app/services/room/room.service';
@@ -18,6 +18,13 @@ export class PuzzleRushRoomComponent {
 
   public puzzleRushRoom = this.roomService.getClient<PuzzleRushClientRoom>();
   public state$ = this.puzzleRushRoom.getState$<PuzzleRushRoomState>();
+  public rushTimer$ = this.puzzleRushRoom.rushTimer.time$;
+
+  // Emits when the user clicks the undo button
+  public clickUndo$ = new Subject<void>();
+
+  // Set by puzzle component to indicate whether the user is allowed to undo
+  public canUndo$ = new BehaviorSubject<boolean>(false);
 
   // Decode the puzzle id into board and current and next
   public currentPuzzle$: Observable<PuzzleData> = this.state$.pipe(
@@ -40,6 +47,20 @@ export class PuzzleRushRoomComponent {
 
   constructor(
     private readonly roomService: RoomService,
-  ) {}
+  ) {
+
+  }
+
+  timerText(seconds: number | null) {
+    if (seconds === null) return "";
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    return `${min.toString().padStart(1, '0')}:${sec.toString().padStart(2, '0')}`;
+  }
+
+  timerRed(seconds: number | null) {
+    if (seconds !== null && seconds <= 10) return true;
+    return false;
+  }
 
 }

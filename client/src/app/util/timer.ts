@@ -48,8 +48,9 @@ export class StartableTimer {
 
     private interval: any;
 
-    constructor(private readonly startSeconds: number, private readonly onExpire: () => void, private readonly onSecond?: () => void) {
+    constructor(private readonly startSeconds: number, setInitialTimer: boolean, private readonly onExpire: () => void, private readonly onSecond?: () => void) {
         if (startSeconds <= 0) throw new Error("Seconds must be positive");
+        if (setInitialTimer) this._time$.next(this.startSeconds);
     }
 
     get secondsLeft() {
