@@ -57,8 +57,8 @@ export class PuzzleModeModalComponent {
 
   public canPlay(me: DBUser, mode: PuzzleMode, environment: DeploymentEnvironment) {
 
-    // Puzzle rush and battles disabled for now
-    if (mode !== PuzzleMode.NORMAL && this.environmentDisable(environment)) return false;
+    // Puzzle battles disabled for now
+    if (mode === PuzzleMode.BATTLE && this.environmentDisable(environment)) return false;
 
     switch (mode) {
       case PuzzleMode.NORMAL: return true;
