@@ -43,7 +43,7 @@ export enum ViewMode {
   styleUrls: ['./puzzle-rush-room.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PuzzleRushRoomComponent implements OnInit {
+export class PuzzleRushRoomComponent {
 
   public puzzleRushRoom = this.roomService.getClient<PuzzleRushClientRoom>();
   public state$ = this.puzzleRushRoom.getState$<PuzzleRushRoomState>();
@@ -171,9 +171,6 @@ export class PuzzleRushRoomComponent implements OnInit {
     shareReplay(1)
   );
 
-  public rotateLeftKeybind = 'z';
-  public rotateRightKeybind = 'x';
-
   readonly ButtonColor = ButtonColor;
   readonly PuzzleRushStatus = PuzzleRushStatus;
   readonly GameOverMode = GameOverMode;
@@ -193,14 +190,6 @@ export class PuzzleRushRoomComponent implements OnInit {
     public readonly router: Router,
   ) {
     this.incorrectShake$.subscribe(shake => console.log("shake", shake));
-  }
-
-  ngOnInit(): void {
-    const me = this.meService.getSync();
-    if (me) {
-      this.rotateLeftKeybind = me.keybind_puzzle_rot_left
-      this.rotateRightKeybind = me.keybind_puzzle_rot_right
-    }
   }
 
   timerText(seconds: number | null) {

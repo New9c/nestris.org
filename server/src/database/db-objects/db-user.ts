@@ -169,6 +169,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             keybind_emu_reset: 'R',
             keybind_puzzle_rot_left: 'Z',
             keybind_puzzle_rot_right: 'X',
+            keybind_puzzle_undo: 'Q',
 
             quest_progress: [],
             about_me: null,

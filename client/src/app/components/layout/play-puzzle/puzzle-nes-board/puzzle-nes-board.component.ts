@@ -7,6 +7,7 @@ import { Point } from 'src/app/shared/tetris/point';
 import { TetrisBoard } from 'src/app/shared/tetris/tetris-board';
 import { TetrominoType } from 'src/app/shared/tetris/tetromino-type';
 import { PuzzleData } from '../play-puzzle-page/play-puzzle-page.component';
+import { MeService } from 'src/app/services/state/me.service';
 
 /*
 Smart component that handles the logic for the puzzle board.
@@ -27,8 +28,6 @@ export class PuzzleNesBoardComponent implements OnInit, OnChanges, OnDestroy {
   @Input() level: number = 18;
 
   @Input() puzzle!: PuzzleData;
-  @Input() rotateLeftKeybind: string = 'z';
-  @Input() rotateRightKeybind: string = 'x';
   @Output() submitPuzzle = new EventEmitter<PuzzleSubmission>();
 
   @Input() undo$?: Subject<void>;
@@ -45,13 +44,27 @@ export class PuzzleNesBoardComponent implements OnInit, OnChanges, OnDestroy {
   rotation: number = 0;
 
   undoSubscription?: any;
+  private _canUndo: boolean = false;
 
+  private rotateLeftKeybind: string = 'z';
+  private rotateRightKeybind: string = 'x';
+  private undoKeybind: string = 'q';
 
+  constructor(
+    private readonly me: MeService,
+  ) {}
 
   ngOnInit(): void {
 
+      // Update keybinds based on user settings
+      const me = this.me.getSync();
+      if (me) {
+        this.rotateLeftKeybind = me.keybind_puzzle_rot_left;
+        this.rotateRightKeybind = me.keybind_puzzle_rot_right;
+        this.undoKeybind = me.keybind_puzzle_undo;
+      }
+
     // initialize board
-    
     this.currentBoard$.next(this.puzzle.board.copy());
 
     // when undo$ emits, undo the first piece placement
@@ -92,6 +105,8 @@ export class PuzzleNesBoardComponent implements OnInit, OnChanges, OnDestroy {
     } else if (key === this.rotateRightKeybind.toLowerCase()) {
       this.rotation = (this.rotation + 1) % 4;
       this.computeHoveredPiece();
+    } else if (key === this.undoKeybind.toLowerCase()) {
+      if (this._canUndo) this.undo();
     }
 
   }
@@ -166,7 +181,7 @@ export class PuzzleNesBoardComponent implements OnInit, OnChanges, OnDestroy {
 
       this.rotation = 0;
       this.placedFirstPiece$.next(placedFirstPiece);
-      this.canUndo.next(true); // after placing first piece, can undo it
+      this.setCanUndo(true); // after placing first piece, can undo it
 
     } else if (this.placedSecondPiece$.getValue() === undefined) { // placing second piece
       const placedSecondPiece = this.hoveredPiece$.getValue()!.copy();
@@ -180,7 +195,7 @@ export class PuzzleNesBoardComponent implements OnInit, OnChanges, OnDestroy {
       this.placedSecondPiece$.next(placedSecondPiece);
 
       // disable undo
-      this.canUndo.next(false);
+      this.setCanUndo(false);
 
       // submit the puzzle
       this.submitPuzzle.emit({
@@ -206,7 +221,12 @@ export class PuzzleNesBoardComponent implements OnInit, OnChanges, OnDestroy {
     this.rotation = 0; // reset rotation
     this.computeHoveredPiece(); // update hovered piece
 
-    this.canUndo.next(false);
+    this.setCanUndo(false);
+  }
+
+  setCanUndo(canUndo: boolean) {
+    this._canUndo = canUndo;
+    this.canUndo.next(canUndo);
   }
 
 }

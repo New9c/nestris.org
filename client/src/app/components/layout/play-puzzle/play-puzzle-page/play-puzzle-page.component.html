@@ -37,7 +37,6 @@
             <app-puzzle-nes-board *ngIf="state.id === State.SOLVING && state.data"
                 class="board" [scale]="3.3" [level]="state.data.level"
                 [puzzle]="state.data" (submitPuzzle)="submitPuzzle($event)"
-                [rotateLeftKeybind]="rotateLeftKeybind" [rotateRightKeybind]="rotateRightKeybind"
                 [undo$]="clickUndo$" (canUndo)="canUndo$.next($event)"
             />
 
