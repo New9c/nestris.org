@@ -90,6 +90,13 @@ export class PuzzleRushClientRoom extends ClientRoom {
             this.onNewMatch(newState);
         }
 
+        // if my index's progress increased, play sound
+        const oldProgress = oldState.players[this.getMyIndex()].progress;
+        const newProgress = newState.players[this.getMyIndex()].progress;
+        if (newProgress.length > oldProgress.length) {
+            this.sound.play(newProgress[newProgress.length - 1] ? SoundEffect.NOTES_UP_HIGH : SoundEffect.INCORRECT)
+        }
+
     }
 
     private onTimeout() {

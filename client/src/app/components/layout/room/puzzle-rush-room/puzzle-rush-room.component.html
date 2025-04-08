@@ -2,8 +2,8 @@
     <div class="root" *ngIf="state$ | async as state"
     [ngClass]="{
         'solo-finish' : result === PuzzleRushResult.SOLO,
-        'correct': result === PuzzleRushResult.VICTORY,
-        'incorrect': result === PuzzleRushResult.DEFEAT,
+        'victory': result === PuzzleRushResult.VICTORY,
+        'defeat': result === PuzzleRushResult.DEFEAT,
         'tie': result === PuzzleRushResult.TIE,
         'rush' : state.players.length === 1,
         'battle' : state.players.length === 2,
@@ -102,7 +102,10 @@
                         </ng-container>
 
                         <ng-container *ngIf="state.status === PuzzleRushStatus.AFTER_GAME">
-                            <h1 class="header red" *ngIf="state.players.length === 1">Score: {{puzzleRushScore(state.players[0])}}</h1>
+                            <h1 class="header" *ngIf="state.players.length === 1">Score: {{puzzleRushScore(state.players[0])}}</h1>
+                            <h1 class="header" *ngIf="state.players.length === 2">
+                                {{result}} {{puzzleRushScore(state.players[myIndex])}}-{{puzzleRushScore(state.players[opponentIndex])}}
+                            </h1>
 
                             <div class="stats" *ngIf="state.stats as stats">
                                 <div class="stat" *ngFor="let stat of stats">
@@ -150,7 +153,9 @@
 
                         <!-- Show skip puzzle button during game -->
                         <app-solid-button
-                            label="Skip Puzzle" [color]="ButtonColor.RED" *ngIf="state.status === PuzzleRushStatus.DURING_GAME && !(countdownTimer$ | async)"
+                            [label]="puzzleRushIncorrect(me(state)) < state.strikes ? 'Skip Puzzle' : 'Waiting for opponent'"
+                            [disabled]="puzzleRushIncorrect(me(state)) >= state.strikes"
+                            [color]="ButtonColor.RED" *ngIf="state.status === PuzzleRushStatus.DURING_GAME && !(countdownTimer$ | async)"
                             [stretch]="true"
                             [loadingSize]="15"
                             (smartClick)="puzzleRushRoom.submitPuzzle({})"

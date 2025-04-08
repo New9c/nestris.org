@@ -25,10 +25,10 @@ export enum PuzzleCorrect {
 }
 
 export enum PuzzleRushResult {
-  NONE = 'none',
-  VICTORY = 'victory',
-  TIE = 'tie',
-  DEFEAT = 'defeat',
+  NONE = 'None',
+  VICTORY = 'Victory',
+  TIE = 'Tie',
+  DEFEAT = 'Defeat',
   SOLO = 'SOLO'
 }
 
@@ -77,7 +77,6 @@ export class PuzzleRushRoomComponent {
     filter(progress => progress.length > 0),
     distinctUntilChanged(),
     map(progress => progress[progress.length - 1] ? PuzzleCorrect.CORRECT : PuzzleCorrect.INCORRECT),
-    tap(isCorrect => this.soundService.play(isCorrect === PuzzleCorrect.CORRECT ? SoundEffect.NOTES_UP_HIGH : SoundEffect.INCORRECT)),
     startWith(PuzzleCorrect.WAITING),
     shareReplay(1)
   );

@@ -248,7 +248,7 @@ export class T200PuzzlesLeaderboard extends T200Leaderboard {
                 FROM
                     users
                 WHERE
-                    login_method != 'bot'
+                    login_method != 'bot' AND puzzle_elo > 0
                 ORDER BY
                     puzzle_elo DESC
                 LIMIT 200
