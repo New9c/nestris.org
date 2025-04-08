@@ -90,7 +90,8 @@ export class PuzzleRushRoomComponent implements OnInit {
         of(true),             // emit true immediately
         timer(300).pipe(map(() => false)) // emit false after 100ms
       )
-    )
+    ),
+    shareReplay(1)
   );
 
   // Number of incorrect attempts

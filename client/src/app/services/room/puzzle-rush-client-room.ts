@@ -99,6 +99,7 @@ export class PuzzleRushClientRoom extends ClientRoom {
     }
 
     public override destroy(): void {
-
+        this.countdownTimer.stop();
+        this.rushTimer.stop();
     }
 }
