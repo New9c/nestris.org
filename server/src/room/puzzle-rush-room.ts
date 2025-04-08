@@ -1,3 +1,4 @@
+import { ActivityType } from "../../shared/models/activity";
 import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { xpOnPuzzleRush } from "../../shared/nestris-org/xp-system";
 import { RushPuzzle } from "../../shared/puzzles/db-puzzle";
@@ -5,6 +6,7 @@ import { PuzzleRushAttempt, PuzzleRushAttemptEvent, PuzzleRushEventType, puzzleR
 import { ClientRoomEvent, RoomType } from "../../shared/room/room-models";
 import { DBPuzzleRushEvent, DBUserObject } from "../database/db-objects/db-user";
 import { EventConsumerManager } from "../online-users/event-consumer";
+import { ActivityConsumer } from "../online-users/event-consumers/activity-consumer";
 import { PuzzleRushConsumer } from "../online-users/event-consumers/puzzle-rush-consumer";
 import { Room, RoomError } from "../online-users/event-consumers/room-consumer";
 import { UserSessionID } from "../online-users/online-user";
@@ -229,8 +231,14 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
         this.updateRoomState(state);
 
         // update puzzle rush stats for each user, without blocking
+        const activityConsumer = EventConsumerManager.getInstance().getConsumer(ActivityConsumer);
         playerIndicies.forEach(playerIndex => {
             const score = puzzleRushScore(state.players[playerIndex]);
+
+            // If new puzzle rush record, record activity
+            if (score > this.puzzleRushRecord[playerIndex]) {
+                activityConsumer.createActivity(state.players[playerIndex].userid, { type: ActivityType.RUSH_RECORD, score })
+            }
 
             DBUserObject.alter(state.players[playerIndex].userid,new DBPuzzleRushEvent({
                 xpGained: xpOnPuzzleRush(score),

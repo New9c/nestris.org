@@ -7,7 +7,8 @@ export enum ActivityType {
     RANKED_MATCH,
     QUEST_COMPLETION,
     PUZZLE_ELO,
-    LEAGUE_PROMOTION
+    LEAGUE_PROMOTION,
+    RUSH_RECORD,
 };
 
 // EXAMPLE: Scored a new personal best of [score] on level [startLevel] start
@@ -49,8 +50,13 @@ export type LeaguePromotionActivity = {
     league: League,
 }
 
+export type RushRecordActivity = {
+    type: ActivityType.RUSH_RECORD,
+    score: number,
+}
+
 // This schema is stored in the data column of Activities table
-export type Activity = PersonalBestActivity | RankedMatchActivity | QuestCompletionActivity | PuzzleEloActivity | LeaguePromotionActivity;
+export type Activity = PersonalBestActivity | RankedMatchActivity | QuestCompletionActivity | PuzzleEloActivity | LeaguePromotionActivity | RushRecordActivity;
 
 export interface TimestampedActivity {
     id: number,
