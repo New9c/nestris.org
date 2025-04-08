@@ -1,6 +1,6 @@
 import { stat } from "fs";
 import { GlobalStat, GlobalStats } from "../../../shared/models/global-stat";
-import { DBGameEndEvent, DBPuzzleSubmitEvent, DBRankedMatchEndEvent, DBUserObject } from "../../database/db-objects/db-user";
+import { DBGameEndEvent, DBPuzzleRushEvent, DBPuzzleSubmitEvent, DBRankedMatchEndEvent, DBUserObject } from "../../database/db-objects/db-user";
 import { Database, DBQuery, WriteDBQuery } from "../../database/db-query";
 import { EventConsumer } from "../event-consumer";
 
@@ -27,30 +27,11 @@ export class CountGamesPlayedQuery extends DBQuery<number> {
     }
 }
 
-export class CountPuzzlesSolvedQuery extends DBQuery<number> {
-    public override query = `SELECT SUM(puzzles_solved) FROM users;`;
-    public override warningMs = null;
-
-    public override parseResult(resultRows: any[]): number {
-        if (resultRows.length === 0) throw new Error('Count of puzzles solved not found');
-
-        return parseInt(resultRows[0].sum);
-    }
-}
-
-export class CountPuzzleHoursQuery extends DBQuery<number> {
-    public override query = `SELECT SUM(puzzle_seconds_played / 3600.0) FROM users;`;
-    public override warningMs = null;
-
-    public override parseResult(resultRows: any[]): number {
-        if (resultRows.length === 0) throw new Error('Count of puzzle hours not found');
-
-        return parseFloat(resultRows[0].sum);
-    }
-}
 
 // Stats that are stored directly in the global_stats table
 const DATABASE_STATS = [
+    GlobalStat.TOTAL_PUZZLES_SOLVED,
+    GlobalStat.TOTAL_PUZZLE_HOURS,
     GlobalStat.TOTAL_PIECES_PLACED,
     GlobalStat.TOTAL_MATCHES_PLAYED,
     GlobalStat.TOTAL_MATCH_HOURS,
@@ -100,9 +81,9 @@ export class GlobalStatConsumer extends EventConsumer {
     private stats: GlobalStats = {
         [GlobalStat.TOTAL_USER_COUNT]: 0,
         [GlobalStat.TOTAL_GAMES_PLAYED]: 0,
+
         [GlobalStat.TOTAL_PUZZLES_SOLVED]: 0,
         [GlobalStat.TOTAL_PUZZLE_HOURS]: 0,
-
         [GlobalStat.TOTAL_PIECES_PLACED]: 0,
         [GlobalStat.TOTAL_MATCHES_PLAYED]: 0,
         [GlobalStat.TOTAL_MATCH_HOURS]: 0,
@@ -135,22 +116,6 @@ export class GlobalStatConsumer extends EventConsumer {
             if (change.event instanceof DBGameEndEvent) this.incrementStat(GlobalStat.TOTAL_GAMES_PLAYED);
         });
 
-        // Query database for initial total puzzles solved count, and increment it when a user solves a puzzle
-        this.stats[GlobalStat.TOTAL_PUZZLES_SOLVED] = await Database.query(CountPuzzlesSolvedQuery);
-        DBUserObject.onChange().subscribe((change) => {
-            if (change.event instanceof DBPuzzleSubmitEvent && change.event.args.isCorrect) {
-                this.incrementStat(GlobalStat.TOTAL_PUZZLES_SOLVED);
-            }
-        });
-
-        // Query database for initial total puzzle hours count, and increment it when a user solves a puzzle. Store as a float
-        this.stats[GlobalStat.TOTAL_PUZZLE_HOURS] = await Database.query(CountPuzzleHoursQuery);
-        DBUserObject.onChange().subscribe((change) => {
-            if (change.event instanceof DBPuzzleSubmitEvent && change.event.args.seconds > 0) {
-                this.incrementStat(GlobalStat.TOTAL_PUZZLE_HOURS, change.event.args.seconds / 3600.0);
-            }
-        });
-
         // Initialize global stats that are pulled directly from global stats database table
         for (let stat of DATABASE_STATS) {
             this.stats[stat] = await Database.query(GetGlobalStatQuery, stat, 0);
@@ -160,6 +125,14 @@ export class GlobalStatConsumer extends EventConsumer {
         DBUserObject.onChange().subscribe((change) => {
             if (change.event instanceof DBGameEndEvent && change.event.args.numPlacements > 0) {
                 this.incrementDatabaseStat(GlobalStat.TOTAL_PIECES_PLACED, change.event.args.numPlacements);
+            }
+            if (change.event instanceof DBPuzzleSubmitEvent) {
+                if (change.event.args.isCorrect) this.incrementStat(GlobalStat.TOTAL_PUZZLES_SOLVED);
+                if (change.event.args.seconds > 0) this.incrementStat(GlobalStat.TOTAL_PUZZLE_HOURS, change.event.args.seconds / 3600.0);
+            }
+            if (change.event instanceof DBPuzzleRushEvent) {
+                this.incrementStat(GlobalStat.TOTAL_PUZZLES_SOLVED, change.event.args.score);
+                this.incrementStat(GlobalStat.TOTAL_PUZZLE_HOURS, change.event.args.seconds / 3600.0);
             }
         });    
 

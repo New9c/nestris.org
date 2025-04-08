@@ -57,7 +57,7 @@ export class XPEvent<T extends XPArgs = XPArgs> extends GenericEvent<T> {}
 interface PuzzleSubmitArgs extends XPArgs { newElo: number, isCorrect: boolean, seconds: number }
 export class DBPuzzleSubmitEvent extends XPEvent<PuzzleSubmitArgs> {}
 
-interface PuzzleRushArgs extends XPArgs { score: number, pps: number }
+interface PuzzleRushArgs extends XPArgs { score: number, pps: number, seconds: number }
 export class DBPuzzleRushEvent extends XPEvent<PuzzleRushArgs> {}
 
 // Update highest stats on game end

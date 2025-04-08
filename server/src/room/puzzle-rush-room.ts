@@ -235,6 +235,7 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
             DBUserObject.alter(state.players[playerIndex].userid,new DBPuzzleRushEvent({
                 xpGained: xpOnPuzzleRush(score),
                 score,
+                seconds: (Date.now() - this.startTime!) / 1000,
                 pps: this.pps[playerIndex]!,
             }), false);
         });
