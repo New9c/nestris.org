@@ -1,4 +1,5 @@
 import { ClientRoomEvent, RoomState, RoomType } from "./room-models";
+import { RushPuzzle } from "../puzzles/db-puzzle";
 
 // Client-to-server: send ready, send submit, send game end (with pps)
 
@@ -12,10 +13,16 @@ export interface PuzzleRushPlayer {
     ended: boolean;
 }
 
+
 export enum PuzzleRushStatus {
     BEFORE_GAME = 'BEFORE_GAME',
     DURING_GAME = 'DURING_GAME',
     AFTER_GAME = 'AFTER_GAME'
+}
+
+export interface PuzzleRushAttempt {
+    current?: number;
+    next?: number;
 }
 
 export interface PuzzleRushRoomState extends RoomState {
@@ -23,8 +30,11 @@ export interface PuzzleRushRoomState extends RoomState {
 
     status: PuzzleRushStatus;
     players: PuzzleRushPlayer[];
+    rated: boolean,
 
     stats?: { label: string, value: string[] }[]; // post-match display-ready stats for each player
+    puzzleSet?: RushPuzzle[]; // answer key
+    attempts?: PuzzleRushAttempt[][]; // player attempts
 }
 
 // number of correct puzzles (number of true elements in progress array)
@@ -41,6 +51,7 @@ export enum PuzzleRushEventType {
     READY = 'READY',
     ATTEMPT = 'ATTEMPT',
     TIMEOUT = 'TIMEOUT',
+    REMATCH = 'REMATCH',
 }
 
 export interface PuzzleRushAttemptEvent extends ClientRoomEvent {

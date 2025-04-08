@@ -48,13 +48,19 @@ export class StartableTimer {
 
     private interval: any;
 
-    constructor(private readonly startSeconds: number, setInitialTimer: boolean, private readonly onExpire: () => void, private readonly onSecond?: () => void) {
+    constructor(private readonly startSeconds: number, private readonly setInitialTimer: boolean, private readonly onExpire: () => void, private readonly onSecond?: () => void) {
         if (startSeconds <= 0) throw new Error("Seconds must be positive");
         if (setInitialTimer) this._time$.next(this.startSeconds);
     }
 
     get secondsLeft() {
         return this._time$.getValue();
+    }
+
+    reset() {
+        this.stop();
+        this.interval = undefined;
+        this._time$.next(this.setInitialTimer ? this.startSeconds : null);
     }
 
     // An observable that emits values once time goes at or under the specified seconds

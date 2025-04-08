@@ -21,18 +21,26 @@ export class PuzzleRushClientRoom extends ClientRoom {
     public readonly rushTimer = new StartableTimer(60 * 3, true, () => this.onTimeout());
     public readonly countdownTimer = new StartableTimer(3, false, () => this.rushTimer.start(), () => this.sound.play(SoundEffect.NOTE_HIGH));
 
-    private readonly _text$ = new BehaviorSubject<string>("Solve as many puzzles as you can in 3 minutes, but 3 strikes and you're out!");
+    private readonly _text$ = new BehaviorSubject<string>("");
     public readonly text$ = this._text$.asObservable();
 
     private endByTimeout: boolean = false;
 
+    public selectedIndex$ = new BehaviorSubject<number | null>(null);
+
     public override async init(event: InRoomStatusMessage): Promise<void> {
         const state = event.roomState as PuzzleRushRoomState;
+        this.onNewMatch(state);
+    }
+
+    private async onNewMatch(state: PuzzleRushRoomState) {
+        this._text$.next("Solve as many puzzles as you can in 3 minutes, but 3 strikes and you're out!");
 
         this.myIndex = state.players.map(player => player.userid).indexOf(await this.me.getUserID());
         if (this.myIndex === -1) throw new Error("User is not either of the players in the room");
 
         this.analytics.sendEvent("puzzle-rush");
+
     }
 
     public getMyIndex(): number {
@@ -52,8 +60,17 @@ export class PuzzleRushClientRoom extends ClientRoom {
         if (oldState.status === PuzzleRushStatus.DURING_GAME && newState.status === PuzzleRushStatus.AFTER_GAME) {
             // Cancel timer if already lost
             this.rushTimer.stop();
-
             this._text$.next(this.endByTimeout ? "Time's up!" : "That's three strikes!");
+            
+            // Select last attempted puzzle to start
+            this.selectedIndex$.next(newState.players[this.getMyIndex()].progress.length - 1);
+        }
+
+        // reset game
+        if (oldState.status === PuzzleRushStatus.AFTER_GAME && newState.status === PuzzleRushStatus.BEFORE_GAME) {
+            this.rushTimer.reset();
+            this.countdownTimer.reset();
+            this.onNewMatch(newState);
         }
 
     }
@@ -66,6 +83,10 @@ export class PuzzleRushClientRoom extends ClientRoom {
 
     public sendReadyEvent() {
         this.sendClientRoomEvent({type: PuzzleRushEventType.READY });
+    }
+
+    public sendRematchEvent() {
+        this.sendClientRoomEvent({type: PuzzleRushEventType.REMATCH });
     }
 
     public submitPuzzle(submission: PuzzleSubmission) {

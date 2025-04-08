@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { BehaviorSubject, delay, distinctUntilChanged, filter, map, mapTo, merge, Observable, of, shareReplay, startWith, Subject, switchMap, tap, timer } from 'rxjs';
+import { BehaviorSubject, combineLatestWith, delay, distinctUntilChanged, filter, map, mapTo, merge, Observable, of, shareReplay, startWith, Subject, switchMap, tap, timer } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { PuzzleRushClientRoom } from 'src/app/services/room/puzzle-rush-client-room';
 import { RoomService } from 'src/app/services/room/room.service';
@@ -9,6 +9,9 @@ import { PuzzleData } from '../../play-puzzle/play-puzzle-page/play-puzzle-page.
 import { GameOverMode } from 'src/app/components/nes-layout/nes-board/nes-board.component';
 import { SoundEffect, SoundService } from 'src/app/services/sound.service';
 import { Correctness } from 'src/app/components/ui/correctness-icon-square/correctness-icon-square.component';
+import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
+import { Router } from '@angular/router';
+import { PlayService } from 'src/app/services/play.service';
 
 export enum PuzzleCorrect {
   WAITING = 'waiting',
@@ -22,6 +25,11 @@ export enum PuzzleRushResult {
   TIE = 'tie',
   DEFEAT = 'defeat',
   SOLO = 'SOLO'
+}
+
+export enum ViewMode {
+  SOLUTION = 'solution',
+  ATTEMPT = 'attempt'
 }
 
 @Component({
@@ -123,18 +131,54 @@ export class PuzzleRushRoomComponent {
     shareReplay(1)
   );
 
+  public viewMode$ = new BehaviorSubject<ViewMode>(ViewMode.SOLUTION);
+
+  public selectedPuzzle$ = this.puzzleRushRoom.selectedIndex$.pipe(
+
+    // Get the current puzzle, attempt, and solution based on the selected index
+    filter(selectedIndex => selectedIndex !== null),
+    combineLatestWith(this.state$.pipe(
+      filter(state => state.puzzleSet !== undefined && state.attempts !== undefined)
+    )),
+    map(([selectedIndex, state]) => ({
+      attempt: state.attempts![this.puzzleRushRoom.getMyIndex()][selectedIndex!],
+      solution: state.puzzleSet![selectedIndex! % state.puzzleSet!.length],
+    })),
+    map(({ attempt, solution }) => ({ attempt, solution, puzzle: decodePuzzle(solution.id) }) ),
+    shareReplay(1),
+
+    // Get either the attempt or solution current/next placements, based on viewMode$
+    combineLatestWith(this.viewMode$),
+    map(([ { attempt, solution, puzzle }, viewMode ]) => ({
+      board: puzzle.board,
+      currentPlacement: (
+        viewMode === ViewMode.SOLUTION ?
+        MoveableTetromino.fromInt2(solution.current) :
+        (attempt.current === undefined ? undefined : MoveableTetromino.fromInt2(attempt.current))
+      ),
+      nextPlacement: (
+        viewMode === ViewMode.SOLUTION ?
+        MoveableTetromino.fromInt2(solution.next) :
+        (attempt.next === undefined ? undefined : MoveableTetromino.fromInt2(attempt.next))
+      ),
+    })),
+    shareReplay(1)
+  );
+
   readonly ButtonColor = ButtonColor;
   readonly PuzzleRushStatus = PuzzleRushStatus;
   readonly GameOverMode = GameOverMode;
   readonly PuzzleCorrect = PuzzleCorrect;
   readonly Correctness = Correctness;
   readonly PuzzleRushResult = PuzzleRushResult;
+  readonly ViewMode = ViewMode;
   readonly puzzleRushScore = puzzleRushScore;
   readonly puzzleRushIncorrect = puzzleRushIncorrect;
 
   constructor(
     private readonly roomService: RoomService,
     private readonly soundService: SoundService,
+    public readonly router: Router,
   ) {
     this.incorrectShake$.subscribe(shake => console.log("shake", shake));
   }
@@ -151,8 +195,46 @@ export class PuzzleRushRoomComponent {
     return false;
   }
 
-  getCurrentBoard(state: PuzzleRushRoomState) {
-    return decodePuzzle(state.players[this.puzzleRushRoom.getMyIndex()].currentPuzzleID).board;
+  selectPuzzleIndex(state: PuzzleRushRoomState, puzzleIndex: number) {
+    if (state.status !== PuzzleRushStatus.AFTER_GAME) return;
+
+    const numAttempts = this.puzzleRushRoom.getState<PuzzleRushRoomState>().attempts![this.puzzleRushRoom.getMyIndex()].length;
+    if (puzzleIndex >= numAttempts) return;
+
+    this.puzzleRushRoom.selectedIndex$.next(puzzleIndex);
+    this.viewMode$.next(ViewMode.SOLUTION);
+    this.soundService.play(SoundEffect.CLICK);
+  }
+
+  ordinal(index: number | null): string {
+    if (index === null) return "";
+
+    index++;
+    const suffixes = ["th", "st", "nd", "rd"];
+    const v = index % 100;
+  
+    const suffix =
+      suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0];
+  
+    return `${index}${suffix}`;
+  }
+  
+  toggleViewMode() {
+    if (this.viewMode$.getValue() === ViewMode.ATTEMPT) this.viewMode$.next(ViewMode.SOLUTION);
+    else this.viewMode$.next(ViewMode.ATTEMPT);
+    console.log("toggle");
+  } 
+
+  playAgainText() {
+    if (this.puzzleRushRoom.isSinglePlayer()) return "Play Again";
+    return (this.puzzleRushRoom.getState<PuzzleRushRoomState>().rated) ? "New match" : "Rematch";
+  }
+
+  playAgain() {
+    this.viewMode$.next(ViewMode.SOLUTION);
+    if (this.puzzleRushRoom.isSinglePlayer()) {
+      this.puzzleRushRoom.sendRematchEvent();
+    }
   }
 
 }

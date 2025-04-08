@@ -205,7 +205,6 @@ header {
 }
 
 
-
 .instructions {
     color: #FFF;
     text-align: center;
@@ -367,6 +366,39 @@ h1.score {
     column-gap: 5px;
 }
 
+.after-game .puzzle-icon {
+    transition: all 0.1s;
+}
+
+.after-game .puzzle-icon.selected {
+    outline: 2px solid white;
+    border-radius: 2px;
+}
+
+.after-game .puzzle-icon:hover {
+    transform: scale(1.05);
+    opacity: 0.8;
+}
+
+.view-mode {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+}
+
+.view-mode p {
+    font-family: $main-font;
+    font-size: 10px;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+}
+
+.view-mode app-solid-button {
+    zoom: 0.5;
+}
+
 @keyframes shake {
     0% { transform: rotate(0deg) translate(0, 0)}
     20% { transform: rotate(1deg) translate(3px, 3px)}
@@ -382,6 +414,14 @@ app-puzzle-nes-board {
 app-puzzle-nes-board.shake {
     animation: shake 0.15s;
     animation-iteration-count: 2;
+}
+
+.two-button-container {
+    width: 100%;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 6px;
 }
 
 @media screen and (max-width: 1200px) {

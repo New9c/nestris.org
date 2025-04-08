@@ -6,6 +6,7 @@
         'tie': result === PuzzleRushResult.TIE,
         'rush' : state.players.length === 1,
         'battle' : state.players.length === 2,
+        'after-game' : state.status === PuzzleRushStatus.AFTER_GAME,
     }">
 
 
@@ -56,12 +57,14 @@
                     </ng-container>
 
                     <!-- If after game, show last puzzle -->
-                    <app-nes-board *ngIf="state.status === PuzzleRushStatus.AFTER_GAME"
-                        class="board" [scale]="3.3"
-                        [defaultOpacity]="0.4"
-                        [board]="getCurrentBoard(state)"
-                    />
-                    
+                    <ng-container *ngIf="state.status === PuzzleRushStatus.AFTER_GAME">
+                        <app-nes-board *ngIf="selectedPuzzle$ | async as selectedPuzzle"
+                            class="board" [scale]="3.3"
+                            [board]="selectedPuzzle.board" [defaultOpacity]="0.4"
+                            [activePiece]="selectedPuzzle.currentPlacement" [activePieceOpacity]="1"
+                            [nextPiece]="selectedPuzzle.nextPlacement" [nextPieceOpacity]="1"
+                        />
+                    </ng-container>
 
                 </ng-container>
 
@@ -114,24 +117,49 @@
                                 </div>
                                 <h1 class="score">{{puzzleRushScore(player)}}</h1>
                                 <div class="progress-matrix" *ngIf="progressMatrix$ | async as matrix">
-                                    <app-correctness-icon-square *ngFor="let attempt of matrix" width="18px"
+                                    <button *ngFor="let attempt of matrix; let i = index"  (click)="selectPuzzleIndex(state, i)"
+                                            class="puzzle-icon" [ngClass]="{'selected' : i === (puzzleRushRoom.selectedIndex$ | async)}">
+                                        <app-correctness-icon-square  width="18px"
                                         [correctness]="attempt" />
+                                    </button>
+                                    
                                 </div>
                             </div>
                         </div>
+
+                        <div class="view-mode" *ngIf="state.status === PuzzleRushStatus.AFTER_GAME">
+                            <p>Viewing {{(viewMode$ | async) === ViewMode.SOLUTION ? 'correct solution' : 'your attempt'}} for the {{ordinal(puzzleRushRoom.selectedIndex$ | async)}} puzzle </p>
+                            <app-solid-button [label]="(viewMode$ | async) === ViewMode.SOLUTION ? 'View attempt' : 'View solution'" (smartClick)="toggleViewMode()" />
+                        </div>
+                        
                         
 
                     </div>
                     
                     <div class="puzzle-details-bottom">
 
-                        <!-- If in puzzle solution mode and has next puzzle, show "Next Puzzle" button -->
+                        <!-- Show skip puzzle button during game -->
                         <app-solid-button
                             label="Skip Puzzle" [color]="ButtonColor.RED" *ngIf="state.status === PuzzleRushStatus.DURING_GAME && !(countdownTimer$ | async)"
                             [stretch]="true"
                             [loadingSize]="15"
                             (smartClick)="puzzleRushRoom.submitPuzzle({})"
                         />
+
+                         <!-- Show "go home" and "play again" buttons if in after game mode -->
+                        <div *ngIf="state.status === PuzzleRushStatus.AFTER_GAME" class="two-button-container">
+                            <app-solid-button
+                                    label="Go home" [color]="ButtonColor.GREY"
+                                    [stretch]="true"
+                                (smartClick)="router.navigate(['/'])"
+                            />
+                            <app-solid-button [label]="playAgainText()"
+                                [color]="ButtonColor.BLUE"
+                                [stretch]="true"
+                                (click)="playAgain()"
+                            />
+                        </div>
+
                     </div>
 
                 </div>

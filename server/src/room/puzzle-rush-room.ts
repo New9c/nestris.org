@@ -1,7 +1,7 @@
 import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { xpOnPuzzleRush } from "../../shared/nestris-org/xp-system";
 import { RushPuzzle } from "../../shared/puzzles/db-puzzle";
-import { PuzzleRushAttemptEvent, PuzzleRushEventType, puzzleRushIncorrect, PuzzleRushRoomState, puzzleRushScore, PuzzleRushStatus } from "../../shared/room/puzzle-rush-models";
+import { PuzzleRushAttempt, PuzzleRushAttemptEvent, PuzzleRushEventType, puzzleRushIncorrect, PuzzleRushRoomState, puzzleRushScore, PuzzleRushStatus } from "../../shared/room/puzzle-rush-models";
 import { ClientRoomEvent, RoomType } from "../../shared/room/room-models";
 import { DBPuzzleRushEvent, DBUserObject } from "../database/db-objects/db-user";
 import { EventConsumerManager } from "../online-users/event-consumer";
@@ -15,7 +15,7 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
     private puzzleSet!: RushPuzzle[];
 
     // Whether each player is ready
-    private playerReady: boolean[];
+    private playerReady!: boolean[];
 
     // How many pieces each player placed
     private pieceCount!: number[];
@@ -25,6 +25,9 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
     
     // Previous lifetime record for puzzle rush
     private puzzleRushRecord!: number[];
+
+    // Puzzle attempts for each player
+    private attempts!: PuzzleRushAttempt[][];
 
     // Start time when BEFORE_GAME transitions to DURING_GAME
     private startTime?: number;
@@ -40,13 +43,6 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
             playerIDs,
             false // cannot spectate puzzle rush/battles
         );
-
-        // All players are not ready at first
-        this.playerReady = this.playerIDs.map(_ => false);
-
-        // No players placed any pieces, and pps not yet known
-        this.pieceCount = this.playerIDs.map(_ => 0);
-        this.pps = this.playerIDs.map(_ => null);
     }
 
     private getPlayerIndex(userid: string) {
@@ -55,13 +51,23 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
 
     protected override async initRoomState(): Promise<PuzzleRushRoomState> {
 
+        // All players are not ready at first
+        this.playerReady = this.playerIDs.map(_ => false);
+
+        // No players placed any pieces, and pps not yet known
+        this.pieceCount = this.playerIDs.map(_ => 0);
+        this.pps = this.playerIDs.map(_ => null);
+
+        // No attempts at start
+        this.attempts = this.playerIDs.map(_ => []);
+
         // get dbUsers from player userids
         const playerUsers = await Promise.all(this.playerIDs.map(playerID => DBUserObject.get(playerID.userid)));
 
         // Initialize previous puzzle rush record
         this.puzzleRushRecord = playerUsers.map(user => user.puzzle_rush_best);
 
-        // First, initialize puzzle set
+        // Initialize puzzle set
         const userids = this.playerIDs.map(playerID => playerID.userid);
         this.puzzleSet = await EventConsumerManager.getInstance().getConsumer(PuzzleRushConsumer).fetchPuzzleSetForUsers(userids);
 
@@ -69,6 +75,7 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
         return {
             type: playerUsers.length === 1 ? RoomType.PUZZLE_RUSH : RoomType.PUZZLE_BATTLES,
             status: PuzzleRushStatus.BEFORE_GAME,
+            rated: this.rated,
             players: playerUsers.map(user => ({
                 userid: user.userid,
                 username: user.username,
@@ -113,6 +120,9 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
                 this.setEnded(playerIndex);
                 return;
 
+            case PuzzleRushEventType.REMATCH:
+                this.initRoomState().then(state => this.updateRoomState(state));
+
         }
     }
 
@@ -140,6 +150,9 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
         // Update piece count for player
         if (attempt.current !== undefined) this.pieceCount[playerIndex]++;
         if (attempt.next !== undefined) this.pieceCount[playerIndex]++;
+
+        // Store attempt
+        this.attempts[playerIndex].push({ current: attempt.current, next: attempt.next });
         
         // Check if player hit the incorrect limit
         if (puzzleRushIncorrect(state.players[playerIndex]) >= 3) {
@@ -210,6 +223,8 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
 
         // End the match and update client
         state.status = PuzzleRushStatus.AFTER_GAME;
+        state.puzzleSet = this.puzzleSet;
+        state.attempts = this.attempts;
         state.stats = this.getPostMatchStats(state);
         this.updateRoomState(state);
 
