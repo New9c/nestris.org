@@ -58,6 +58,7 @@ CREATE TABLE "public"."users" (
     "keybind_emu_reset" text NOT NULL,
     "keybind_puzzle_rot_left" text NOT NULL,
     "keybind_puzzle_rot_right" text NOT NULL,
+    "keybind_puzzle_undo" text NOT NULL DEFAULT 'c';
 
     "quest_progress" int4[] NOT NULL DEFAULT '{}',
     "about_me" text,

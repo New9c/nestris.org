@@ -21,13 +21,13 @@
                         <app-puzzle-elo [puzzleElo]="PUZZLE_RUSH_UNLOCK_ELO" [size]="12" />
                         <p class="prevent-select">to unlock</p>
                     </ng-container>
-                    <ng-container *ngIf="mode === PuzzleMode.BATTLE">
+                    <!-- <ng-container *ngIf="mode === PuzzleMode.BATTLE">
                         <p class="prevent-select">
                             Score
                             <strong>{{me.puzzle_rush_best}}/{{PUZZLE_BATTLE_UNLOCK_RUSH}}</strong>
                             in Puzzle Blitz to unlock
                         </p>
-                    </ng-container>
+                    </ng-container> -->
                 </div>
 
                 <div class="lock-text" *ngIf="!canPlay(me, mode, environment) && environmentDisable(mode, environment)">
