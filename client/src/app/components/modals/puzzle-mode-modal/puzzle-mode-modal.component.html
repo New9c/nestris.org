@@ -15,7 +15,7 @@
                     <p *ngIf="mode === PuzzleMode.BATTLE" class="prevent-select">Battle other players in Puzzle Blitz!</p>
                 </div>
 
-                <div class="lock-text" *ngIf="!canPlay(me, mode, environment) && !environmentDisable(environment)">
+                <div class="lock-text" *ngIf="!canPlay(me, mode, environment) && !environmentDisable(mode, environment)">
                     <ng-container *ngIf="mode === PuzzleMode.RUSH">
                         <p class="prevent-select">Reach a puzzle elo of</p>
                         <app-puzzle-elo [puzzleElo]="PUZZLE_RUSH_UNLOCK_ELO" [size]="12" />
@@ -30,7 +30,7 @@
                     </ng-container>
                 </div>
 
-                <div class="lock-text" *ngIf="!canPlay(me, mode, environment) && environmentDisable(environment)">
+                <div class="lock-text" *ngIf="!canPlay(me, mode, environment) && environmentDisable(mode, environment)">
                     <p class="prevent-select">This feature is coming soon!</p>
                 </div>
             </div>

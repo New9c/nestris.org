@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatestWith, delay, distinctUntilChanged, filter, map, mapTo, merge, Observable, of, shareReplay, startWith, Subject, switchMap, tap, timer } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { PuzzleRushClientRoom } from 'src/app/services/room/puzzle-rush-client-room';
@@ -12,6 +12,7 @@ import { Correctness } from 'src/app/components/ui/correctness-icon-square/corre
 import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
 import { Router } from '@angular/router';
 import { PlayService } from 'src/app/services/play.service';
+import { MeService } from 'src/app/services/state/me.service';
 
 export enum PuzzleCorrect {
   WAITING = 'waiting',
@@ -38,7 +39,7 @@ export enum ViewMode {
   styleUrls: ['./puzzle-rush-room.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PuzzleRushRoomComponent {
+export class PuzzleRushRoomComponent implements OnInit {
 
   public puzzleRushRoom = this.roomService.getClient<PuzzleRushClientRoom>();
   public state$ = this.puzzleRushRoom.getState$<PuzzleRushRoomState>();
@@ -165,6 +166,9 @@ export class PuzzleRushRoomComponent {
     shareReplay(1)
   );
 
+  public rotateLeftKeybind = 'z';
+  public rotateRightKeybind = 'x';
+
   readonly ButtonColor = ButtonColor;
   readonly PuzzleRushStatus = PuzzleRushStatus;
   readonly GameOverMode = GameOverMode;
@@ -178,9 +182,18 @@ export class PuzzleRushRoomComponent {
   constructor(
     private readonly roomService: RoomService,
     private readonly soundService: SoundService,
+    private meService: MeService,
     public readonly router: Router,
   ) {
     this.incorrectShake$.subscribe(shake => console.log("shake", shake));
+  }
+
+  ngOnInit(): void {
+    const me = this.meService.getSync();
+    if (me) {
+      this.rotateLeftKeybind = me.keybind_puzzle_rot_left
+      this.rotateRightKeybind = me.keybind_puzzle_rot_right
+    }
   }
 
   timerText(seconds: number | null) {

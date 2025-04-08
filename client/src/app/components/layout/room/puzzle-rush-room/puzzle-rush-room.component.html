@@ -51,6 +51,7 @@
                                 [undo$]="clickUndo$" (canUndo)="canUndo$.next($event)"
                                 (submitPuzzle)="puzzleRushRoom.submitPuzzle($event)"
                                 [ngClass]="{'shake' : incorrectShake$ | async}"
+                                [rotateLeftKeybind]="rotateLeftKeybind" [rotateRightKeybind]="rotateRightKeybind"
                             />
                         </ng-template>
 

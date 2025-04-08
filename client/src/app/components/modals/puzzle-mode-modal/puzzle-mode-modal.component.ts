@@ -51,14 +51,14 @@ export class PuzzleModeModalComponent {
     private readonly serverStatsService: ServerStatsService,
   ) {}
 
-  public environmentDisable(environment: DeploymentEnvironment) {
-    return environment === DeploymentEnvironment.STAGING;
+  public environmentDisable(mode: PuzzleMode, environment: DeploymentEnvironment) {
+    return mode === PuzzleMode.BATTLE && environment === DeploymentEnvironment.STAGING;
   }
 
   public canPlay(me: DBUser, mode: PuzzleMode, environment: DeploymentEnvironment) {
 
     // Puzzle battles disabled for now
-    if (mode === PuzzleMode.BATTLE && this.environmentDisable(environment)) return false;
+    if (this.environmentDisable(mode, environment)) return false;
 
     switch (mode) {
       case PuzzleMode.NORMAL: return true;
