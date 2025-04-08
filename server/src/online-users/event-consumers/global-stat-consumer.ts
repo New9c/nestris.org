@@ -127,12 +127,12 @@ export class GlobalStatConsumer extends EventConsumer {
                 this.incrementDatabaseStat(GlobalStat.TOTAL_PIECES_PLACED, change.event.args.numPlacements);
             }
             if (change.event instanceof DBPuzzleSubmitEvent) {
-                if (change.event.args.isCorrect) this.incrementStat(GlobalStat.TOTAL_PUZZLES_SOLVED);
-                if (change.event.args.seconds > 0) this.incrementStat(GlobalStat.TOTAL_PUZZLE_HOURS, change.event.args.seconds / 3600.0);
+                if (change.event.args.isCorrect) this.incrementDatabaseStat(GlobalStat.TOTAL_PUZZLES_SOLVED);
+                if (change.event.args.seconds > 0) this.incrementDatabaseStat(GlobalStat.TOTAL_PUZZLE_HOURS, change.event.args.seconds / 3600.0);
             }
             if (change.event instanceof DBPuzzleRushEvent) {
-                this.incrementStat(GlobalStat.TOTAL_PUZZLES_SOLVED, change.event.args.score);
-                this.incrementStat(GlobalStat.TOTAL_PUZZLE_HOURS, change.event.args.seconds / 3600.0);
+                this.incrementDatabaseStat(GlobalStat.TOTAL_PUZZLES_SOLVED, change.event.args.score);
+                this.incrementDatabaseStat(GlobalStat.TOTAL_PUZZLE_HOURS, change.event.args.seconds / 3600.0);
             }
         });    
 
