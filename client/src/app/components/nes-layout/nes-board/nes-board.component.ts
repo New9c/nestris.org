@@ -63,7 +63,7 @@ export class NesBoardComponent implements OnChanges, OnInit, OnDestroy {
 
   @Input() nextType?: TetrominoType; // if defined, will be shown at top right corner
 
-  @Input() gameOver?: GameOverMode;
+  @Input() gameOver?: GameOverMode | string;
   @Input() gameOverShowNext: boolean = false;
   @Output() clickNext = new EventEmitter<void>();
   

@@ -1,8 +1,10 @@
 import { ActivityType } from "../../shared/models/activity";
+import { NotificationType } from "../../shared/models/notifications";
 import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { xpOnPuzzleRush } from "../../shared/nestris-org/xp-system";
+import { RedirectMessage, SendPushNotificationMessage } from "../../shared/network/json-message";
 import { RushPuzzle } from "../../shared/puzzles/db-puzzle";
-import { PuzzleRushAttempt, PuzzleRushAttemptEvent, PuzzleRushEventType, puzzleRushIncorrect, PuzzleRushRoomState, puzzleRushScore, PuzzleRushStatus } from "../../shared/room/puzzle-rush-models";
+import { PuzzleRushAttempt, PuzzleRushAttemptEvent, PuzzleRushEventType, puzzleRushIncorrect, PuzzleRushPlayerStatus, PuzzleRushRoomState, puzzleRushScore, PuzzleRushStatus } from "../../shared/room/puzzle-rush-models";
 import { ClientRoomEvent, RoomType } from "../../shared/room/room-models";
 import { DBPuzzleRushEvent, DBUserObject } from "../database/db-objects/db-user";
 import { EventConsumerManager } from "../online-users/event-consumer";
@@ -15,9 +17,6 @@ import { UserSessionID } from "../online-users/online-user";
 export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
 
     private puzzleSet!: RushPuzzle[];
-
-    // Whether each player is ready
-    private playerReady!: boolean[];
 
     // How many pieces each player placed
     private pieceCount!: number[];
@@ -37,6 +36,8 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
     constructor(
         private readonly playerIDs: UserSessionID[],
         private readonly rated: boolean,
+        private readonly duration: number = 180, // in seconds
+        private readonly strikes: number = 3 // how many incorrect puzzles = death
     ) {
         if (playerIDs.length === 1 && rated) throw new RoomError("Single player puzzle rush cannot be rated");
 
@@ -52,9 +53,6 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
     }
 
     protected override async initRoomState(): Promise<PuzzleRushRoomState> {
-
-        // All players are not ready at first
-        this.playerReady = this.playerIDs.map(_ => false);
 
         // No players placed any pieces, and pps not yet known
         this.pieceCount = this.playerIDs.map(_ => 0);
@@ -78,6 +76,8 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
             type: playerUsers.length === 1 ? RoomType.PUZZLE_RUSH : RoomType.PUZZLE_BATTLES,
             status: PuzzleRushStatus.BEFORE_GAME,
             rated: this.rated,
+            duration: this.duration,
+            strikes: this.strikes,
             players: playerUsers.map(user => ({
                 userid: user.userid,
                 username: user.username,
@@ -85,7 +85,7 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
                 puzzleElo: user.puzzle_elo,
                 progress: [],
                 currentPuzzleID: this.puzzleSet[0].id,
-                ended: false,
+                status: PuzzleRushPlayerStatus.NOT_READY,
             }))
         };
     }
@@ -105,13 +105,13 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
 
             // Change player ready status to ready. If all ready, change state to DURING_GAME
             case PuzzleRushEventType.READY:
-
-                this.playerReady[playerIndex] = true;
-                if (this.playerReady.every(ready => ready)) {
+                if (state.status !== PuzzleRushStatus.BEFORE_GAME) return;
+                state.players[playerIndex].status = PuzzleRushPlayerStatus.READY;
+                if (state.players.every(player => player.status === PuzzleRushPlayerStatus.READY)) {
                     state.status = PuzzleRushStatus.DURING_GAME;
                     this.startTime = Date.now();
-                    this.updateRoomState(state);
                 }
+                this.updateRoomState(state);
                 return;
 
             case PuzzleRushEventType.ATTEMPT:
@@ -157,8 +157,8 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
         this.attempts[playerIndex].push({ current: attempt.current, next: attempt.next });
         
         // Check if player hit the incorrect limit
-        if (puzzleRushIncorrect(state.players[playerIndex]) >= 3) {
-            // If 3 incorrect, end player
+        if (puzzleRushIncorrect(state.players[playerIndex]) >= this.strikes) {
+            // If reached strike amount, end player
             this.setEnded(playerIndex);
         } else {
             // Go to next puzzle for user
@@ -174,6 +174,23 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
         const playerIndex = this.getPlayerIndex(userid);
         if (playerIndex === -1) return;
 
+        // if haven't even began game yet, abort room
+        const state = this.getRoomState();
+        if (state.status === PuzzleRushStatus.BEFORE_GAME) {
+            this.playerSessionIDsInRoom.filter(
+                currentSessionID => currentSessionID !== sessionID
+            ).forEach(
+                sessionID => {
+                    Room.Users.sendToUserSession(sessionID, new SendPushNotificationMessage(
+                        NotificationType.ERROR, "Puzzle Wars match was aborted by opponent!"
+                    ));
+                    Room.Users.sendToUserSession(sessionID, new RedirectMessage("/"));
+                }
+            );
+            return;
+        }
+
+        // Otherwise, end match normally
         this.setEnded(playerIndex);
     }
 
@@ -181,10 +198,10 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
     private setEnded(playerIndex: number) {
         const state = this.getRoomState();
         if (state.status !== PuzzleRushStatus.DURING_GAME) return;
-        if (state.players[playerIndex].ended) return;
+        if (state.players[playerIndex].status === PuzzleRushPlayerStatus.ENDED) return;
 
         // Set ended state
-        state.players[playerIndex].ended = true;
+        state.players[playerIndex].status = PuzzleRushPlayerStatus.ENDED;
 
         // Calculate pps
         const seconds = (Date.now() - this.startTime!) / 1000;
@@ -192,7 +209,7 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
         this.pps[playerIndex] = pieceCount === 0 ? 0 : pieceCount / seconds;
 
         // Check if all players ended, and end if so
-        if (state.players.every(player => player.ended)) {
+        if (state.players.every(player => player.status === PuzzleRushPlayerStatus.ENDED)) {
             this.onMatchEnd(state);
             return;
         }
@@ -207,11 +224,11 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
         return [
             {
                 label: 'Lifetime record',
-                value: playerIndicies.map(playerIndex => Math.max(this.puzzleRushRecord[playerIndex], puzzleRushScore(state.players[playerIndex])).toString()),
+                value: playerIndicies.map(playerIndex => this.puzzleRushRecord[playerIndex].toString()),
             },
             {
                 label: 'Pieces per second',
-                value: playerIndicies.map(playerIndex => `${this.pps[playerIndex]!.toFixed(1)}/sec`),
+                value: playerIndicies.map(playerIndex => `${this.pps[playerIndex]!.toFixed(2)}/sec`),
             },
             {
                 label: 'Puzzles attempted',

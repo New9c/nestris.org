@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatestWith, delay, distinctUntilChanged, filter, map, mapTo, merge, Observable, of, shareReplay, startWith, Subject, switchMap, tap, timer } from 'rxjs';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
-import { PuzzleRushClientRoom } from 'src/app/services/room/puzzle-rush-client-room';
+import { PuzzleRushClientRoom, SelectedIndex } from 'src/app/services/room/puzzle-rush-client-room';
 import { RoomService } from 'src/app/services/room/room.service';
 import { decodePuzzle } from 'src/app/shared/puzzles/encode-puzzle';
-import { puzzleRushIncorrect, PuzzleRushRoomState, puzzleRushScore, PuzzleRushStatus } from 'src/app/shared/room/puzzle-rush-models';
+import { puzzleRushIncorrect, PuzzleRushPlayer, PuzzleRushPlayerStatus, PuzzleRushRoomState, puzzleRushScore, PuzzleRushStatus } from 'src/app/shared/room/puzzle-rush-models';
 import { PuzzleData } from '../../play-puzzle/play-puzzle-page/play-puzzle-page.component';
 import { GameOverMode } from 'src/app/components/nes-layout/nes-board/nes-board.component';
 import { SoundEffect, SoundService } from 'src/app/services/sound.service';
@@ -58,7 +58,7 @@ export class PuzzleRushRoomComponent {
 
   // Decode the puzzle id into board and current and next
   public currentPuzzle$: Observable<PuzzleData> = this.state$.pipe(
-    map(state => state.players[this.puzzleRushRoom.getMyIndex()].currentPuzzleID),
+    map(state => state.players[this.myIndex].currentPuzzleID),
     distinctUntilChanged(),
     map(puzzleID => ({ puzzleID, decoded: decodePuzzle(puzzleID) })),
     map( ({ puzzleID, decoded }) => ({
@@ -73,7 +73,7 @@ export class PuzzleRushRoomComponent {
 
   // Whether the previous submission was correct
   public isCorrect$: Observable<PuzzleCorrect> = this.state$.pipe(
-    map(state => state.players[this.puzzleRushRoom.getMyIndex()].progress),
+    map(state => state.players[this.myIndex].progress),
     filter(progress => progress.length > 0),
     distinctUntilChanged(),
     map(progress => progress[progress.length - 1] ? PuzzleCorrect.CORRECT : PuzzleCorrect.INCORRECT),
@@ -96,26 +96,23 @@ export class PuzzleRushRoomComponent {
 
   // Number of incorrect attempts
   public incorrectCount$ = this.state$.pipe(
-    map(state => puzzleRushIncorrect(state.players[this.puzzleRushRoom.getMyIndex()])),
-    startWith(0),
-    shareReplay(1)
+    map(state => state.players.map(player => puzzleRushIncorrect(player))),
+    shareReplay(1),
   );
 
   // 2D array where progress is grouped into columns of 10
   public progressMatrix$ = this.state$.pipe(
-    map(state => state.players[this.puzzleRushRoom.getMyIndex()].progress),
-    startWith([]),
-    map(progress => progress.map(isCorrect => isCorrect ? Correctness.CORRECT : Correctness.INCORRECT)),
-    map(progress => {
+    map(state => state.players.map(player => {
+      let progress = player.progress.map((isCorrect, i) => ({ index: i, correctness: isCorrect ? Correctness.CORRECT : Correctness.INCORRECT }));
 
       // Show only the last 5 columns if in multiplayer to save space
       const removeCount = Math.floor((progress.length - 40) / 10) * 10;
       progress = (progress.length < 40 || this.puzzleRushRoom.isSinglePlayer()) ? progress : progress.slice(removeCount);
 
       const lengthToExtend = Math.ceil((progress.length + 1) / 10) * 10;
-      return [...progress, ...Array(lengthToExtend - progress.length).fill(Correctness.NONE)] as Correctness[];
-    })
-  )
+      return [...progress, ...Array(lengthToExtend - progress.length).fill({ index: -1, correctness: Correctness.NONE } )] as {index: number, correctness: Correctness}[];
+    }))
+  );
 
   // Match end result
   public result$ = this.state$.pipe(
@@ -146,9 +143,9 @@ export class PuzzleRushRoomComponent {
     combineLatestWith(this.state$.pipe(
       filter(state => state.puzzleSet !== undefined && state.attempts !== undefined)
     )),
-    map(([selectedIndex, state]) => ({
-      attempt: state.attempts![this.puzzleRushRoom.getMyIndex()][selectedIndex!],
-      solution: state.puzzleSet![selectedIndex! % state.puzzleSet!.length],
+    map(([ selectedIndex , state ]) => ({
+      attempt: state.attempts![selectedIndex!.playerIndex][selectedIndex!.puzzleIndex],
+      solution: state.puzzleSet![selectedIndex!.puzzleIndex % state.puzzleSet!.length],
     })),
     map(({ attempt, solution }) => ({ attempt, solution, puzzle: decodePuzzle(solution.id) }) ),
     shareReplay(1),
@@ -173,6 +170,7 @@ export class PuzzleRushRoomComponent {
 
   readonly ButtonColor = ButtonColor;
   readonly PuzzleRushStatus = PuzzleRushStatus;
+  readonly PuzzleRushPlayerStatus = PuzzleRushPlayerStatus;
   readonly GameOverMode = GameOverMode;
   readonly PuzzleCorrect = PuzzleCorrect;
   readonly Correctness = Correctness;
@@ -192,6 +190,19 @@ export class PuzzleRushRoomComponent {
     this.incorrectShake$.subscribe(shake => console.log("shake", shake));
   }
 
+  get myIndex() {
+    return this.puzzleRushRoom.getMyIndex();
+  }
+
+  get opponentIndex() {
+    return (this.myIndex + 1) % 2;
+  }
+
+  // array from 0 to n-1
+  arrayToNumber(n: number) {
+    return Array.from({ length: n }, (_, i) => i);
+  }
+
   timerText(seconds: number | null) {
     if (seconds === null) return "";
     const min = Math.floor(seconds / 60);
@@ -204,19 +215,30 @@ export class PuzzleRushRoomComponent {
     return false;
   }
 
-  selectPuzzleIndex(state: PuzzleRushRoomState, puzzleIndex: number) {
+  selectPuzzleIndex(state: PuzzleRushRoomState, playerIndex: number, puzzleIndex: number) {
     if (state.status !== PuzzleRushStatus.AFTER_GAME) return;
+    if (puzzleIndex === -1) return;
 
-    const numAttempts = this.puzzleRushRoom.getState<PuzzleRushRoomState>().attempts![this.puzzleRushRoom.getMyIndex()].length;
+    const numAttempts = this.puzzleRushRoom.getState<PuzzleRushRoomState>().attempts![this.myIndex].length;
     if (puzzleIndex >= numAttempts) return;
 
-    this.puzzleRushRoom.selectedIndex$.next(puzzleIndex);
-    this.viewMode$.next(ViewMode.SOLUTION);
+    this.puzzleRushRoom.selectedIndex$.next({ playerIndex, puzzleIndex });
     this.soundService.play(SoundEffect.CLICK);
   }
 
-  ordinal(index: number | null): string {
-    if (index === null) return "";
+  me(state: PuzzleRushRoomState) {
+    return state.players[this.puzzleRushRoom.getMyIndex()];
+  }
+
+  myPlayersOrder(state: PuzzleRushRoomState) {
+    let order: number[];
+    if (state.players.length === 1) order = [0];
+    else order = [this.myIndex, this.opponentIndex];
+    return order.map(playerIndex => ({ playerIndex, player: state.players[playerIndex] }) );
+  }
+
+  ordinal(index: number | undefined): string {
+    if (index === undefined) return "";
 
     index++;
     const suffixes = ["th", "st", "nd", "rd"];
@@ -254,6 +276,12 @@ export class PuzzleRushRoomComponent {
 
   goLeaderboard() {
     this.router.navigate(['/leaderboard'], { queryParams: { type: T200LeaderboardType.PUZZLE_RUSH } });
+  }
+
+  isSelectedIndex(selectedIndex: SelectedIndex | null, playerIndex: number, puzzleIndex: number) {
+    if (selectedIndex === null) return false;
+    if (selectedIndex.puzzleIndex === -1) return false;
+    return selectedIndex.playerIndex === playerIndex && selectedIndex.puzzleIndex === puzzleIndex;
   }
 
 }

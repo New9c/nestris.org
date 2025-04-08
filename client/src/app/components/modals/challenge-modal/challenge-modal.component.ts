@@ -5,10 +5,8 @@ import { ModalManagerService } from 'src/app/services/modal-manager.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { MeService } from 'src/app/services/state/me.service';
 import { InvitationsService } from 'src/app/services/state/invitations.service';
-import { InvitationMode } from 'src/app/shared/network/json-message';
-import { InvitationType, MatchInvitation } from 'src/app/shared/models/invitation';
+import { InvitationType, MatchInvitation, PuzzleBattleInvitation } from 'src/app/shared/models/invitation';
 import { v4 as uuid } from 'uuid';
-import { PlatformInterfaceService } from 'src/app/services/platform-interface.service';
 
 export interface ChallengeModalConfig {
   opponentid: string;
@@ -16,9 +14,12 @@ export interface ChallengeModalConfig {
 }
 
 export enum SettingID {
+  MODE,
   WINNING_SCORE,
   START_LEVEL,
   LINECAP,
+  PUZZLE_BATTLE_DURATION,
+  PUZZLE_BATTLE_STRIKES,
 }
 
 export interface Setting {
@@ -27,6 +28,7 @@ export interface Setting {
   currentValue: any;
   allValues: any[];
   valueStrings?: {[key in any]: string};
+  icons?: {[key in any]: string};
 }
 
 const NO_CAP = 'None';
@@ -43,6 +45,21 @@ export class ChallengeModalComponent {
   readonly error$ = new BehaviorSubject<string | null>(null);
 
   readonly ButtonColor = ButtonColor;
+
+  public modeSetting: Setting = {
+    id: SettingID.MODE,
+    label: "Select mode",
+    currentValue: InvitationType.MATCH_REQUEST,
+    allValues: [InvitationType.MATCH_REQUEST, InvitationType.PUZZLE_BATTLE_REQUEST],
+    valueStrings: {
+      [InvitationType.MATCH_REQUEST] : 'Normal',
+      [InvitationType.PUZZLE_BATTLE_REQUEST] : 'Puzzle Wars'
+    },
+    icons: {
+      [InvitationType.MATCH_REQUEST] : './assets/img/activity-icons/pb.svg',
+      [InvitationType.PUZZLE_BATTLE_REQUEST] : './assets/img/puzzle-mode/rush.svg',
+    }
+  };
 
   // Static so that settings can be saved through session
   static readonly settings: Setting[] = [
@@ -73,7 +90,30 @@ export class ChallengeModalComponent {
       allValues: [NO_CAP, 19, 29, 39, 49],
     },
 
+    {
+      id: SettingID.PUZZLE_BATTLE_DURATION,
+      label: "Duration",
+      currentValue: 180,
+      allValues: [30, 60, 180],
+      valueStrings: {
+        30: '30 seconds',
+        60: '2 minutes',
+        180: '3 minutes'
+      }
+    },
+    {
+      id: SettingID.PUZZLE_BATTLE_STRIKES,
+      label: "Strikes",
+      currentValue: 3,
+      allValues: [1, 2, 3],
+    },
+
   ];
+
+  private modes: {[mode in InvitationType]? : SettingID[]} = {
+    [InvitationType.MATCH_REQUEST] : [ SettingID.WINNING_SCORE, SettingID.START_LEVEL, SettingID.LINECAP ],
+    [InvitationType.PUZZLE_BATTLE_REQUEST] : [ SettingID.PUZZLE_BATTLE_DURATION, SettingID.PUZZLE_BATTLE_STRIKES ],
+  };
 
   constructor(
     private invitationService: InvitationsService,
@@ -84,6 +124,11 @@ export class ChallengeModalComponent {
 
   get settings() {
     return ChallengeModalComponent.settings;
+  }
+
+  get visibleSettings() {
+    const visible = this.modes[this.modeSetting.currentValue as InvitationType] ?? [];
+    return this.settings.filter(setting => visible.includes(setting.id));
   }
 
   async challenge() {
@@ -97,20 +142,33 @@ export class ChallengeModalComponent {
     if (levelCap === NO_CAP) levelCap = undefined;
 
     // set challenge parameters
-    const invitation: MatchInvitation = {
-      type: InvitationType.MATCH_REQUEST,
+    const baseInvitation = {
       invitationID: uuid(),
       senderID: userID,
       senderUsername: username,
       senderSessionID: sessionID,
       receiverID: this.config.opponentid,
       receiverUsername: this.config.opponentUsername,
-      startLevel: this.getSettingValue(SettingID.START_LEVEL),
-      winningScore: this.getSettingValue(SettingID.WINNING_SCORE),
-      levelCap: levelCap,
+    };
+    
+    let invitation: MatchInvitation | PuzzleBattleInvitation;
+    
+    if (this.modeSetting.currentValue === InvitationType.MATCH_REQUEST) {
+      invitation = {
+        ...baseInvitation,
+        type: InvitationType.MATCH_REQUEST,
+        startLevel: this.getSettingValue(SettingID.START_LEVEL),
+        winningScore: this.getSettingValue(SettingID.WINNING_SCORE),
+        levelCap: levelCap,
+      };
+    } else {
+      invitation = {
+        ...baseInvitation,
+        type: InvitationType.PUZZLE_BATTLE_REQUEST,
+        duration: this.getSettingValue(SettingID.PUZZLE_BATTLE_DURATION),
+        strikes: this.getSettingValue(SettingID.PUZZLE_BATTLE_STRIKES),
+      };
     }
-
-    console.log("match invitation", invitation);
 
     this.invitationService.createInvitation(invitation);
     this.modalService.hideModal();

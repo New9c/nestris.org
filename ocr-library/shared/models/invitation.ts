@@ -1,6 +1,7 @@
 export enum InvitationType {
     FRIEND_REQUEST = "friend",
     MATCH_REQUEST = "match",
+    PUZZLE_BATTLE_REQUEST = "puzzle_battle"
 }
 
 /**
@@ -32,4 +33,10 @@ export interface MatchInvitation extends Invitation {
     winningScore: number;
     startLevel: number;
     levelCap?: number;
+}
+
+export interface PuzzleBattleInvitation extends Invitation {
+    type: InvitationType.PUZZLE_BATTLE_REQUEST;
+    duration: number; // in seconds
+    strikes: number; // how many incorrect puzzles = death
 }

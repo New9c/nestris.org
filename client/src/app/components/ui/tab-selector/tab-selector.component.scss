@@ -10,7 +10,6 @@
   justify-content: center;
   align-items: center;
   border-radius: 10px;
-  // background-color: #ffffff26;
   width: fit-content;
   gap: 0px;
 }
@@ -52,4 +51,50 @@
 .tab-label.small {
   font-size: 12px;
   margin: 5px 15px;
+}
+
+.icons.tab-selector {
+  gap: 15px;
+  margin-top: 5px;
+}
+
+.icons .tab {
+  width: 150px;
+  height: 140px;
+  border-radius: 10px;
+  background-color: $section-color;
+  box-shadow: 0px 4px 4px 1px rgba(0, 0, 0, 0.25);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  transition: all 0.2s;
+}
+
+.icons .tab.selected {
+  outline: solid 1px white;
+}
+
+.icons .tab:hover {
+  transform: scale(1.03);
+  filter: brightness(1.1) contrast(1.01);
+}
+
+.icons .tab:active {
+  filter: brightness(1.2) contrast(1.02);
+}
+
+
+.icons .tab-label {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+}
+
+img {
+  display: block;
+  object-fit: contain;
 }

@@ -3,6 +3,12 @@ import { RushPuzzle } from "../puzzles/db-puzzle";
 
 // Client-to-server: send ready, send submit, send game end (with pps)
 
+export enum PuzzleRushPlayerStatus {
+    NOT_READY = "NOT_READY",
+    READY = "READY",
+    ENDED = "ENDED"
+}
+
 export interface PuzzleRushPlayer {
     userid: string;
     username: string;
@@ -10,7 +16,7 @@ export interface PuzzleRushPlayer {
     puzzleElo: number;
     progress: boolean[]; // for each puzzle attempted, add true/false based on whether it was solved
     currentPuzzleID: string; // current ongoing puzzle for the player
-    ended: boolean;
+    status: PuzzleRushPlayerStatus;
 }
 
 
@@ -31,6 +37,9 @@ export interface PuzzleRushRoomState extends RoomState {
     status: PuzzleRushStatus;
     players: PuzzleRushPlayer[];
     rated: boolean,
+
+    duration: number; // in seconds
+    strikes: number; // how many incorrect puzzles = death
 
     stats?: { label: string, value: string[] }[]; // post-match display-ready stats for each player
     puzzleSet?: RushPuzzle[]; // answer key

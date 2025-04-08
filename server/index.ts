@@ -78,6 +78,7 @@ import { GetVersionRoute } from './src/routes/misc/get-version-route';
 import { GetRankedStatsRoute } from './src/routes/user/get-ranked-stats-route';
 import { PuzzleRushConsumer } from './src/online-users/event-consumers/puzzle-rush-consumer';
 import { StartPuzzleRushRoute } from './src/routes/room/start-puzzle-rush';
+import { PuzzleBattleInvitationManager } from './src/invitations/room-invitation';
 
 // Load environment variables
 require('dotenv').config();
@@ -167,6 +168,7 @@ async function main() {
   const invitationConsumer = consumers.getConsumer(InvitationConsumer);
   invitationConsumer.registerInvitationManager(FriendInvitationManager);
   invitationConsumer.registerInvitationManager(MatchInvitationManager);
+  invitationConsumer.registerInvitationManager(PuzzleBattleInvitationManager);
 
 
   // Initialize leaderboards

@@ -45,9 +45,17 @@ h3 {
 .content {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   gap: 15px;
   padding-block: 20px;
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  height: 180px;
+  justify-content: space-evenly;
 }
 
 .setting {

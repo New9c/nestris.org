@@ -14,6 +14,8 @@ export class TabSelectorComponent {
   @Input() tabStrings?: {[key in any]: string};
   @Input() small: boolean = false;
 
+  @Input() tabIcons?: {[key in any]: string};
+
   @Input() linkedToRouter: boolean = false;
   @Input() tabToURL: {[key in string]: string} = {}; // if linkedToRouter, must be same length as tabs
 

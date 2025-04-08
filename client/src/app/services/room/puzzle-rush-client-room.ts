@@ -8,7 +8,13 @@ import { SoundEffect, SoundService } from "../sound.service";
 import { PuzzleSubmission } from "src/app/models/puzzles/puzzle";
 import { RoomType } from "src/app/shared/room/room-models";
 import { BehaviorSubject } from "rxjs";
+import { numberAttribute } from "@angular/core";
+import { pluralize } from "src/app/util/misc";
 
+export interface SelectedIndex {
+    playerIndex: number,
+    puzzleIndex: number
+}
 
 export class PuzzleRushClientRoom extends ClientRoom {
 
@@ -18,25 +24,32 @@ export class PuzzleRushClientRoom extends ClientRoom {
 
     private myIndex!: number;
 
-    public readonly rushTimer = new StartableTimer(60 * 3, true, () => this.onTimeout());
-    public readonly countdownTimer = new StartableTimer(3, false, () => this.rushTimer.start(), () => this.sound.play(SoundEffect.NOTE_HIGH));
+    public rushTimer!: StartableTimer;
+    public countdownTimer!: StartableTimer;
 
     private readonly _text$ = new BehaviorSubject<string>("");
     public readonly text$ = this._text$.asObservable();
 
     private endByTimeout: boolean = false;
 
-    public selectedIndex$ = new BehaviorSubject<number | null>(null);
+    public selectedIndex$ = new BehaviorSubject<SelectedIndex | null>(null);
 
     public override async init(event: InRoomStatusMessage): Promise<void> {
         const state = event.roomState as PuzzleRushRoomState;
-        this.onNewMatch(state);
+
+        this.rushTimer = new StartableTimer(state.duration, true, () => this.onTimeout());
+        this.countdownTimer = new StartableTimer(3, false, () => this.rushTimer.start(), () => this.sound.play(SoundEffect.NOTE_HIGH));
+
+        await this.onNewMatch(state);
     }
 
     private async onNewMatch(state: PuzzleRushRoomState) {
-        this._text$.next("Solve as many puzzles as you can in 3 minutes, but 3 strikes and you're out!");
+
+        const time = (state.duration % 60 === 0) ? pluralize('minute', state.duration/60) : pluralize('second', state.duration);
+        this._text$.next(`Solve as many puzzles as you can in ${time}, but ${pluralize('strike', state.strikes)} and you're out!`);
 
         this.myIndex = state.players.map(player => player.userid).indexOf(await this.me.getUserID());
+        console.log("MY INDEX", this.myIndex);
         if (this.myIndex === -1) throw new Error("User is not either of the players in the room");
 
         this.analytics.sendEvent("puzzle-rush");
@@ -60,10 +73,14 @@ export class PuzzleRushClientRoom extends ClientRoom {
         if (oldState.status === PuzzleRushStatus.DURING_GAME && newState.status === PuzzleRushStatus.AFTER_GAME) {
             // Cancel timer if already lost
             this.rushTimer.stop();
-            this._text$.next(this.endByTimeout ? "Time's up!" : "That's three strikes!");
+            
+            if (this.endByTimeout) this._text$.next("Time's up!");
+            else if (newState.strikes === 3) this._text$.next("That's three strikes!");
+            else if (newState.strikes === 1) this._text$.next("One strike, and it's over!");
+            else this._text$.next(`That's ${newState.strikes} strikes!`);
             
             // Select last attempted puzzle to start
-            this.selectedIndex$.next(newState.players[this.getMyIndex()].progress.length - 1);
+            this.selectedIndex$.next({ playerIndex: this.myIndex, puzzleIndex: newState.players[this.getMyIndex()].progress.length - 1});
         }
 
         // reset game

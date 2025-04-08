@@ -43,7 +43,7 @@ export interface DBUser {
 
   puzzle_rush_best: number,
   puzzle_rush_attempts: number,
-  puzzle_rush_pps: number, // placements per second, multiplied by 10, for best puzzle rush score
+  puzzle_rush_pps: number, // placements per second, multiplied by 100, for best puzzle rush score
 
   games_played: number,
   highest_score: number,
