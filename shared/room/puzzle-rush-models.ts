@@ -6,7 +6,8 @@ import { RushPuzzle } from "../puzzles/db-puzzle";
 export enum PuzzleRushPlayerStatus {
     NOT_READY = "NOT_READY",
     READY = "READY",
-    ENDED = "ENDED"
+    ENDED = "ENDED",
+    REMATCH = "REMATCH",
 }
 
 export interface PuzzleRushPlayer {

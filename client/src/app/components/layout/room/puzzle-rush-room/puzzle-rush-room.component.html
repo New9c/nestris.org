@@ -164,10 +164,11 @@
                                 [stretch]="true"
                                 (smartClick)="goLeaderboard()"
                             />
-                            <app-solid-button [label]="playAgainText()"
-                                [color]="ButtonColor.BLUE"
+                            <app-solid-button *ngIf="playAgainInfo(state) as info"
+                                [label]="info.label" [color]="info.color"
                                 [stretch]="true"
-                                (click)="playAgain()"
+                                [disabled]="info.disable ?? false"
+                                (smartClick)="playAgain()"
                             />
                         </div>
 

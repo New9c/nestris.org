@@ -123,7 +123,12 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
                 return;
 
             case PuzzleRushEventType.REMATCH:
-                this.initRoomState().then(state => this.updateRoomState(state));
+                if (state.status !== PuzzleRushStatus.AFTER_GAME) return;
+                state.players[playerIndex].status = PuzzleRushPlayerStatus.REMATCH;
+                if (state.players.every(player => player.status === PuzzleRushPlayerStatus.REMATCH)) {
+                    this.initRoomState().then(state => this.updateRoomState(state));
+                } else this.updateRoomState(state);
+                
 
         }
     }

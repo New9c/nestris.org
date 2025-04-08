@@ -256,9 +256,12 @@ export class PuzzleRushRoomComponent {
     console.log("toggle");
   } 
 
-  playAgainText() {
-    if (this.puzzleRushRoom.isSinglePlayer()) return "Play Again";
-    return (this.puzzleRushRoom.getState<PuzzleRushRoomState>().rated) ? "New match" : "Rematch";
+  playAgainInfo(state: PuzzleRushRoomState,) {
+    if (this.puzzleRushRoom.isSinglePlayer()) return { label: "Play Again", color: ButtonColor.BLUE };
+    if (this.puzzleRushRoom.getState<PuzzleRushRoomState>().rated) return { label: "New match", color: ButtonColor.BLUE };
+    if (state.players[this.opponentIndex].status === PuzzleRushPlayerStatus.REMATCH) return { label: "Accept Rematch", color: ButtonColor.GREEN };
+    if (state.players[this.myIndex].status === PuzzleRushPlayerStatus.REMATCH) return { label: "Rematch sent", color: ButtonColor.BLUE, disable: true }
+    return { label: "Offer Rematch", color: ButtonColor.BLUE };
   }
 
   playAgain() {
@@ -269,7 +272,10 @@ export class PuzzleRushRoomComponent {
     }
 
     this.viewMode$.next(ViewMode.SOLUTION);
-    if (this.puzzleRushRoom.isSinglePlayer()) {
+    if (this.puzzleRushRoom.getState<PuzzleRushRoomState>().rated) {
+      // If rated, go back to queue
+    } else {
+      // Otherwise, send rematch event for same room
       this.puzzleRushRoom.sendRematchEvent();
     }
   }
