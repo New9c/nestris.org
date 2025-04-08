@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
 import { BehaviorSubject, catchError, distinctUntilChanged, filter, from, map, of, share, shareReplay, switchMap, timer } from 'rxjs';
 import { Mode } from 'src/app/components/ui/mode-icon/mode-icon.component';
 import { ButtonColor } from 'src/app/components/ui/solid-selector/solid-selector.component';
@@ -150,7 +151,19 @@ export class MainLeaderboardPageComponent implements OnDestroy {
     private fetchService: FetchService,
     public websocket: WebsocketService,
     public meService: MeService,
+    private location: Location
   ) {
+
+    // Get url type
+    const url = new URL(window.location.href);
+    const type = url.searchParams.get('type') as T200LeaderboardType;
+    if (type && Object.values(T200LeaderboardType).includes(type)) {
+      this.setLeaderboardType(type);
+      console.log("load type", type);
+    } else {
+      this.setLeaderboardType(T200LeaderboardType.RANKED);
+      console.log("default type");
+    }
 
   }
 
@@ -162,16 +175,23 @@ export class MainLeaderboardPageComponent implements OnDestroy {
     // If current type's mode is the same, do nothing
     if (this.leaderboardTypes[mode].includes(this.currentType$.getValue())) return;
     
-    this.currentType$.next(this.leaderboardTypes[mode][0]);
+    this.setLeaderboardType(this.leaderboardTypes[mode][0]);
 
   }
 
-  setType(mode: Mode, typeIndex: number) {
-    this.currentType$.next(this.leaderboardTypes[mode][typeIndex]);
+  setTypeByIndex(mode: Mode, typeIndex: number) {
+    this.setLeaderboardType(this.leaderboardTypes[mode][typeIndex]);
   }
 
   getIndexForType(mode: Mode, type: T200LeaderboardType | null): number {
     if (type === null) return 0;
     return this.leaderboardTypes[mode].indexOf(type);
+  }
+
+  setLeaderboardType(type: T200LeaderboardType) {
+    this.currentType$.next(type);
+    const url = new URL(window.location.href);
+    url.searchParams.set('type', type);
+    this.location.replaceState(url.pathname + url.search);
   }
 }

@@ -15,7 +15,7 @@
         <div class="content">
 
             <header>
-                <h1 class="title">PUZZLE RUSH</h1>
+                <h1 class="title">PUZZLE BLITZ</h1>
             </header>
 
             <p class="instructions">{{puzzleRushRoom.text$ | async}}</p>
@@ -147,12 +147,13 @@
                             (smartClick)="puzzleRushRoom.submitPuzzle({})"
                         />
 
-                         <!-- Show "go home" and "play again" buttons if in after game mode -->
+                         <!-- Show "leaderboard" and "play again" buttons if in after game mode -->
                         <div *ngIf="state.status === PuzzleRushStatus.AFTER_GAME" class="two-button-container">
                             <app-solid-button
-                                    label="Go home" [color]="ButtonColor.GREY"
-                                    [stretch]="true"
-                                (smartClick)="router.navigate(['/'])"
+                                icon="./assets/img/tab-icons/leaderboard.svg"
+                                label="Rankings" [color]="ButtonColor.GREY"
+                                [stretch]="true"
+                                (smartClick)="goLeaderboard()"
                             />
                             <app-solid-button [label]="playAgainText()"
                                 [color]="ButtonColor.BLUE"

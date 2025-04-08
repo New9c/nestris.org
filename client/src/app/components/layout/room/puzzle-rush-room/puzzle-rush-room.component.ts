@@ -13,6 +13,10 @@ import MoveableTetromino from 'src/app/shared/tetris/moveable-tetromino';
 import { Router } from '@angular/router';
 import { PlayService } from 'src/app/services/play.service';
 import { MeService } from 'src/app/services/state/me.service';
+import { T200LeaderboardType } from 'src/app/shared/models/leaderboard';
+import { ServerRestartWarningService } from 'src/app/services/server-restart-warning.service';
+import { NotificationService } from 'src/app/services/notification.service';
+import { NotificationType } from 'src/app/shared/models/notifications';
 
 export enum PuzzleCorrect {
   WAITING = 'waiting',
@@ -182,7 +186,9 @@ export class PuzzleRushRoomComponent implements OnInit {
   constructor(
     private readonly roomService: RoomService,
     private readonly soundService: SoundService,
-    private meService: MeService,
+    private readonly meService: MeService,
+    private readonly restartWarningService: ServerRestartWarningService,
+    private readonly notificationService: NotificationService,
     public readonly router: Router,
   ) {
     this.incorrectShake$.subscribe(shake => console.log("shake", shake));
@@ -244,10 +250,20 @@ export class PuzzleRushRoomComponent implements OnInit {
   }
 
   playAgain() {
+
+    if (this.restartWarningService.isWarning()) {
+      this.notificationService.notify(NotificationType.ERROR, "Server is about to restart! Please wait.");
+      return;
+    }
+
     this.viewMode$.next(ViewMode.SOLUTION);
     if (this.puzzleRushRoom.isSinglePlayer()) {
       this.puzzleRushRoom.sendRematchEvent();
     }
+  }
+
+  goLeaderboard() {
+    this.router.navigate(['/leaderboard'], { queryParams: { type: T200LeaderboardType.PUZZLE_RUSH } });
   }
 
 }

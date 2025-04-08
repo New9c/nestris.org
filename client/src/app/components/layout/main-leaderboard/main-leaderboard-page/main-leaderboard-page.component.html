@@ -14,7 +14,7 @@
 
             <app-solid-selector *ngIf="currentMode$ | async as mode"
                 [labels]="getLabelsForMode(mode)" [icons]="getIconsForMode(mode)" [color]="ButtonColor.GREY" [selected]="getIndexForType(mode, currentType$ | async)"
-                [gap]="10" [textOpacity]="0.8" [width]="160" (selectedChange)="setType(mode, $event)" />
+                [gap]="10" [textOpacity]="0.8" [width]="160" (selectedChange)="setTypeByIndex(mode, $event)" />
 
         </div>
         <div class="right">
