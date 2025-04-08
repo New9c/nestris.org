@@ -1,7 +1,8 @@
 <ng-container *ngIf="result$ | async as result">
     <div class="root" *ngIf="state$ | async as state"
     [ngClass]="{
-        'correct': [PuzzleRushResult.VICTORY, PuzzleRushResult.SOLO].includes(result),
+        'solo-finish' : result === PuzzleRushResult.SOLO,
+        'correct': result === PuzzleRushResult.VICTORY,
         'incorrect': result === PuzzleRushResult.DEFEAT,
         'tie': result === PuzzleRushResult.TIE,
         'rush' : state.players.length === 1,
@@ -92,7 +93,7 @@
                         </ng-container>
 
                         <ng-container *ngIf="state.status === PuzzleRushStatus.AFTER_GAME">
-                            <h1 class="header green" *ngIf="state.players.length === 1">Score: {{puzzleRushScore(state.players[0])}}</h1>
+                            <h1 class="header red" *ngIf="state.players.length === 1">Score: {{puzzleRushScore(state.players[0])}}</h1>
 
                             <div class="stats" *ngIf="state.stats as stats">
                                 <div class="stat" *ngFor="let stat of stats">
