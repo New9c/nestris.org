@@ -13,6 +13,7 @@ import { DBGameType } from "../../shared/models/db-game";
 import { EventConsumerManager } from "../online-users/event-consumer";
 import { RankedAbortConsumer } from "../online-users/event-consumers/ranked-abort-consumer";
 import { LoginMethod } from "../../shared/models/db-user";
+import { soloXPStrategy } from "../../shared/nestris-org/xp-system";
 
 export class MultiplayerRoom extends Room<MultiplayerRoomState> {
 
@@ -56,8 +57,8 @@ export class MultiplayerRoom extends Room<MultiplayerRoomState> {
         const player1Username = MultiplayerRoom.Users.getUserInfo(player1SessionID.userid)!.username;
         const player2Username = MultiplayerRoom.Users.getUserInfo(player2SessionID.userid)!.username;
         this.gamePlayers = {
-            [PlayerIndex.PLAYER_1]: new GamePlayer(MultiplayerRoom.Users, PlayerIndex.PLAYER_1, player1SessionID.userid, player1Username, player1SessionID.sessionID, DBGameType.RANKED_MATCH, startLevel),
-            [PlayerIndex.PLAYER_2]: new GamePlayer(MultiplayerRoom.Users, PlayerIndex.PLAYER_2, player2SessionID.userid, player2Username, player2SessionID.sessionID, DBGameType.RANKED_MATCH, startLevel),
+            [PlayerIndex.PLAYER_1]: new GamePlayer(MultiplayerRoom.Users, PlayerIndex.PLAYER_1, player1SessionID.userid, player1Username, player1SessionID.sessionID, DBGameType.RANKED_MATCH, startLevel, soloXPStrategy),
+            [PlayerIndex.PLAYER_2]: new GamePlayer(MultiplayerRoom.Users, PlayerIndex.PLAYER_2, player2SessionID.userid, player2Username, player2SessionID.sessionID, DBGameType.RANKED_MATCH, startLevel, soloXPStrategy),
         };
 
         // Reset previousGame when a new game starts

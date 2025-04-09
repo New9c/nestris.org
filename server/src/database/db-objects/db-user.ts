@@ -5,6 +5,7 @@ import { DBObjectAlterError, DBObjectNotFoundError } from "../db-object-error";
 import { Database, DBQuery, WriteDBQuery } from "../db-query";
 import { SetHighscoreGameQuery } from "../db-queries/set-highscore-game-query";
 import { getQuest, getQuestStatus, QuestID } from "../../../shared/nestris-org/quest-system";
+import { INITIAL_BATTLES_ELO } from "../../../shared/nestris-org/elo-system";
 
 // The initial number of trophies a user has. -1 means the user has not played any ranked games yet
 const INITIAL_RANKED_TROPHIES = -1;
@@ -60,6 +61,9 @@ export class DBPuzzleSubmitEvent extends XPEvent<PuzzleSubmitArgs> {}
 interface PuzzleRushArgs extends XPArgs { score: number, pps: number, seconds: number }
 export class DBPuzzleRushEvent extends XPEvent<PuzzleRushArgs> {}
 
+interface PuzzleBattleArgs extends XPArgs { win: boolean, loss: boolean, eloChange: number, correctPlacements: number, totalPlacements: number, seconds: number }
+export class DBPuzzleBattleEvent extends XPEvent<PuzzleBattleArgs> {}
+
 // Update highest stats on game end
 interface GameEndArgs extends XPArgs {
     gameID: string,
@@ -108,6 +112,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
 
                 // int8 are returned as strings due to possible overflow, cast to number
                 user.puzzle_seconds_played = Number(user.puzzle_seconds_played);
+                user.puzzle_battle_seconds_played = Number(user.puzzle_battle_seconds_played);
                 return user;
             }
         }
@@ -277,6 +282,20 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                     this.inMemoryObject.puzzle_rush_best = puzzleRushArgs.score;
                     this.inMemoryObject.puzzle_rush_pps = Math.round(puzzleRushArgs.pps * 100); // stored multipled by 100 for space
                 }
+                break;
+
+            case DBPuzzleBattleEvent:
+                const puzzleBattleArgs = (event as DBPuzzleBattleEvent).args;
+                if (puzzleBattleArgs.win) this.inMemoryObject.puzzle_battle_wins++;
+                if (puzzleBattleArgs.loss) this.inMemoryObject.puzzle_battle_losses++;
+                if (this.inMemoryObject.puzzle_battle_elo === INITIAL_RANKED_TROPHIES) {
+                    this.inMemoryObject.puzzle_battle_elo = INITIAL_BATTLES_ELO;
+                }
+                this.inMemoryObject.puzzle_battle_elo += puzzleBattleArgs.eloChange;
+                this.inMemoryObject.puzzle_battle_highest_elo = Math.max(this.inMemoryObject.puzzle_battle_highest_elo, this.inMemoryObject.puzzle_battle_elo);
+                this.inMemoryObject.puzzle_battle_correct_placements += puzzleBattleArgs.correctPlacements;
+                this.inMemoryObject.puzzle_battle_total_placements += puzzleBattleArgs.totalPlacements;
+                this.inMemoryObject.puzzle_battle_seconds_played += Math.round(puzzleBattleArgs.seconds);
                 break;
 
             // On game end, update highest stats

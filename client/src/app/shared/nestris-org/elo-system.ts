@@ -36,7 +36,8 @@ function getBattleKFactor(numMatches: number) {
  */
 export function getEloChange(queueType: QueueType, playerElo: number, opponentElo: number, playerScore: number, numMatches: number) {
     const K = queueType === QueueType.RANKED ? getRankedKFactor(numMatches) : getBattleKFactor(numMatches);
-    return Math.round(K * (playerScore - expectedScore(playerElo, opponentElo)));
+    const change = Math.round(K * (playerScore - expectedScore(playerElo, opponentElo)));
+    return Math.max(change, -playerElo); // prevent negative elo
 }
 
 export function getStartLevelForElo(elo: number) {

@@ -7,7 +7,7 @@ import { RushPuzzle } from "../../shared/puzzles/db-puzzle";
 import { TrophyDelta } from "../../shared/room/multiplayer-room-models";
 import { PuzzleRushAttempt, PuzzleRushAttemptEvent, PuzzleRushEventType, puzzleRushIncorrect, PuzzleRushPlayerStatus, PuzzleRushRoomState, puzzleRushScore, PuzzleRushStatus } from "../../shared/room/puzzle-rush-models";
 import { ClientRoomEvent, RoomType } from "../../shared/room/room-models";
-import { DBPuzzleRushEvent, DBUserObject } from "../database/db-objects/db-user";
+import { DBPuzzleBattleEvent, DBPuzzleRushEvent, DBUserObject } from "../database/db-objects/db-user";
 import { EventConsumerManager } from "../online-users/event-consumer";
 import { ActivityConsumer } from "../online-users/event-consumers/activity-consumer";
 import { PuzzleRushConsumer } from "../online-users/event-consumers/puzzle-rush-consumer";
@@ -243,7 +243,7 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
         ]
     }
 
-    private onMatchEnd(state: PuzzleRushRoomState) {
+    private async onMatchEnd(state: PuzzleRushRoomState) {
         const playerIndicies = state.players.map((_, i) => i);
 
         // End the match and update client
@@ -253,9 +253,11 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
         state.stats = this.getPostMatchStats(state);
         this.updateRoomState(state);
 
+        const seconds = (Date.now() - this.startTime!) / 1000;
+
         // update puzzle rush stats for each user, without blocking
         const activityConsumer = EventConsumerManager.getInstance().getConsumer(ActivityConsumer);
-        playerIndicies.forEach(playerIndex => {
+        for (let playerIndex of playerIndicies) {
             const score = puzzleRushScore(state.players[playerIndex]);
 
             // If new puzzle rush record, record activity
@@ -263,17 +265,36 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
                 activityConsumer.createActivity(state.players[playerIndex].userid, { type: ActivityType.RUSH_RECORD, score })
             }
 
-            DBUserObject.alter(state.players[playerIndex].userid,new DBPuzzleRushEvent({
+            await DBUserObject.alter(state.players[playerIndex].userid,new DBPuzzleRushEvent({
                 xpGained: xpOnPuzzleRush(score),
                 score,
-                seconds: (Date.now() - this.startTime!) / 1000,
+                seconds,
                 pps: this.pps[playerIndex]!,
             }), false);
-        });
+        };
 
         // Update puzzle elo if rated match
         if (this.trophyDeltas) {
             // TODO
+            for (let playerIndex of playerIndicies) {
+                const score = puzzleRushScore(state.players[playerIndex]);
+                const opponentScore = puzzleRushScore(state.players[1 - playerIndex]);
+                
+                let eloChange: number;
+                if (score > opponentScore) eloChange = this.trophyDeltas![playerIndex].trophyGain;
+                else if (score < opponentScore) eloChange = this.trophyDeltas![playerIndex].trophyLoss;
+                else eloChange = Math.round((this.trophyDeltas![playerIndex].trophyGain + this.trophyDeltas![playerIndex].trophyLoss) / 2);
+
+                await DBUserObject.alter(state.players[playerIndex].userid, new DBPuzzleBattleEvent({
+                    xpGained: 0,
+                    win: score > opponentScore,
+                    loss: score < opponentScore,
+                    eloChange,
+                    correctPlacements: score,
+                    totalPlacements: state.players[playerIndex].progress.length,
+                    seconds,
+                }), false);
+            };
         }
     }
 

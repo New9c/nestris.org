@@ -16,6 +16,7 @@ import { RankedAbortConsumer } from "./ranked-abort-consumer";
 import { ServerRestartWarningConsumer } from "./server-restart-warning-consumer";
 import { RankedStatsQuery } from "../../database/db-queries/ranked-stats-query";
 import { PuzzleRushRoom } from "../../room/puzzle-rush-room";
+import { roundToDecimalPlace } from "../../../shared/scripts/math";
 
 export class QueueError extends Error {}
 export class UserUnavailableToJoinQueueError extends QueueError {}
@@ -456,8 +457,8 @@ export class RankedQueueConsumer extends EventConsumer {
                     return { type: QueueType.RANKED, highscore: user.highest_score, performance, aggression, consistency };
 
                 } else { // QueueType.PUZZLE_BATTLE
-                    const pps = user.puzzle_battle_total_placements === 0 ? 0 : (user.puzzle_battle_total_placements * 2 / user.puzzle_battle_seconds_played);
-                    const accuracy = user.puzzle_battle_total_placements === 0 ? 0 : (user.puzzle_battle_correct_placements / user.puzzle_battle_total_placements);
+                    const pps = roundToDecimalPlace(user.puzzle_battle_total_placements === 0 ? 0 : (user.puzzle_battle_total_placements * 2 / user.puzzle_battle_seconds_played), 2);
+                    const accuracy = roundToDecimalPlace(user.puzzle_battle_total_placements === 0 ? 0 : (user.puzzle_battle_correct_placements*100 / user.puzzle_battle_total_placements), 1);
                     return { type: QueueType.PUZZLE_BATTLE, rushBest: user.puzzle_rush_best, pps, accuracy };
                 }
                 

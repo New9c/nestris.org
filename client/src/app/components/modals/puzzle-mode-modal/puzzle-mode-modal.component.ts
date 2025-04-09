@@ -65,7 +65,7 @@ export class PuzzleModeModalComponent {
   }
 
   nonnegative(num: number) {
-    return Math.min(num, 0);
+    return Math.max(num, 0);
   }
 
   isMe(userid: string) {

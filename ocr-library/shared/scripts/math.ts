@@ -106,6 +106,10 @@ export function clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
 }
 
+export function roundToDecimalPlace(value: number, digits: number): number {
+    const factor = Math.pow(10, digits);
+    return Math.round(value * factor) / factor;
+}
 
 /**
  * Splits an array into batches of a given size.
