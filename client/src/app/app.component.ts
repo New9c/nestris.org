@@ -22,6 +22,7 @@ import { GlobalChatService } from './services/state/global-chat.service';
 import { SoundService } from './services/sound.service';
 import { AnalyticsService } from './services/analytics.service';
 import { LaunchService } from './services/launch.service';
+import { QueueType } from './shared/network/json-message';
 @Component({
   selector: 'app-root',
   styleUrls: ['./app.component.scss'],
@@ -62,8 +63,9 @@ export class AppComponent implements OnInit {
 
     console.log("DEV MODE", isDevMode());
 
-    // await sleep(1000);
     // this.alertService.addAlert(TrophyAlertComponent, "trophyAlert", {startTrophies: 1300, trophyDelta: -23});
+    // await sleep(1000);
+    // this.alertService.addAlert(TrophyAlertComponent, "trophyAlert2", {startTrophies: 1300, trophyDelta: -23, type: QueueType.PUZZLE_BATTLE});
 
     // // this.alertService.addAlert(XPAlertComponent, "xpAlert", {league: League.MINO_1, currentXP: 0});
     //this.alertService.addAlert(QuestAlertComponent, "questAlert", {questID: QuestID.AUTOMATON}, 2);

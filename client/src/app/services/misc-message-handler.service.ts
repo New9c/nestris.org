@@ -7,7 +7,7 @@ import { QuestAlertComponent } from '../components/alerts/quest-alert/quest-aler
 import { QuestID } from '../shared/nestris-org/quest-system';
 import { TrophyAlertComponent } from '../components/alerts/trophy-alert/trophy-alert.component';
 
-const TROPHY_ALERT_DURATION = 4;
+const TROPHY_ALERT_DURATION = 5;
 
 /*
 Handles miscellaneous JsonMessages from the server that don't fit into any other service
@@ -32,7 +32,7 @@ export class MiscMessageHandlerService {
       this.alertService.addAlert(
         TrophyAlertComponent,
         `trophyAlert`,
-        {startTrophies: message.startTrophies, trophyDelta: message.trophyDelta},
+        {type: message.queueType, startTrophies: message.startTrophies, trophyDelta: message.trophyDelta},
         TROPHY_ALERT_DURATION
       );
     });

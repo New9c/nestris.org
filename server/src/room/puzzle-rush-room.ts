@@ -2,7 +2,7 @@ import { ActivityType } from "../../shared/models/activity";
 import { NotificationType } from "../../shared/models/notifications";
 import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { xpOnPuzzleRush } from "../../shared/nestris-org/xp-system";
-import { RedirectMessage, SendPushNotificationMessage } from "../../shared/network/json-message";
+import { QueueType, RedirectMessage, SendPushNotificationMessage, TrophyChangeMessage } from "../../shared/network/json-message";
 import { RushPuzzle } from "../../shared/puzzles/db-puzzle";
 import { TrophyDelta } from "../../shared/room/multiplayer-room-models";
 import { PuzzleRushAttempt, PuzzleRushAttemptEvent, PuzzleRushEventType, puzzleRushIncorrect, PuzzleRushPlayerStatus, PuzzleRushRoomState, puzzleRushScore, PuzzleRushStatus } from "../../shared/room/puzzle-rush-models";
@@ -273,7 +273,7 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
             }), false);
         };
 
-        // Update puzzle elo if rated match
+        // Update puzzle battle if rated match
         if (this.trophyDeltas) {
             // TODO
             for (let playerIndex of playerIndicies) {
@@ -285,6 +285,13 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
                 else if (score < opponentScore) eloChange = this.trophyDeltas![playerIndex].trophyLoss;
                 else eloChange = Math.round((this.trophyDeltas![playerIndex].trophyGain + this.trophyDeltas![playerIndex].trophyLoss) / 2);
 
+                // Display alert
+                const previousElo = (await DBUserObject.get(state.players[playerIndex].userid)).puzzle_battle_elo;
+                Room.Users.sendToUserSession(this.playerSessionIDs[playerIndex], new TrophyChangeMessage(
+                    QueueType.PUZZLE_BATTLE, previousElo, eloChange
+                ));
+
+                // Update database
                 await DBUserObject.alter(state.players[playerIndex].userid, new DBPuzzleBattleEvent({
                     xpGained: 0,
                     win: score > opponentScore,

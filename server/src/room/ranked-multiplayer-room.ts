@@ -7,7 +7,7 @@ import { RoomError } from "../online-users/event-consumers/room-consumer";
 import { EventConsumerManager } from "../online-users/event-consumer";
 import { GlobalStatConsumer } from "../online-users/event-consumers/global-stat-consumer";
 import { QuestConsumer } from "../online-users/event-consumers/quest-consumer";
-import { TrophyChangeMessage } from "../../shared/network/json-message";
+import { QueueType, TrophyChangeMessage } from "../../shared/network/json-message";
 import { ActivityConsumer } from "../online-users/event-consumers/activity-consumer";
 import { ActivityType } from "../../shared/models/activity";
 import { Platform } from "../../shared/models/platform";
@@ -62,7 +62,7 @@ export class RankedMultiplayerRoom extends MultiplayerRoom {
 
             // Send trophy change message to display alert
             RankedMultiplayerRoom.Users.sendToUserSession(player.sessionID, new TrophyChangeMessage(
-                startTrophies, trophyChange
+                QueueType.RANKED, startTrophies, trophyChange
             ))
 
             // Update each player's trophies and XP after the match

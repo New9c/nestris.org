@@ -293,6 +293,7 @@ export class QuestCompleteMessage extends JsonMessage {
 
 export class TrophyChangeMessage extends JsonMessage {
     constructor(
+        public readonly queueType: QueueType,
         public readonly startTrophies: number,
         public readonly trophyDelta: number,
     ) {

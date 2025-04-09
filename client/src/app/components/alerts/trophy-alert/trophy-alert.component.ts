@@ -1,5 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { QueueType } from 'src/app/shared/network/json-message';
 import { sleep } from 'src/app/util/misc';
 
 @Component({
@@ -13,16 +14,19 @@ export class TrophyAlertComponent implements OnInit {
   @Input() hide: boolean = false;
   @Input() startTrophies: number = 1000;
   @Input() trophyDelta: number = 30;
+  @Input() type: QueueType = QueueType.RANKED;
 
   // Start with the initial number of trophies
   trophies$ = new BehaviorSubject<number>(this.startTrophies);
+
+  readonly QueueType = QueueType;
 
   async ngOnInit() {
 
     this.trophies$.next(this.startTrophies);
 
     // Initial delay before starting the animation
-    await sleep(800);
+    await sleep(1200);
   
     const finalTrophies = this.startTrophies + this.trophyDelta;
     let current = this.startTrophies;

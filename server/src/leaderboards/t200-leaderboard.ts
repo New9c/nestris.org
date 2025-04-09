@@ -385,8 +385,8 @@ export class T200PuzzleBattleLeaderboard extends T200Leaderboard {
                     puzzle_battle_elo: row.puzzle_battle_elo,
                     puzzle_battle_highest_elo: row.puzzle_battle_highest_elo,
                     win_loss: row.win_loss,
-                    lifetime_pps: row.puzzle_battle_total_placements === 0 ? 0 : (row.puzzle_battle_total_placements * 2 / row.puzzle_battle_seconds_played),
-                    lifetime_accuracy: row.puzzle_battle_total_placements === 0 ? 0 : (row.puzzle_battle_correct_placements / row.puzzle_battle_total_placements),
+                    lifetime_pps: (row.puzzle_battle_total_placements === 0 ? 0 : (row.puzzle_battle_total_placements * 2 / row.puzzle_battle_seconds_played)).toFixed(2),
+                    lifetime_accuracy: (row.puzzle_battle_total_placements === 0 ? 0 : (row.puzzle_battle_correct_placements*100 / row.puzzle_battle_total_placements)).toFixed(1)+'%',
 
                     resourceID: null,
 

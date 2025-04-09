@@ -12,6 +12,7 @@ export class BattleEloComponent {
   @Input() size: number = 16;
   @Input() color: string = "#BA4CFF"; // If color is not specified, default to purple
   @Input() diff: boolean = false; // if diff, show +/-. if not diff, -1 means INITIAL_BATTLE_ELO
+  @Input() scaleIcon: number = 1; // Scale the trophy icon
 
   label() {
     if (this.diff) {

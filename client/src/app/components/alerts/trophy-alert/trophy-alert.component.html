@@ -1,7 +1,15 @@
 <app-alert [hide]="hide" [alertID]="alertID">
-    <div class="trophy-alert">
-        <app-trophies class="trophies" [size]="30" [scaleIcon]="1.8" [scaleGap]="1.8" [trophies]="(trophies$ | async) ?? 0" textWidth="75px" />
-        <app-trophies class="delta" [size]="30" [reverse]="true" [trophies]="getDeltaString()"
-        [color]="trophyDelta > 0 ?  '#58D774' : '#F15757'" [ngClass]="trophyDelta > 0 ? 'positive' : 'negative'" />
+    <div class="trophy-alert" [ngClass]="type">
+        <ng-container *ngIf="type === QueueType.RANKED">
+            <app-trophies [size]="30" [scaleIcon]="1.8" [trophies]="(trophies$ | async) ?? 0" textWidth="75px" />
+            <app-trophies class="delta" [size]="30" [reverse]="true" [trophies]="getDeltaString()"
+            [color]="trophyDelta > 0 ?  '#58D774' : '#F15757'" [ngClass]="trophyDelta > 0 ? 'positive' : 'negative'" />
+        </ng-container>
+        <ng-container *ngIf="type === QueueType.PUZZLE_BATTLE">
+            <app-battle-elo [size]="30" [scaleIcon]="1.8" [elo]="(trophies$ | async) ?? 0" textWidth="75px" />
+            <app-battle-elo class="delta" [size]="30" [diff]="true" [elo]="trophyDelta"
+            [color]="trophyDelta > 0 ?  '#58D774' : '#F15757'" [ngClass]="trophyDelta > 0 ? 'positive' : 'negative'" />
+        </ng-container>
+
     </div>
 </app-alert>

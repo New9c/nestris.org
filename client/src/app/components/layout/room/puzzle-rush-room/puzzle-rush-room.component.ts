@@ -282,7 +282,8 @@ export class PuzzleRushRoomComponent {
   }
 
   goLeaderboard() {
-    this.router.navigate(['/leaderboard'], { queryParams: { type: T200LeaderboardType.PUZZLE_RUSH } });
+    const type = this.puzzleRushRoom.getState<PuzzleRushRoomState>().trophyDeltas ? T200LeaderboardType.PUZZLE_BATTLE : T200LeaderboardType.PUZZLE_RUSH;
+    this.router.navigate(['/leaderboard'], { queryParams: { type } });
   }
 
   isSelectedIndex(selectedIndex: SelectedIndex | null, playerIndex: number, puzzleIndex: number) {
