@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { GameStartPacket, GameCountdownPacket, GamePlacementPacket, GameAbbrBoardPacket, GameFullBoardPacket, GameEndPacket, COUNTDOWN_LINECAP_REACHED } from 'src/app/shared/network/stream-packets/packet';
 import { PlatformInterfaceService } from '../platform-interface.service';
 import { GameDisplayData } from 'src/app/shared/tetris/game-display-data';
 import { GymRNG } from 'src/app/shared/tetris/piece-sequence-generation/gym-rng';
 import { BinaryEncoder } from 'src/app/shared/network/binary-codec';
-import {  Observable, Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { eventIsForInput } from 'src/app/util/misc';
 import { MemoryGameStatus } from 'src/app/shared/tetris/memory-game-status';
 import { MeService } from '../state/me.service';
@@ -31,10 +31,11 @@ Emulates a NES game as a 60fps state machine with keyboard input
 @Injectable({
   providedIn: 'root'
 })
-export class EmulatorService {
+export class EmulatorService implements OnDestroy {
 
   private keybinds = new Keybinds(); // probably should inject this instead
   private keyManager = new KeyManager();
+  private gamepadSubscription: any; // records gamepad stuff
 
   private currentState: EmulatorGameState | undefined = undefined;
   private analyzer: LiveGameAnalyzer | undefined = undefined;
@@ -69,13 +70,15 @@ export class EmulatorService {
     private wakeLockService: WakeLockService,
     private questService: QuestService,
     private sound: SoundService,
-) {}
+  ) {
+    this.gamepadSubscription = this.gamepadService.onPress().subscribe(key => this.checkGamepadReset(key));
+  }
 
   // tick function that advances the emulator state during the game loop
   private tick() {
 
     if (this.currentState === undefined) return;
-    
+
     // calculate how many frames to advance based on time elapsed to maintain 60fps
     const diff = performance.now() - this.epoch;
     const frames = diff / 1000 * EMULATOR_FPS | 0;
@@ -92,7 +95,7 @@ export class EmulatorService {
     }
 
     // If more than one frame was executed in a tick cycle, log the number of frames skipped
-    if (frameAmount > 1) console.log("Skipped", frameAmount-1, "frames");
+    if (frameAmount > 1) console.log("Skipped", frameAmount - 1, "frames");
 
     // update the number of frames done for the next calculation of frames to advance
     this.framesDone = frames;
@@ -109,7 +112,7 @@ export class EmulatorService {
   startGame(startLevel: number, sendPacketsToServer: boolean, levelCap?: number, seed?: string, clientRoom?: ClientRoom, countdown = 3) {
     this.sendPacketsToServer = sendPacketsToServer;
     this.clientRoom = clientRoom;
-    //console.log("elvel cap", levelCap);
+    //console.log("level cap", levelCap);
 
     if (this.sendPacketsToServer) this.wakeLockService.enableWakeLock();
     this.questService.setInGame(true, this.clientRoom);
@@ -129,7 +132,7 @@ export class EmulatorService {
     const gymSeed = seed ?? GymRNG.generateRandomSeed();
     this.currentState = new EmulatorGameState(startLevel, levelCap, new GymRNG(gymSeed), countdown);
     this.analyzer = new LiveGameAnalyzer(this.stackrabbitService, sendPacketsToServer ? this.platform : null, startLevel);
-    
+
     this.analyzer.onNewPosition({
       board: this.currentState.getIsolatedBoard().copy(),
       currentPiece: this.currentState.getCurrentPieceType(),
@@ -141,7 +144,7 @@ export class EmulatorService {
     // send game start packet
     const current = this.currentState.getCurrentPieceType();
     const next = this.currentState.getNextPieceType();
-    this.sendPacket(new GameStartPacket().toBinaryEncoder({level: startLevel, current, next}));
+    this.sendPacket(new GameStartPacket().toBinaryEncoder({ level: startLevel, current, next }));
 
     // send initial countdown
     this.sendPacket(new GameCountdownPacket().toBinaryEncoder({ delta: this.timeDelta.getDelta(), countdown }));
@@ -158,8 +161,8 @@ export class EmulatorService {
 
     // Update keybinds
     const me = this.meService.getSync();
-    let keybinds: {[keybind in Keybind] : string};
-  
+    let keybinds: { [keybind in Keybind]: string };
+
     if (me) {
       keybinds = {
         [Keybind.SHIFT_LEFT]: me.keybind_emu_move_left,
@@ -235,7 +238,7 @@ export class EmulatorService {
     for (let keybind of gamepadKeybinds) {
       this.keyManager.setPressed(keybind, gamepadPressed.includes(this.keybinds.getKeybind(keybind)));
     }
-    
+
     const pressedKeys = this.keyManager.generate();
 
     // console.log("frame");
@@ -313,7 +316,7 @@ export class EmulatorService {
         countdown: COUNTDOWN_LINECAP_REACHED,
       }));
     }
-    
+
     // if topped out, stop game
     if (this.currentState.isToppedOut()) {
       this.updateClientsideDisplay();
@@ -350,12 +353,12 @@ export class EmulatorService {
     }
 
     this.analyzer!.stopAnalysis();
-    
+
 
     // Reset game state
     this.currentState = undefined;
     this.analyzer = undefined;
-    
+
     // send game end packet
     if (!force) this.sendPacket(new GameEndPacket().toBinaryEncoder({}));
   }
@@ -403,6 +406,23 @@ export class EmulatorService {
     }
   }
 
+  checkGamepadReset(key: string) {
+    if (
+      this.clientRoom instanceof SoloClientRoom && // must be a solo game
+      this.currentState && // must be in game
+      this.currentState.getCountdown() === undefined && // cannot reset until countdown is over
+      this.meService.getSync()!.keybind_emu_reset.toLowerCase() === key.toLowerCase() // must have reset key pressed
+    ) {
+      this.stopGame();
+      this.clientRoom.startGame(2);
+      return;
+    }
+  }
+
+  ngOnDestroy() {
+    this.gamepadSubscription.unsubscribe();
+  }
+
   onTopout(): Observable<void> {
     return this.onTopout$.asObservable();
   }
@@ -410,5 +430,5 @@ export class EmulatorService {
   getLastGameStatus(): MemoryGameStatus | null {
     return this.lastGameStatus;
   }
-  
+
 }
