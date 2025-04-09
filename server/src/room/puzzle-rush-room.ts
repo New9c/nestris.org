@@ -135,7 +135,6 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
     }
 
     private onSubmitAttempt(playerIndex: number, attempt: PuzzleRushAttemptEvent) {
-
         // Only relevant while in game
         const state = this.getRoomState();
         if (state.status != PuzzleRushStatus.DURING_GAME) return;

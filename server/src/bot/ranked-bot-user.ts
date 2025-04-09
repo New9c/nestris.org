@@ -226,7 +226,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
             [PuzzleRating.FIVE_STAR]: 2500,
         }
 
-        const blunderChance: number = -1 / (Math.log(this.config.aiConfig.misdrop) * 5);
+        const blunderChance: number = -1 / (Math.log(this.config.aiConfig.misdrop) * 8);
         const stuckChance = this.config.aiConfig.inaccuracy;
         console.log("blunder chance", blunderChance);
         console.log("stuck chance", stuckChance);
@@ -242,6 +242,12 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
 
             // If reached time, break out of the loop
             if (Date.now() - startTime > roomState.duration * 1000) break;
+
+            // If reached maximium strikes, break out of the loop
+            if (puzzleRushIncorrect(roomState.players[myIndex]) >= roomState.strikes) {
+                console.log("Reached strikes, bot exiting main loop");
+                break;
+            }
             
             // Change in puzzle, try to compute placement
             const currentPuzzleID = roomState.players[myIndex].currentPuzzleID;
@@ -281,6 +287,9 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
             }
 
         }
+
+        // Sleep a bit before leaving the room
+        await sleep(randomInt(5000, 10000));
 
         // Leave the room
         await this.roomConsumer.freeSession(this.userid, this.sessionID);
