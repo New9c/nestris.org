@@ -21,6 +21,7 @@ export enum JsonMessageType {
     SEND_PUSH_NOTIFICATION = 'send_push_notification',
     FRIEND_UPDATE = 'friend_update',
     SERVER_RESTART_WARNING = 'server_restart_warning', // sent from server to client to warn of server restart
+    SERVER_ANNOUNCEMENT = 'server_announcement', // sent from server to client
     ME = 'ME',
     CHAT = 'chat',
     SPECTATOR_COUNT = 'spectator_count',
@@ -108,6 +109,14 @@ export class ServerRestartWarningMessage extends JsonMessage {
         public readonly warning: boolean // whether enabled or disabled
     ) {
         super(JsonMessageType.SERVER_RESTART_WARNING)
+    }
+}
+
+export class ServerAnnouncementMessage extends JsonMessage {
+    constructor(
+        public readonly message: string | null
+    ) {
+        super(JsonMessageType.SERVER_ANNOUNCEMENT)
     }
 }
 

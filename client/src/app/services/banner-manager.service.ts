@@ -8,6 +8,7 @@ export enum BannerType {
   DEV_WARNING = "DEV_WARNING",
   SERVER_RESTART_WARNING = "SERVER_RESTART_WARNING",
   GUEST_WARNING = "GUEST_WARNING",
+  ANNOUNCEMENT = "ANNOUNCEMENT",
 }
 
 export enum BannerPriority {

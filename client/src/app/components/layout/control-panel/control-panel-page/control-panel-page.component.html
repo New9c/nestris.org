@@ -3,4 +3,7 @@
     <app-solid-button label="Toggle Server Restart Warning" (smartClick)="toggleServerRestart()" />
     <app-solid-button label="Clear DBUser Cache" (smartClick)="clearUserCache()" />
 
+    <input type="text" (input)="onAnnouncementChange($event)" placeholder="Announcement text..." />
+    <app-solid-button label="Send Announcement" (smartClick)="sendServerAnnouncement()" />
+
 </div>

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { WebsocketService } from './websocket.service';
-import { JsonMessageType, ServerRestartWarningMessage } from '../shared/network/json-message';
+import { JsonMessageType, ServerAnnouncementMessage, ServerRestartWarningMessage } from '../shared/network/json-message';
 import { BannerManagerService, BannerPriority, BannerType } from './banner-manager.service';
 import { NotificationService } from './notification.service';
 import { NotificationAutohide, NotificationType } from '../shared/models/notifications';
@@ -31,6 +31,19 @@ export class ServerRestartWarningService {
       const warning = (warningMessage as ServerRestartWarningMessage).warning;
       console.log("Server restart warning", warning);
       this.setWarning(warning);
+    });
+
+    this.websocketService.onEvent(JsonMessageType.SERVER_ANNOUNCEMENT).subscribe((warningMessage) => {
+      const announcement = (warningMessage as ServerAnnouncementMessage).message;
+      this.bannerService.removeBanner(BannerType.ANNOUNCEMENT);
+      if (announcement) {
+          this.bannerService.addBanner({
+          id: BannerType.ANNOUNCEMENT,
+          priority: BannerPriority.HIGH,
+          message: announcement,
+          color: "#B73C3C",
+        });
+      }
     });
   }
 
