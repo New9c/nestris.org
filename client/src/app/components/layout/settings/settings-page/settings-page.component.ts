@@ -15,14 +15,14 @@ class Category {
   constructor(
     public readonly name: string,
     public readonly settings: Setting[],
-  ) {}
+  ) { }
 }
 
 class Tab {
   constructor(
     public readonly name: string,
     public readonly categories: Category[],
-  ) {}
+  ) { }
 }
 
 class BooleanSetting extends Setting {
@@ -44,7 +44,7 @@ class DropdownSetting extends Setting {
   constructor(
     public readonly key: string,
     public readonly label: string,
-    public readonly options: {[attribute: string]: string},
+    public readonly options: { [attribute: string]: string },
     public readonly description?: string,
   ) { super() }
 }
@@ -85,7 +85,7 @@ class ParagraphSetting extends Setting {
     this.paragraph$.next(newParagraph);
   }
 
-  
+
 }
 
 
@@ -158,7 +158,7 @@ export class SettingsPageComponent implements OnDestroy {
         new KeybindSetting('keybind_emu_rot_left', 'Rotate Left'),
         new KeybindSetting('keybind_emu_rot_right', 'Rotate Right'),
         new KeybindSetting('keybind_emu_reset', 'Restart'),
-        
+
       ]),
       new Category('Puzzles', [
         new KeybindSetting('keybind_puzzle_rot_left', 'Rotate Left'),
@@ -174,7 +174,7 @@ export class SettingsPageComponent implements OnDestroy {
 
   readonly getDisplayKeybind = getDisplayKeybind;
   readonly ButtonColor = ButtonColor;
-  
+
   private fadeTimeout: any;
 
   private gamepadSubscription: any;
@@ -282,8 +282,15 @@ export class SettingsPageComponent implements OnDestroy {
         clearTimeout(this.fadeTimeout);
         this.fadeTimeout = setTimeout(() => this.errorKeybindExists$.next(null), 1000);
       }, 0);
-      
+
       console.log('Keybind already exists');
+      return;
+    }
+
+    // If key is a gamepad key and keybind is for puzzle, ignore
+    if (activeKey.startsWith("keybind_puzzle") && key.startsWith("Gamepad")) {
+      this.activeKey$.next(null);
+      console.log('Gamepad not avalible for puzzles');
       return;
     }
 
