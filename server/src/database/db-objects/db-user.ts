@@ -169,6 +169,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             keybind_emu_reset: 'R',
             keybind_puzzle_rot_left: 'Z',
             keybind_puzzle_rot_right: 'X',
+            keybind_puzzle_undo: 'Q',
 
             quest_progress: [],
             about_me: null,
@@ -266,7 +267,7 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
                 // If new record, update score and pps
                 if (puzzleRushArgs.score > this.inMemoryObject.puzzle_rush_best) {
                     this.inMemoryObject.puzzle_rush_best = puzzleRushArgs.score;
-                    this.inMemoryObject.puzzle_rush_pps = Math.round(puzzleRushArgs.pps * 10); // stored multipled by 10 for space
+                    this.inMemoryObject.puzzle_rush_pps = Math.round(puzzleRushArgs.pps * 100); // stored multipled by 100 for space
                 }
                 break;
 

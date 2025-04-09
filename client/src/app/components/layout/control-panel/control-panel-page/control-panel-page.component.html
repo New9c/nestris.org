@@ -1,29 +1,6 @@
 <div class="main">
 
-    <button (click)="toggleServerRestart()">Toggle Server Restart Warning</button>
-    <button (click)="clearUserCache()">Clear DBUser Cache</button>
-
-    <table *ngIf="(aggregate$ | async) as aggregate">
-        <tr>
-            <th>Rating</th>
-            <th>Puzzle count</th>
-            <th>Attempts</th>
-            <th>Successes</th>
-        </tr>
-        <tr *ngFor="let rating of aggregate.ratings">
-            <td>{{rating.rating}}</td>
-            <td>{{rating.numPuzzles}}</td>
-            <td>{{rating.totalAttempts}}</td>
-            <td>{{rating.totalSolves}}</td>
-        </tr>
-        <tr *ngIf="getTotals(aggregate) as totals">
-            <td>Total</td>
-            <td>{{totals.totalPuzzles}}</td>
-            <td>{{totals.totalAttempts}}</td>
-            <td>{{totals.totalSolves}}</td>
-        </tr>
-    </table>
-
-    <app-board-editor />
+    <app-solid-button label="Toggle Server Restart Warning" (smartClick)="toggleServerRestart()" />
+    <app-solid-button label="Clear DBUser Cache" (smartClick)="clearUserCache()" />
 
 </div>

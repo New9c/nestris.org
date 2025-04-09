@@ -41,7 +41,7 @@ export class MainLeaderboardPageComponent implements OnDestroy {
     [T200LeaderboardType.SOLO_HIGHSCORE]: 'Highscore',
     [T200LeaderboardType.RANKED]: 'Trophies',
     [T200LeaderboardType.PUZZLES]: 'Puzzle Elo',
-    [T200LeaderboardType.PUZZLE_RUSH] : 'Puzzle Rush',
+    [T200LeaderboardType.PUZZLE_RUSH] : 'Puzzle Blitz',
   };
 
   readonly leaderboardTypeIcon: { [key in T200LeaderboardType]: string } = {

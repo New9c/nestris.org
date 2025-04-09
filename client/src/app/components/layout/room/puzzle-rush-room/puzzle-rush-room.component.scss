@@ -1,29 +1,9 @@
 @import "../../../../../styles.scss";
 
-// .root {
-//     display: block;
-//     background: linear-gradient(7deg,rgba(182, 117, 4, 0.5) 0%,rgba(0,0,0,1) 70%);
-//     position: relative;
-
-//     transition: all 1s ease-in-out;
-
-//     width: 100%;
-//     height: 100%;
-// }
-
-// .root.correct {
-//     background: linear-gradient(7deg,rgba(4,182,32,.5) 0%,rgba(0,0,0,1) 70%);
-// }
-
-// .root.incorrect {
-//     background: linear-gradient(7deg,rgba(182, 4, 4, 0.5) 0%,rgba(0,0,0,1) 70%);
-// }
-
-/* Define the custom properties for gradient colors */
-    @property --color1 {
-        syntax: '<color>';
-        initial-value: rgba(182, 117, 4, 0.5);
-        inherits: false;
+@property --color1 {
+    syntax: '<color>';
+    initial-value: rgba(182, 117, 4, 0.5);
+    inherits: false;
 }
 
 @property --color2 {
@@ -38,7 +18,6 @@
     width: 100%;
     height: 100%;
 
-    /* Use the custom properties in the gradient */
     --color1: rgba(126, 4, 182, 0.5);
     --color2: rgba(0, 0, 0, 1);
     background: linear-gradient(7deg, var(--color1) 0%, var(--color2) 70%);
@@ -46,18 +25,23 @@
     transition: --color1 0.3s ease-in-out, --color2 0.3s ease-in-out;
 }
 
-.root.correct {
+.root.victory {
     --color1: rgba(4, 182, 32, 0.5);
     --color2: rgba(0, 0, 0, 1);
 }
 
-.root.incorrect {
+.root.defeat {
     --color1: rgba(182, 4, 4, 0.5);
     --color2: rgba(0, 0, 0, 1);
 }
 
 .root.tie {
     --color1: rgba(182, 179, 4, 0.5);
+    --color2: rgba(0, 0, 0, 1);
+}
+
+.root.solo-finish {
+    --color1: rgba(4,43,182,.5);    
     --color2: rgba(0, 0, 0, 1);
 }
 
@@ -176,12 +160,16 @@ header {
   transform: translateY(0.5px);
 }
 
-.correct .puzzle-header h1 {
+.victory h1.header {
     color: $ui-green-color;
 }
 
-.incorrect .puzzle-header h1 {
+.defeat h1.header {
     color: $ui-red-color;
+}
+
+.tie h1.header {
+    color: $ui-orange-color;
 }
 
 .next-box-text {
@@ -235,13 +223,6 @@ h1.header {
     padding-top: 25px;
 }
 
-h1.header.green {
-    color: $ui-green-color;
-}
-
-h1.header.red {
-    color: $ui-red-color;
-}
 
 .timer {
     display: flex;
@@ -348,6 +329,10 @@ h1.header.red {
     flex-direction: row;
     gap: 10px;
     align-items: center;
+}
+
+.battle .attempts-remaining {
+    gap: 5px;
 }
 
 h1.score {

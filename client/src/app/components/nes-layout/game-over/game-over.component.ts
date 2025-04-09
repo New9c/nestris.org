@@ -10,7 +10,7 @@ import { GamepadService } from 'src/app/services/gamepad.service';
   styleUrls: ['./game-over.component.scss']
 })
 export class GameOverComponent implements OnChanges {
-  @Input() mode?: GameOverMode;
+  @Input() mode?: GameOverMode | string;
   @Input() showNext: boolean = false;
   @Output() clickNext = new EventEmitter<void>();
 
@@ -37,7 +37,7 @@ export class GameOverComponent implements OnChanges {
     this.gamepadSubscription.unsubscribe();
   }
 
-  getText(mode?: GameOverMode): string {
+  getText(mode?: GameOverMode | string): string {
     switch (mode) {
       case GameOverMode.WIN:
         return 'VICTORY';
@@ -50,11 +50,11 @@ export class GameOverComponent implements OnChanges {
       case GameOverMode.READY:
         return 'READY?';
       default:
-        return '';
+        return mode ?? "";
     }
   }
 
-  getButton(mode?: GameOverMode): string {
+  getButton(mode?: GameOverMode | string): string {
     if (mode === GameOverMode.READY) {
       return 'READY';
     }

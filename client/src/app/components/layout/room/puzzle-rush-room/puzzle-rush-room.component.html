@@ -1,8 +1,9 @@
 <ng-container *ngIf="result$ | async as result">
     <div class="root" *ngIf="state$ | async as state"
     [ngClass]="{
-        'correct': [PuzzleRushResult.VICTORY, PuzzleRushResult.SOLO].includes(result),
-        'incorrect': result === PuzzleRushResult.DEFEAT,
+        'solo-finish' : result === PuzzleRushResult.SOLO,
+        'victory': result === PuzzleRushResult.VICTORY,
+        'defeat': result === PuzzleRushResult.DEFEAT,
         'tie': result === PuzzleRushResult.TIE,
         'rush' : state.players.length === 1,
         'battle' : state.players.length === 2,
@@ -15,7 +16,7 @@
         <div class="content">
 
             <header>
-                <h1 class="title">PUZZLE BLITZ</h1>
+                <h1 class="title">{{state.players.length === 1 ? 'PUZZLE BLITZ' : 'PUZZLE WARS'}}</h1>
             </header>
 
             <p class="instructions">{{puzzleRushRoom.text$ | async}}</p>
@@ -31,8 +32,8 @@
                     <!-- If before game, show ready button -->
                     <app-nes-board *ngIf="state.status === PuzzleRushStatus.BEFORE_GAME"
                         class="board" [scale]="3.3"
-                        [gameOver]="GameOverMode.READY"
-                        [gameOverShowNext]="true"
+                        [gameOver]="me(state).status === PuzzleRushPlayerStatus.NOT_READY ? GameOverMode.READY : (state.players.length === 1 ? undefined : 'Waiting for opponent...')"
+                        [gameOverShowNext]="me(state).status === PuzzleRushPlayerStatus.NOT_READY"
                         (clickNext)="puzzleRushRoom.sendReadyEvent()"
                     />
 
@@ -46,13 +47,20 @@
 
                         <ng-template #duringGame>
                             <!-- If in game, show current puzzle -->
-                            <app-puzzle-nes-board *ngIf="state.status === PuzzleRushStatus.DURING_GAME"
-                                class="board" [scale]="3.3" [level]="18" [puzzle]="currentPuzzle"
-                                [undo$]="clickUndo$" (canUndo)="canUndo$.next($event)"
-                                (submitPuzzle)="puzzleRushRoom.submitPuzzle($event)"
-                                [ngClass]="{'shake' : incorrectShake$ | async}"
-                                [rotateLeftKeybind]="rotateLeftKeybind" [rotateRightKeybind]="rotateRightKeybind"
-                            />
+                             <ng-container *ngIf="state.status === PuzzleRushStatus.DURING_GAME">
+                                <app-puzzle-nes-board *ngIf="puzzleRushIncorrect(me(state)) < state.strikes; else struckOut"
+                                    class="board" [scale]="3.3" [level]="18" [puzzle]="currentPuzzle"
+                                    [undo$]="clickUndo$" (canUndo)="canUndo$.next($event)"
+                                    (submitPuzzle)="puzzleRushRoom.submitPuzzle($event)"
+                                    [ngClass]="{'shake' : incorrectShake$ | async}"
+                                />
+                                <ng-template #struckOut>
+                                    <app-nes-board class="board" [scale]="3.3" [board]="currentPuzzle.board"
+                                        [defaultOpacity]="0.3" countdown="Game Over"
+                                    />
+                                </ng-template>
+
+                            </ng-container>
                         </ng-template>
 
                     </ng-container>
@@ -65,6 +73,7 @@
                             [activePiece]="selectedPuzzle.currentPlacement" [activePieceOpacity]="1"
                             [nextPiece]="selectedPuzzle.nextPlacement" [nextPieceOpacity]="1"
                         />
+                        <app-nes-board *ngIf="!(selectedPuzzle$ | async)" class="board" [scale]="3.3" />
                     </ng-container>
 
                 </ng-container>
@@ -93,7 +102,10 @@
                         </ng-container>
 
                         <ng-container *ngIf="state.status === PuzzleRushStatus.AFTER_GAME">
-                            <h1 class="header green" *ngIf="state.players.length === 1">Score: {{puzzleRushScore(state.players[0])}}</h1>
+                            <h1 class="header" *ngIf="state.players.length === 1">Score: {{puzzleRushScore(state.players[0])}}</h1>
+                            <h1 class="header" *ngIf="state.players.length === 2">
+                                {{result}} {{puzzleRushScore(state.players[myIndex])}}-{{puzzleRushScore(state.players[opponentIndex])}}
+                            </h1>
 
                             <div class="stats" *ngIf="state.stats as stats">
                                 <div class="stat" *ngFor="let stat of stats">
@@ -105,23 +117,23 @@
                         </ng-container>
 
                         
-                        <div class="players">
-                            <div class="player" *ngFor="let player of state.players">
+                        <div class="players" *ngIf="progressMatrix$ | async as matrix">
+                            <div class="player" *ngFor="let p of myPlayersOrder(state)">
                                 <div class="user" *ngIf="state.players.length === 2">
-                                    <app-username [userid]="player.userid" [username]="player.username" [highestTrophies]="player.highestTrophies"
-                                        [fontSize]="20" [fontWeight]="600" />
-                                    <app-puzzle-elo [puzzleElo]="player.puzzleElo" [size]="20" [purple]="false" />
+                                    <app-username [userid]="p.player.userid" [username]="p.player.username" [highestTrophies]="p.player.highestTrophies"
+                                        [fontSize]="14" [fontWeight]="600" />
+                                    <app-puzzle-elo [puzzleElo]="p.player.puzzleElo" [size]="14" [purple]="false" />
                                 </div>
-                                <div class="attempts-remaining">
-                                    <app-correctness-icon-square *ngFor="let i of [0, 1, 2]" width="40px"
-                                        [correctness]="(incorrectCount$ | async)! > i ? Correctness.INCORRECT : Correctness.NONE" />
+                                <div class="attempts-remaining" *ngIf="incorrectCount$ | async as incorrectCount">
+                                    <app-correctness-icon-square *ngFor="let i of arrayToNumber(state.strikes)" [width]="state.players.length === 1 ? '40px' : '30px'"
+                                        [correctness]="incorrectCount[p.playerIndex] > i ? Correctness.INCORRECT : Correctness.NONE" />
                                 </div>
-                                <h1 class="score">{{puzzleRushScore(player)}}</h1>
-                                <div class="progress-matrix" *ngIf="progressMatrix$ | async as matrix">
-                                    <button *ngFor="let attempt of matrix; let i = index"  (click)="selectPuzzleIndex(state, i)"
-                                            class="puzzle-icon" [ngClass]="{'selected' : i === (puzzleRushRoom.selectedIndex$ | async)}">
+                                <h1 class="score">{{puzzleRushScore(p.player)}}</h1>
+                                <div class="progress-matrix">
+                                    <button *ngFor="let attempt of matrix[p.playerIndex]"  (click)="selectPuzzleIndex(state, p.playerIndex, attempt.index)"
+                                            class="puzzle-icon" [ngClass]="{'selected' : isSelectedIndex(puzzleRushRoom.selectedIndex$ | async, p.playerIndex, attempt.index)}">
                                         <app-correctness-icon-square  width="18px"
-                                        [correctness]="attempt" />
+                                        [correctness]="attempt.correctness" />
                                     </button>
                                     
                                 </div>
@@ -129,7 +141,7 @@
                         </div>
 
                         <div class="view-mode" *ngIf="state.status === PuzzleRushStatus.AFTER_GAME">
-                            <p>Viewing {{(viewMode$ | async) === ViewMode.SOLUTION ? 'correct solution' : 'your attempt'}} for the {{ordinal(puzzleRushRoom.selectedIndex$ | async)}} puzzle </p>
+                            <p>Viewing {{(viewMode$ | async) === ViewMode.SOLUTION ? 'correct solution' : 'your attempt'}} for the {{ordinal((puzzleRushRoom.selectedIndex$ | async)?.puzzleIndex)}} puzzle </p>
                             <app-solid-button [label]="(viewMode$ | async) === ViewMode.SOLUTION ? 'View attempt' : 'View solution'" (smartClick)="toggleViewMode()" />
                         </div>
                         
@@ -141,7 +153,9 @@
 
                         <!-- Show skip puzzle button during game -->
                         <app-solid-button
-                            label="Skip Puzzle" [color]="ButtonColor.RED" *ngIf="state.status === PuzzleRushStatus.DURING_GAME && !(countdownTimer$ | async)"
+                            [label]="puzzleRushIncorrect(me(state)) < state.strikes ? 'Skip Puzzle' : 'Waiting for opponent'"
+                            [disabled]="puzzleRushIncorrect(me(state)) >= state.strikes"
+                            [color]="ButtonColor.RED" *ngIf="state.status === PuzzleRushStatus.DURING_GAME && !(countdownTimer$ | async)"
                             [stretch]="true"
                             [loadingSize]="15"
                             (smartClick)="puzzleRushRoom.submitPuzzle({})"
@@ -155,10 +169,11 @@
                                 [stretch]="true"
                                 (smartClick)="goLeaderboard()"
                             />
-                            <app-solid-button [label]="playAgainText()"
-                                [color]="ButtonColor.BLUE"
+                            <app-solid-button *ngIf="playAgainInfo(state) as info"
+                                [label]="info.label" [color]="info.color"
                                 [stretch]="true"
-                                (click)="playAgain()"
+                                [disabled]="info.disable ?? false"
+                                (smartClick)="playAgain()"
                             />
                         </div>
 

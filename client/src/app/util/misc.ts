@@ -68,3 +68,8 @@ export function timeAgo(date: Date, showSeconds: boolean = true, short: boolean 
 export function addSignPrefix(number: number): string {
   return number >= 0 ? `+${number}` : `${number}`;
 }
+
+export function pluralize(word: string, count: number) {
+  if (count === 1) return `${count} ${word}`;
+  return `${count} ${word}s`
+}

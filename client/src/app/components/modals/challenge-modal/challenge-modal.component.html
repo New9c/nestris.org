@@ -6,10 +6,18 @@
 
   <div class="content">
 
-    <div class="setting" *ngFor="let setting of settings">
-      <h3>{{setting.label}}</h3>
-      <app-tab-selector [tabs]="setting.allValues" [(selectedTab)]="setting.currentValue"
-        [tabStrings]="setting.valueStrings" [allowSwitchToTab]="allowSwitchToValue.bind(this, setting)" />
+    <div class="setting">
+      <h3>{{modeSetting.label}}</h3>
+      <app-tab-selector [tabs]="modeSetting.allValues" [(selectedTab)]="modeSetting.currentValue"
+        [tabStrings]="modeSetting.valueStrings" [tabIcons]="modeSetting.icons" [allowSwitchToTab]="allowSwitchToValue.bind(this, modeSetting)" />
+    </div>
+
+    <div class="settings">
+      <div class="setting" *ngFor="let setting of visibleSettings">
+        <h3>{{setting.label}}</h3>
+        <app-tab-selector [tabs]="setting.allValues" [(selectedTab)]="setting.currentValue"
+          [tabStrings]="setting.valueStrings" [tabIcons]="setting.icons" [allowSwitchToTab]="allowSwitchToValue.bind(this, setting)" />
+      </div>
     </div>
     
   </div>

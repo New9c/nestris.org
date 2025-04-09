@@ -24,6 +24,9 @@
 <app-add-friend-modal *ngIf="showAddFriendDialog$ | async" [visibility$]="showAddFriendDialog$" />
 
 <div class="friends-list" *ngIf="(meService.getUserID$() | async) as myID">
+    <ng-container *ngIf="sortInvitations(puzzleBattleInvitations$ | async) as invitations">
+        <app-challenge *ngFor="let invitation of invitations" [invitation]="asPuzzleBattleInvitation(invitation)" [myID]="myID" />
+    </ng-container>
     <ng-container *ngIf="sortInvitations(matchInvitations$ | async) as invitations">
         <app-challenge *ngFor="let invitation of invitations" [invitation]="asMatchInvitation(invitation)" [myID]="myID" />
     </ng-container>

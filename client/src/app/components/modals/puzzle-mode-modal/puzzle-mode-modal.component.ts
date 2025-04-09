@@ -52,7 +52,7 @@ export class PuzzleModeModalComponent {
   ) {}
 
   public environmentDisable(mode: PuzzleMode, environment: DeploymentEnvironment) {
-    return mode === PuzzleMode.BATTLE && environment === DeploymentEnvironment.STAGING;
+    return mode === PuzzleMode.BATTLE;
   }
 
   public canPlay(me: DBUser, mode: PuzzleMode, environment: DeploymentEnvironment) {
@@ -63,7 +63,8 @@ export class PuzzleModeModalComponent {
     switch (mode) {
       case PuzzleMode.NORMAL: return true;
       case PuzzleMode.RUSH: return me.highest_puzzle_elo >= this.PUZZLE_RUSH_UNLOCK_ELO;
-      case PuzzleMode.BATTLE: return me.puzzle_rush_best >= this.PUZZLE_BATTLE_UNLOCK_RUSH;
+      default: return false;
+      //case PuzzleMode.BATTLE: return me.puzzle_rush_best >= this.PUZZLE_BATTLE_UNLOCK_RUSH;
     }
   }
 

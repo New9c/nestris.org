@@ -154,6 +154,12 @@
                         <p>in puzzles</p>
                     </ng-container>
 
+                    <ng-container *ngIf="activity.type === ActivityType.RUSH_RECORD">
+                        <p>Scored a new record of</p>
+                        <p class="highlight purple">{{activity.score}}</p>
+                        <p>in Puzzle Blitz</p>
+                    </ng-container>
+
                 </div>
             </div>
         </ng-container>

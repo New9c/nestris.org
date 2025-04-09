@@ -7,7 +7,7 @@ import { MeService } from 'src/app/services/state/me.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { LoginMethod } from 'src/app/shared/models/db-user';
 import { FriendInfo } from 'src/app/shared/models/friends';
-import { Invitation, InvitationType, MatchInvitation } from 'src/app/shared/models/invitation';
+import { Invitation, InvitationType, MatchInvitation, PuzzleBattleInvitation } from 'src/app/shared/models/invitation';
 
 enum FriendSort {
   HIGHSCORE = 0,
@@ -34,6 +34,7 @@ export class FriendPageComponent {
   
   public friendInvitations$ = this.invitationsService.getInvitationsOfType$(InvitationType.FRIEND_REQUEST);
   public matchInvitations$ = this.invitationsService.getInvitationsOfType$(InvitationType.MATCH_REQUEST) as Observable<MatchInvitation[]>;
+  public puzzleBattleInvitations$ = this.invitationsService.getInvitationsOfType$(InvitationType.PUZZLE_BATTLE_REQUEST) as Observable<PuzzleBattleInvitation[]>;
 
   constructor(
     public friendsService: FriendsService,
@@ -95,6 +96,10 @@ export class FriendPageComponent {
 
   asMatchInvitation(invitation: Invitation) {
     return invitation as MatchInvitation;
+  }
+
+  asPuzzleBattleInvitation(invitation: Invitation) {
+    return invitation as PuzzleBattleInvitation;
   }
 
 }

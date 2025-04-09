@@ -234,7 +234,8 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
     [ActivityType.PERSONAL_BEST] : 'pb',
     [ActivityType.PUZZLE_ELO] : 'puzzle',
     [ActivityType.QUEST_COMPLETION] : 'quest',
-    [ActivityType.RANKED_MATCH] : 'trophies'
+    [ActivityType.RANKED_MATCH] : 'trophies',
+    [ActivityType.RUSH_RECORD] : 'puzzle-rush',
   };
   getIcon(activityType: ActivityType) {
     const name = ProfileModalComponent.ACTIVITY_ICONS[activityType];

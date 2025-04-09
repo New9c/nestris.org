@@ -1,9 +1,10 @@
 <div class="container">
   <div class="container-left">
-    <p *ngIf="isSender">You challenged {{invitation.receiverUsername}} to a match!</p>
-    <p *ngIf="!isSender">{{invitation.senderUsername}} challenged you to a match!</p>
+    <p *ngIf="isSender">You challenged {{invitation.receiverUsername}} to {{matchLabel()}}!</p>
+    <p *ngIf="!isSender">{{invitation.senderUsername}} challenged you to {{matchLabel()}}!</p>
 
-    <p class="info">First to {{invitation.winningScore}} • Level {{invitation.startLevel}} start • {{invitation.levelCap ? 'Level ' + invitation.levelCap + ' cap' : 'Uncapped'}}</p>
+    <p class="info" *ngIf="asMatchInvitation() as matchInv">First to {{matchInv.winningScore}} • Level {{matchInv.startLevel}} start • {{matchInv.levelCap ? 'Level ' + matchInv.levelCap + ' cap' : 'Uncapped'}}</p>
+    <p class="info" *ngIf="asPuzzleBattleInvitation() as pbInv">{{labelStrike(pbInv.strikes)}} • {{labelDuration(pbInv.duration)}}</p>
 </div>
   <div class="container-right">
     <app-solid-button *ngIf="!isSender"

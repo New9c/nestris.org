@@ -43,7 +43,7 @@ export interface DBUser {
 
   puzzle_rush_best: number,
   puzzle_rush_attempts: number,
-  puzzle_rush_pps: number, // placements per second, multiplied by 10, for best puzzle rush score
+  puzzle_rush_pps: number, // placements per second, multiplied by 100, for best puzzle rush score
 
   games_played: number,
   highest_score: number,
@@ -72,6 +72,7 @@ export interface DBUser {
   keybind_emu_reset: string,
   keybind_puzzle_rot_left: string,
   keybind_puzzle_rot_right: string,
+  keybind_puzzle_undo: string;
 
   quest_progress: number[],
   about_me: string | null,
@@ -135,6 +136,7 @@ export const DBUserAttributes = [
   'keybind_emu_reset',
   'keybind_puzzle_rot_left',
   'keybind_puzzle_rot_right',
+  'keybind_puzzle_undo',
 
   'quest_progress',
   'about_me',

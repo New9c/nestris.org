@@ -158,11 +158,11 @@ export class SettingsPageComponent implements OnDestroy {
         new KeybindSetting('keybind_emu_rot_left', 'Rotate Left'),
         new KeybindSetting('keybind_emu_rot_right', 'Rotate Right'),
         new KeybindSetting('keybind_emu_reset', 'Restart'),
-
       ]),
       new Category('Puzzles', [
         new KeybindSetting('keybind_puzzle_rot_left', 'Rotate Left'),
         new KeybindSetting('keybind_puzzle_rot_right', 'Rotate Right'),
+        new KeybindSetting('keybind_puzzle_undo', "Undo"),
       ]),
     ])
   ]

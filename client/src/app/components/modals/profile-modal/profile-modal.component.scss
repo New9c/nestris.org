@@ -424,6 +424,10 @@ app-quest {
     opacity: 1;
 }
 
+.activity-row p.purple {
+    color: $puzzle-color;
+}
+
 .clickable:hover {
     cursor: pointer;
     opacity: 0.85 !important;
