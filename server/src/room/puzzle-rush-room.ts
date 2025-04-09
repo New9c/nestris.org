@@ -308,4 +308,8 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
         }
     }
 
+    public getPuzzleByID(puzzleID: string): RushPuzzle | undefined {
+        return this.puzzleSet.find(puzzle => puzzle.id === puzzleID);
+    }
+
 }

@@ -218,7 +218,7 @@ export class PuzzleRushRoomComponent {
     if (state.status !== PuzzleRushStatus.AFTER_GAME) return;
     if (puzzleIndex === -1) return;
 
-    const numAttempts = this.puzzleRushRoom.getState<PuzzleRushRoomState>().attempts![this.myIndex].length;
+    const numAttempts = this.puzzleRushRoom.getState<PuzzleRushRoomState>().attempts![playerIndex].length;
     if (puzzleIndex >= numAttempts) return;
 
     this.puzzleRushRoom.selectedIndex$.next({ playerIndex, puzzleIndex });

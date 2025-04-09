@@ -25,6 +25,12 @@ import { SmartGameStatus } from "../../shared/tetris/smart-game-status";
 import { MultiplayerRoom } from "../room/multiplayer-room";
 import { Keybind } from "../../shared/emulator/keybinds";
 import { CONFIG } from "../../shared/config";
+import { PuzzleRushAttempt, PuzzleRushAttemptEvent, PuzzleRushEventType, puzzleRushIncorrect, PuzzleRushRoomState, puzzleRushScore, PuzzleRushStatus } from "../../shared/room/puzzle-rush-models";
+import { decodePuzzle } from "../../shared/puzzles/encode-puzzle";
+import { getTopMovesHybrid } from "../scripts/stackrabbit";
+import { InputSpeed } from "../../shared/models/input-speed";
+import { PuzzleRushRoom } from "../room/puzzle-rush-room";
+import { PuzzleRating } from "../../shared/puzzles/puzzle-rating";
 
 const BEFORE_GAME_MESSAGE = [
     "glhf",
@@ -123,8 +129,12 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
         map(status => status.roomInfo)
     );
 
-    get roomState() {
+    get multiplayerRoomState() {
         return this.inRoomStatus$.getValue().roomState as MultiplayerRoomState | null;
+    }
+
+    get puzzleRoomState() {
+        return this.inRoomStatus$.getValue().roomState as PuzzleRushRoomState | null;
     }
 
     get roomInfo() {
@@ -198,7 +208,79 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
         const myIndex = this.roomInfo!.players[0].userid === this.userid ? 0 : 1;
         console.log("my index", myIndex);
 
-        await sleep(2);
+        const room = this.roomConsumer.getRoomByRoomID(this.roomInfo!.id) as PuzzleRushRoom;
+
+        let previousPuzzleID: string | null = null;
+
+        // Wait for the game to start
+        await sleep(3000);
+        const startTime = Date.now();
+
+        const speed = 20000 / (this.config.aiConfig.inputSpeed + 5);
+
+        const msToWait: {[key in PuzzleRating]? : number} = {
+            [PuzzleRating.ONE_STAR]: 500,
+            [PuzzleRating.TWO_STAR]: 1000,
+            [PuzzleRating.THREE_STAR]: 1500,
+            [PuzzleRating.FOUR_STAR]: 2000,
+            [PuzzleRating.FIVE_STAR]: 2500,
+        }
+
+        const blunderChance: number = -1 / (Math.log(this.config.aiConfig.misdrop) * 10);
+        const stuckChance = this.config.aiConfig.inaccuracy;
+        console.log("blunder chance", blunderChance);
+        console.log("stuck chance", stuckChance);
+
+        while (true) {
+            const roomState = this.puzzleRoomState;
+
+            // If the bot is not in a room, break out of the loop
+            if (!roomState) return;
+
+            // If the game is over, break out of the loop
+            if (roomState.status !== PuzzleRushStatus.DURING_GAME) break;
+
+            // If reached time, break out of the loop
+            if (Date.now() - startTime > roomState.duration * 1000) break;
+            
+            // Change in puzzle, try to compute placement
+            const currentPuzzleID = roomState.players[myIndex].currentPuzzleID;
+            if (previousPuzzleID !== currentPuzzleID) {
+
+                const puzzle = room.getPuzzleByID(currentPuzzleID)!;
+
+                // simulate thinking
+                await sleep(randomInt(speed, speed + msToWait[puzzle.rating]!));
+                if (Math.random() < stuckChance) await sleep(randomInt(2000, 4000));
+
+                let attempt: PuzzleRushAttemptEvent;
+                if (Math.random() > blunderChance * puzzle.rating) {
+                    // Correct move
+                    attempt = {
+                        type: PuzzleRushEventType.ATTEMPT,
+                        current: puzzle.current,
+                        next: puzzle.next,
+                    }
+                } else {
+                    // Compute incorrect move
+                    const { board, current, next } = decodePuzzle(currentPuzzleID);
+                    const response = await getTopMovesHybrid(board, current, next, 18, 0, "X.", 2);
+                    const { firstPlacement, secondPlacement } = response.nextBox[randomInt(1,3)];
+                    attempt = {
+                        type: PuzzleRushEventType.ATTEMPT,
+                        current: firstPlacement.getInt2(),
+                        next: secondPlacement.getInt2(),
+                    }
+                }
+
+                // Send the placement to the server
+                this.sendJsonMessageToServer(new ClientRoomEventMessage(attempt));
+
+                // Update previous puzzle ID
+                previousPuzzleID = currentPuzzleID;
+            }
+
+        }
 
         // Leave the room
         await this.roomConsumer.freeSession(this.userid, this.sessionID);
@@ -273,7 +355,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
 
         // wait for the game to start (both players are ready)
         await waitUntilCondition(this.roomState$, state => state.status !== MultiplayerRoomStatus.BEFORE_GAME, leftRoom$, error);
-        if (this.roomState?.status === MultiplayerRoomStatus.ABORTED) throw new MatchAbortedError();
+        if (this.multiplayerRoomState?.status === MultiplayerRoomStatus.ABORTED) throw new MatchAbortedError();
         console.log(`Bot ${this.username} is now in game!`);        
     }
 
@@ -282,14 +364,14 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
      */
     private async handlePlayingGame() {
 
-        const roomState = this.roomState;
+        const roomState = this.multiplayerRoomState;
         if (!this.roomInfo || !roomState) throw new Error('Bot is not in a room');
 
         const room = this.roomConsumer.getRoomByRoomID(this.roomInfo.id);
         if (!room || !(room instanceof MultiplayerRoom)) throw new Error("Room not found by bot, something went wrong");
 
         // Initialize the game state with the room's seed and start level
-        const rng = new GymRNG(this.roomState.currentSeed);
+        const rng = new GymRNG(this.multiplayerRoomState.currentSeed);
         const state = new EmulatorGameState(roomState.startLevel, roomState.levelCap, rng, 3, false);
 
         // Initialize the key manager
