@@ -84,6 +84,8 @@ header {
     justify-content: center;
     align-items: center;
     transform: translateX(20px);
+
+    z-index: 10;
 }
 
 .puzzle-details {
@@ -274,11 +276,15 @@ h1.header {
 
 .stats .stat {
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     width: 100%;
     box-sizing: border-box;
     justify-content: space-between;
     align-items: center;
+}
+
+.battle .stats .stat {
+    flex-direction: row-reverse;
 }
 
 .stat h1, .stat p {
@@ -357,7 +363,7 @@ h1.score {
 
 .after-game .puzzle-icon.selected {
     outline: 2px solid white;
-    border-radius: 2px;
+    border-radius: 3px;
 }
 
 .after-game .puzzle-icon:hover {

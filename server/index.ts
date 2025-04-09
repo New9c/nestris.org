@@ -72,13 +72,12 @@ import { testBotHyperparameters } from './src/bot/simulate-bot';
 import { SpectateRoomRoute } from './src/routes/room/spectate-room-route';
 import { SpectateRoomOfUserRoute } from './src/routes/room/spectate-room-of-user-route';
 import { RankedAbortConsumer } from './src/online-users/event-consumers/ranked-abort-consumer';
-import { MatchInvitationManager } from './src/invitations/match-invitation';
 import { AnalyticsConsumer } from './src/online-users/event-consumers/analytics-consumer';
 import { GetVersionRoute } from './src/routes/misc/get-version-route';
 import { GetRankedStatsRoute } from './src/routes/user/get-ranked-stats-route';
 import { PuzzleRushConsumer } from './src/online-users/event-consumers/puzzle-rush-consumer';
 import { StartPuzzleRushRoute } from './src/routes/room/start-puzzle-rush';
-import { PuzzleBattleInvitationManager } from './src/invitations/room-invitation';
+import { MatchInvitationManager, PuzzleBattleInvitationManager } from './src/invitations/room-invitation';
 
 // Load environment variables
 require('dotenv').config();

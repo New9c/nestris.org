@@ -109,9 +109,9 @@
 
                             <div class="stats" *ngIf="state.stats as stats">
                                 <div class="stat" *ngFor="let stat of stats">
-                                    <h1>{{stat.value[puzzleRushRoom.getMyIndex()]}}</h1>
+                                    <h1 *ngIf="!puzzleRushRoom.isSinglePlayer()">{{stat.value[this.opponentIndex]}}</h1>
                                     <p>{{stat.label}}</p>
-                                    <h1 *ngIf="!puzzleRushRoom.isSinglePlayer()">{{stat.value[(puzzleRushRoom.getMyIndex()+1) % 2]}}</h1>
+                                    <h1>{{stat.value[this.myIndex]}}</h1>
                                 </div>
                             </div>
                         </ng-container>
