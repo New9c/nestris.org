@@ -102,6 +102,7 @@ class QueueUser {
         public readonly sessionID: string,
         public readonly trophies: number,
         public readonly highestTrophies: number,
+        public readonly battleElo: number,
         public readonly highscore: number,
         public readonly matchesPlayed: number,
         public readonly allowBotOpponents: boolean,
@@ -131,10 +132,10 @@ class QueueUser {
     public getBattleRange(queueSeconds: number): TrophyRange {
 
         // Disallow any matches with more than 600 trophy difference
-        if (queueSeconds < 3) return TrophyRange.fromDelta(this.trophies, 100);
-        if (queueSeconds < 10) return TrophyRange.fromDelta(this.trophies, 200);
-        if (queueSeconds < 30) return TrophyRange.fromDelta(this.trophies, 400);
-        return TrophyRange.fromDelta(this.trophies, 600);
+        if (queueSeconds < 3) return TrophyRange.fromDelta(this.battleElo, 100);
+        if (queueSeconds < 10) return TrophyRange.fromDelta(this.battleElo, 200);
+        if (queueSeconds < 30) return TrophyRange.fromDelta(this.battleElo, 400);
+        return TrophyRange.fromDelta(this.battleElo, 600);
     }
 
 }
@@ -218,8 +219,9 @@ export class RankedQueueConsumer extends EventConsumer {
 
         // Add user to the queue, maintaining earliest-joined-first order
         const isBot = dbUser.login_method === LoginMethod.BOT;
+        const battleElo = dbUser.puzzle_battle_elo === -1 ? INITIAL_BATTLES_ELO : dbUser.puzzle_battle_elo;
         this.queue.push(new QueueUser(
-            queueType, userid, dbUser.username, sessionID, dbUser.trophies, dbUser.highest_trophies, dbUser.highest_score, dbUser.matches_played, dbUser.allow_bot_opponents, isBot
+            queueType, userid, dbUser.username, sessionID, dbUser.trophies, dbUser.highest_trophies, battleElo, dbUser.highest_score, dbUser.matches_played, dbUser.allow_bot_opponents, isBot
         ));
 
         // Send the number of players in the queue to all users in the queue
@@ -378,7 +380,7 @@ export class RankedQueueConsumer extends EventConsumer {
 
         // Check if the users have similar trophies
         const trophyRange = user1.getBattleRange(queueSeconds);
-        if (!trophyRange.contains(user2.trophies)) return false;
+        if (!trophyRange.contains(user2.battleElo)) return false;
 
         return true;
     }
@@ -475,7 +477,8 @@ export class RankedQueueConsumer extends EventConsumer {
                 user1.username, user1.trophies, user1.highestTrophies, player1League, dbUser1.puzzle_battle_elo, player2TrophyDelta, startLevel, levelCap, user2Stats, user1Stats
             ));
     
-            console.log(`Matched users ${user1.username} and ${user2.username} with trophies ${user1.trophies} and ${user2.trophies}and delta ${player1TrophyDelta.trophyGain}/${player1TrophyDelta.trophyLoss} and ${player2TrophyDelta.trophyGain}/${player2TrophyDelta.trophyLoss}`);
+            if (user1.queueType === QueueType.RANKED) console.log(`RANKED Matched users ${user1.username} and ${user2.username} with trophies ${user1.trophies} and ${user2.trophies}and delta ${player1TrophyDelta.trophyGain}/${player1TrophyDelta.trophyLoss} and ${player2TrophyDelta.trophyGain}/${player2TrophyDelta.trophyLoss}`);
+            else console.log(`PUZZLE BATTLE Matched users ${user1.username} and ${user2.username} with battle elo ${user1.battleElo} and ${user2.battleElo}and delta ${player1TrophyDelta.trophyGain}/${player1TrophyDelta.trophyLoss} and ${player2TrophyDelta.trophyGain}/${player2TrophyDelta.trophyLoss}`);
     
             // Wait for client-side animations
             await sleep(13000);

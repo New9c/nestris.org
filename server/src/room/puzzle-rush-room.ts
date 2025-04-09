@@ -193,6 +193,9 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
                     Room.Users.sendToUserSession(sessionID, new RedirectMessage("/"));
                 }
             );
+
+            state.status = PuzzleRushStatus.ABORTED;
+            this.updateRoomState(state);
             return;
         }
 

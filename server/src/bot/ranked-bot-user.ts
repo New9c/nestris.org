@@ -148,11 +148,13 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
         // Keep queuing and playing matches indefinitely
         while (true) {
 
+            const queueType = Math.random() < 0.8 ? QueueType.RANKED : QueueType.PUZZLE_BATTLE;
+
             // Wait some time before joining the queue
             await sleep(randomInt(5000, 20000));
 
             // Find a match in the ranked queue
-            const matchFound = await this.handleFindMatch(60);
+            const matchFound = await this.handleFindMatch(queueType, 60);
 
             // If no match found, take a break before trying again
             if (!matchFound) {
@@ -169,11 +171,14 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
                 const error = new LeftRoomEarlyError();
 
                 await this.handleMatchStart(leftRoom$, error);
-                await this.handlePlayingGame();
-                await this.handleMatchEnd(leftRoom$, error);
+                if (queueType === QueueType.RANKED) {
+                    await this.handlePlayingGame();
+                    await this.handleMatchEnd(leftRoom$, error);
+                } else await this.handlePlayingPuzzleBattle();
+                
 
                 // After match, chance of disconnecting for a bit
-                if (Math.random() < 0.5) await this.takeBreak(randomInt(100, 500));
+                if (Math.random() < 0.5) await this.takeBreak(randomInt(100, 400));
 
             } catch (error) {
                 if (error instanceof LeftRoomEarlyError) {
@@ -187,6 +192,16 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
                 }
             }
         }
+    }
+
+    private async handlePlayingPuzzleBattle() {
+        const myIndex = this.roomInfo!.players[0].userid === this.userid ? 0 : 1;
+        console.log("my index", myIndex);
+
+        await sleep(2);
+
+        // Leave the room
+        await this.roomConsumer.freeSession(this.userid, this.sessionID);
     }
 
     /**
@@ -203,10 +218,10 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
      * After this function completes, the bot is in a room and ready to play.
      * If timeout is instead reached, returns false and does not join the room
      */
-    private async handleFindMatch(timeoutSeconds: number): Promise<boolean> {
+    private async handleFindMatch(queueType: QueueType, timeoutSeconds: number): Promise<boolean> {
 
         // Join the ranked queue as a bot
-        this.queueConsumer.joinRankedQueue(QueueType.RANKED, this.sessionID);
+        this.queueConsumer.joinRankedQueue(queueType, this.sessionID);
         //console.log(`Bot ${this.username} joined the ranked queue, waiting for room...`);
 
         const timeout$ = new Subject<boolean>();
@@ -250,15 +265,8 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
      */
     private async handleMatchStart(leftRoom$: Observable<unknown>, error: Error) {
 
-        // Wait a random amount of time before sending a message
-        await sleepWithTimeout(randomInt(1000, 2000), leftRoom$, error);
-
-        // Randomly send a message before the game starts
-        const message = getRandomMessage(BEFORE_GAME_MESSAGE);
-        //if (Math.random() < 0.2) this.sendJsonMessageToServer(new ChatMessage(this.username, message));
-
         // Wait a random amount of time before sending the 'READY' signal
-        await sleepWithTimeout(randomInt(2000, 5000), leftRoom$, error);
+        await sleepWithTimeout(randomInt(3000, 7000), leftRoom$, error);
 
         // Send 'READY' signal to the server
         this.sendJsonMessageToServer(new ClientRoomEventMessage({type: MultiplayerRoomEventType.READY }));

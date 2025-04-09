@@ -25,7 +25,8 @@ export interface PuzzleRushPlayer {
 export enum PuzzleRushStatus {
     BEFORE_GAME = 'BEFORE_GAME',
     DURING_GAME = 'DURING_GAME',
-    AFTER_GAME = 'AFTER_GAME'
+    AFTER_GAME = 'AFTER_GAME',
+    ABORTED = 'ABORTED'
 }
 
 export interface PuzzleRushAttempt {
