@@ -12,6 +12,7 @@ import { WebsocketService } from './websocket.service';
 import { MeService } from './state/me.service';
 import { RoomService } from './room/room.service';
 import { ServerRestartWarningService } from './server-restart-warning.service';
+import { QueueType } from '../shared/network/json-message';
 
 @Injectable({
   providedIn: 'root'
@@ -105,5 +106,11 @@ export class PlayService {
 
     const sessionID = this.websocketService.getSessionID();
     this.fetchService.fetch(Method.POST, `/api/v2/start-puzzle-rush/${sessionID}`);
+  }
+
+  async playPuzzleBattle() {
+    if (this.checkWarning()) return;
+
+    await this.rankedQueueService.joinQueue(QueueType.PUZZLE_BATTLE);
   }
 }

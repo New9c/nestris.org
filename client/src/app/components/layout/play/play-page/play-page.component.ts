@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, map} from 'rxjs';
 import { ProfileModalConfig } from 'src/app/components/modals/profile-modal/profile-modal.component';
+import { PuzzleModeModalConfig } from 'src/app/components/modals/puzzle-mode-modal/puzzle-mode-modal.component';
 import { Mode } from 'src/app/components/ui/mode-icon/mode-icon.component';
 import { ButtonColor } from 'src/app/components/ui/solid-button/solid-button.component';
 import { FetchService, Method } from 'src/app/services/fetch.service';
@@ -52,7 +53,9 @@ export class PlayPageComponent implements OnInit, OnDestroy {
   public leaderboards$ = new BehaviorSubject<RelativeLeaderboards>({
     solo: { playingNow: 0, leaderboard: [null, null, null] },
     ranked: { playingNow: 0, leaderboard: [null, null, null] },
-    puzzles: { playingNow: 0, leaderboard: [null, null, null] }
+    puzzles: { playingNow: 0, leaderboard: [null, null, null] },
+    rush: { playingNow: 0, leaderboard: [null, null, null] },
+    battle: { playingNow: 0, leaderboard: [null, null, null] },
   });
   private leaderboardInterval: any;
 
@@ -142,7 +145,9 @@ export class PlayPageComponent implements OnInit, OnDestroy {
     switch (mode) {
       case Mode.SOLO: return this.playService.playSolo();
       case Mode.RANKED: return this.playService.playRanked();
-      case Mode.PUZZLES: return this.modalManager.showModal(ModalType.PUZZLE_MODE);
+      case Mode.PUZZLES:
+      const config: PuzzleModeModalConfig = { leaderboards: this.leaderboards$.getValue() };  
+      return this.modalManager.showModal(ModalType.PUZZLE_MODE, config);
     }
   }
 

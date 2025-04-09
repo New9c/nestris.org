@@ -1,20 +1,21 @@
 import { getLeagueFromIndex } from "../../../shared/nestris-org/league-system";
-import { FoundOpponentMessage, NumQueuingPlayersMessage, RankedStats, RedirectMessage, SendPushNotificationMessage } from "../../../shared/network/json-message";
+import { FoundOpponentMessage, NumQueuingPlayersMessage, PuzzleBattleStats, QueueType, RankedStats, RedirectMessage, SendPushNotificationMessage } from "../../../shared/network/json-message";
 import { TrophyDelta } from "../../../shared/room/multiplayer-room-models";
 import { sleep } from "../../../shared/scripts/sleep";
 import { DBUserObject } from "../../database/db-objects/db-user";
 import { RankedMultiplayerRoom } from "../../room/ranked-multiplayer-room";
 import { EventConsumer, EventConsumerManager } from "../event-consumer";
 import { OnSessionDisconnectEvent } from "../online-user-events";
-import { RoomAbortError, RoomConsumer } from "./room-consumer";
+import { Room, RoomAbortError, RoomConsumer } from "./room-consumer";
 import { NotificationType } from "../../../shared/models/notifications";
 import { OnlineUserActivityType } from "../../../shared/models/online-activity";
 import { DBUser, LoginMethod } from "../../../shared/models/db-user";
-import { getEloChange, getLevelCapForElo, getStartLevelForElo } from "../../../shared/nestris-org/elo-system";
+import { getEloChange, getLevelCapForElo, getStartLevelForElo, INITIAL_BATTLES_ELO } from "../../../shared/nestris-org/elo-system";
 import { Database } from "../../database/db-query";
 import { RankedAbortConsumer } from "./ranked-abort-consumer";
 import { ServerRestartWarningConsumer } from "./server-restart-warning-consumer";
 import { RankedStatsQuery } from "../../database/db-queries/ranked-stats-query";
+import { PuzzleRushRoom } from "../../room/puzzle-rush-room";
 
 export class QueueError extends Error {}
 export class UserUnavailableToJoinQueueError extends QueueError {}
@@ -94,6 +95,7 @@ class QueueUser {
     public readonly queueStartTime = Date.now();
 
     constructor(
+        public readonly queueType: QueueType,
         public readonly userid: string,
         public readonly username: string,
         public readonly sessionID: string,
@@ -123,7 +125,15 @@ class QueueUser {
         if (queueSeconds < 10) return TrophyRange.fromDelta(this.trophies, 200);
         if (queueSeconds < 30) return TrophyRange.fromDelta(this.trophies, 400);
         return TrophyRange.fromDelta(this.trophies, 600);
-        
+    }
+
+    public getBattleRange(queueSeconds: number): TrophyRange {
+
+        // Disallow any matches with more than 600 trophy difference
+        if (queueSeconds < 3) return TrophyRange.fromDelta(this.trophies, 100);
+        if (queueSeconds < 10) return TrophyRange.fromDelta(this.trophies, 200);
+        if (queueSeconds < 30) return TrophyRange.fromDelta(this.trophies, 400);
+        return TrophyRange.fromDelta(this.trophies, 600);
     }
 
 }
@@ -150,8 +160,8 @@ export class RankedQueueConsumer extends EventConsumer {
      * Get the number of players in the queue
      * @returns The number of players in the queue
      */
-    public playersInQueue(): number {
-        return this.queue.length;
+    public playersInQueue(queueType: QueueType): number {
+        return this.queue.filter(user => user.queueType === queueType).length;
     }
 
     public userMatched(userid: string): boolean {
@@ -179,7 +189,7 @@ export class RankedQueueConsumer extends EventConsumer {
      * @param platform The platform the player is playing on, or null if bot
      * @throws UserUnavailableToJoinQueueError if the user is unavailable to join the queue
      */
-    public async joinRankedQueue(sessionID: string) {
+    public async joinRankedQueue(queueType: QueueType, sessionID: string) {
 
         // Get userid from sessionid
         const userid = this.users.getUserIDBySessionID(sessionID);
@@ -208,7 +218,7 @@ export class RankedQueueConsumer extends EventConsumer {
         // Add user to the queue, maintaining earliest-joined-first order
         const isBot = dbUser.login_method === LoginMethod.BOT;
         this.queue.push(new QueueUser(
-            userid, dbUser.username, sessionID, dbUser.trophies, dbUser.highest_trophies, dbUser.highest_score, dbUser.matches_played, dbUser.allow_bot_opponents, isBot
+            queueType, userid, dbUser.username, sessionID, dbUser.trophies, dbUser.highest_trophies, dbUser.highest_score, dbUser.matches_played, dbUser.allow_bot_opponents, isBot
         ));
 
         // Send the number of players in the queue to all users in the queue
@@ -309,16 +319,13 @@ export class RankedQueueConsumer extends EventConsumer {
         // Check if the users are not the same
         if (user1.userid === user2.userid) return false;
 
-        // Bots can match each other if within 200 trophies
-        if (user1.isBot && user2.isBot) {
-            return Math.abs(user1.trophies - user2.trophies) < 200;
-        }
+        // Queue type must match
+        if (user1.queueType !== user2.queueType) return false;
 
         // If either player has not been in the queue for at least one second, they cannot be matched
         if (user1.queueElapsedSeconds() < 1) return false;
         if (user2.queueElapsedSeconds() < 1) return false;
 
-        
         const hasBot = user1.isBot || user2.isBot;
         const nonBotUsers = [user1, user2].filter(user => !user.isBot);
         let queueSeconds = Math.min(...nonBotUsers.map(user => user.queueElapsedSeconds()));
@@ -327,7 +334,7 @@ export class RankedQueueConsumer extends EventConsumer {
         if ((!user1.allowBotOpponents || !user2.allowBotOpponents) && hasBot) return false;
 
         // Matching with bot delays the match process by some amount
-        if (hasBot) {
+        if (hasBot && nonBotUsers.length === 1) {
             // The first two matches played have faster matches for retention
             const minSeconds = nonBotUsers[0].matchesPlayed >= 2 ? MIN_BOT_MATCH_SECONDS : MIN_BOT_MATCH_SECONDS / 2;
 
@@ -335,9 +342,8 @@ export class RankedQueueConsumer extends EventConsumer {
             else queueSeconds -= minSeconds;
         }
 
-        // Check if the users have similar trophies
-        const trophyRange = user1.getTrophyRange(queueSeconds);
-        if (!trophyRange.contains(user2.trophies)) return false;
+        if (user1.queueType === QueueType.RANKED && !this.canMatchRanked(user1, user2, queueSeconds)) return false;
+        if (user1.queueType === QueueType.PUZZLE_BATTLE && !this.canMatchPuzzleBattle(user1, user2, queueSeconds)) return false;
 
         // Check if the users have not played each other before, unless both users have been waiting for a long time
         const MAX_WAIT_TIME = 20; // If both users have been waiting for more than MAX_WAIT_TIME seconds, they can rematch
@@ -346,7 +352,33 @@ export class RankedQueueConsumer extends EventConsumer {
             if (this.previousOpponent.get(user2.userid) === user1.userid) return false;
         }
 
+        return true;
+    }
+
+    private canMatchRanked(user1: QueueUser, user2: QueueUser, queueSeconds: number): boolean {
+
+        // Bots can match each other if within some trophies
+        if (user1.isBot && user2.isBot) {
+            return Math.abs(user1.trophies - user2.trophies) < 300;
+        }
+
+        // Check if the users have similar trophies
+        const trophyRange = user1.getTrophyRange(queueSeconds);
+        if (!trophyRange.contains(user2.trophies)) return false;
+
         // If all criteria are met, the users can be matched
+        return true;
+    }
+
+    private canMatchPuzzleBattle(user1: QueueUser, user2: QueueUser, queueSeconds: number): boolean {
+
+        // Bots cannot match each other
+        if (user1.isBot && user2.isBot) return false;
+
+        // Check if the users have similar trophies
+        const trophyRange = user1.getBattleRange(queueSeconds);
+        if (!trophyRange.contains(user2.trophies)) return false;
+
         return true;
     }
 
@@ -355,30 +387,32 @@ export class RankedQueueConsumer extends EventConsumer {
      * @param user1 The first user in the match
      * @param user2 The second user in the match
      */
-    private calculateTrophyDelta(user1: DBUser, user2: DBUser): {
+    private calculateTrophyDelta(queueType: QueueType, user1: DBUser, user2: DBUser): {
         player1TrophyDelta: TrophyDelta,
         player2TrophyDelta: TrophyDelta,
     } {
 
-        const elo1 = user1.trophies;
-        const elo2 = user2.trophies;
-        let numMatches1 = user1.matches_played;
-        let numMatches2 = user2.matches_played;
+        // -1 battle elo means the user has not played any puzzle battle matches yet
+        const battleElo = (elo : number) => elo === -1 ? INITIAL_BATTLES_ELO : elo;
+
+        const elo1 = queueType === QueueType.RANKED ? user1.trophies : battleElo(user1.puzzle_battle_elo);
+        const elo2 = queueType === QueueType.RANKED ? user2.trophies : battleElo(user2.puzzle_battle_elo);
+        let numMatches1 = queueType === QueueType.RANKED ? user1.matches_played : (user1.puzzle_battle_wins + user1.puzzle_battle_losses);
+        let numMatches2 = queueType === QueueType.RANKED ? user2.matches_played : (user2.puzzle_battle_wins + user2.puzzle_battle_losses);
 
         // Bots do not have drastic elo change because they have already been a little tuned
         if (user1.login_method === LoginMethod.BOT) numMatches1 = Math.max(3, numMatches1);
         if (user2.login_method === LoginMethod.BOT) numMatches2 = Math.max(3, numMatches2);
 
-
         // use the elo system to calculate the win/loss trophy delta for each user
         return {
             player1TrophyDelta: {
-                trophyGain: getEloChange(elo1, elo2, 1, numMatches1),
-                trophyLoss: getEloChange(elo1, elo2, 0, numMatches1),
+                trophyGain: getEloChange(queueType, elo1, elo2, 1, numMatches1),
+                trophyLoss: getEloChange(queueType, elo1, elo2, 0, numMatches1),
             },
             player2TrophyDelta: {
-                trophyGain: getEloChange(elo2, elo1, 1, numMatches2),
-                trophyLoss: getEloChange(elo2, elo1, 0, numMatches2),
+                trophyGain: getEloChange(queueType, elo2, elo1, 1, numMatches2),
+                trophyLoss: getEloChange(queueType, elo2, elo1, 0, numMatches2),
             }
         };
     }
@@ -401,66 +435,83 @@ export class RankedQueueConsumer extends EventConsumer {
         this.previousOpponent.set(user1.userid, user2.userid);
         this.previousOpponent.set(user2.userid, user1.userid);
 
-        const [dbUser1, dbUser2] = await Promise.all([
-            DBUserObject.get(user1.userid),
-            DBUserObject.get(user2.userid),
-        ]);
-
-        // Calculate the win/loss XP delta for the users
-        const { player1TrophyDelta, player2TrophyDelta } = this.calculateTrophyDelta(dbUser1, dbUser2);
-
-        // Calculate start level
-        const lowerElo = Math.min(dbUser1.trophies, dbUser2.trophies);
-        const startLevel = getStartLevelForElo(lowerElo);
-        const levelCap = getLevelCapForElo(lowerElo);
-
-        const getStats = async (user: DBUser): Promise<RankedStats> => {
-            const { performance, aggression, consistency } = await Database.query(RankedStatsQuery, user.userid);
-            return { highscore: user.highest_score, performance, aggression, consistency };
-        }
-        const [user1Stats, user2Stats] = await Promise.all([getStats(dbUser1), getStats(dbUser2)]);
-
-        // Send the message that an opponent has been found to both users
-        const player1League = getLeagueFromIndex(dbUser1.league);
-        const player2League = getLeagueFromIndex(dbUser2.league);
-        this.users.sendToUserSession(user1.sessionID, new FoundOpponentMessage(
-            user2.username, user2.trophies, user2.highestTrophies, player2League, player1TrophyDelta, startLevel, levelCap, user1Stats, user2Stats
-        ));
-        this.users.sendToUserSession(user2.sessionID, new FoundOpponentMessage(
-            user1.username, user1.trophies, user1.highestTrophies, player1League, player2TrophyDelta, startLevel, levelCap, user2Stats, user1Stats
-        ));
-
-        console.log(`Matched users ${user1.username} and ${user2.username} with trophies ${user1.trophies} and ${user2.trophies}and delta ${player1TrophyDelta.trophyGain}/${player1TrophyDelta.trophyLoss} and ${player2TrophyDelta.trophyGain}/${player2TrophyDelta.trophyLoss}`);
-
-        // Wait for client-side animations
-        await sleep(13000);
-
-        // Temporarily reset the activities of the users before adding them to the multiplayer room
-        this.users.resetUserActivity(user1.userid);
-        this.users.resetUserActivity(user2.userid);
-
-        // Add the users to the multiplayer room, which will send them to the room
-        const user1ID = {userid: user1.userid, sessionID: user1.sessionID};
-        const user2ID = {userid: user2.userid, sessionID: user2.sessionID};
-
         try {
-            if (match.aborted) throw new RoomAbortError(match.aborteeUserid!, 'Left room');
+            const [dbUser1, dbUser2] = await Promise.all([
+                DBUserObject.get(user1.userid),
+                DBUserObject.get(user2.userid),
+            ]);
+    
+            // Calculate the win/loss XP delta for the users
+            const { player1TrophyDelta, player2TrophyDelta } = this.calculateTrophyDelta(user1.queueType, dbUser1, dbUser2);
+    
+            // Calculate start level
+            const lowerElo = Math.min(dbUser1.trophies, dbUser2.trophies);
+            const startLevel = getStartLevelForElo(lowerElo);
+            const levelCap = getLevelCapForElo(lowerElo);
+    
+            const getStats = async (user: DBUser): Promise<RankedStats | PuzzleBattleStats> => {
 
-            const room = new RankedMultiplayerRoom(startLevel, levelCap, user1ID, user2ID, player1TrophyDelta, player2TrophyDelta);
+                if (user1.queueType === QueueType.RANKED) {
+                    const { performance, aggression, consistency } = await Database.query(RankedStatsQuery, user.userid);
+                    return { type: QueueType.RANKED, highscore: user.highest_score, performance, aggression, consistency };
+
+                } else { // QueueType.PUZZLE_BATTLE
+                    const pps = user.puzzle_battle_total_placements === 0 ? 0 : (user.puzzle_battle_total_placements * 2 / user.puzzle_battle_seconds_played);
+                    const accuracy = user.puzzle_battle_total_placements === 0 ? 0 : (user.puzzle_battle_correct_placements / user.puzzle_battle_total_placements);
+                    return { type: QueueType.PUZZLE_BATTLE, rushBest: user.puzzle_rush_best, pps, accuracy };
+                }
+                
+            }
+            const [user1Stats, user2Stats] = await Promise.all([getStats(dbUser1), getStats(dbUser2)]);
+    
+            // Send the message that an opponent has been found to both users
+            const player1League = getLeagueFromIndex(dbUser1.league);
+            const player2League = getLeagueFromIndex(dbUser2.league);
+            this.users.sendToUserSession(user1.sessionID, new FoundOpponentMessage(
+                user2.username, user2.trophies, user2.highestTrophies, player2League, dbUser2.puzzle_battle_elo, player1TrophyDelta, startLevel, levelCap, user1Stats, user2Stats
+            ));
+            this.users.sendToUserSession(user2.sessionID, new FoundOpponentMessage(
+                user1.username, user1.trophies, user1.highestTrophies, player1League, dbUser1.puzzle_battle_elo, player2TrophyDelta, startLevel, levelCap, user2Stats, user1Stats
+            ));
+    
+            console.log(`Matched users ${user1.username} and ${user2.username} with trophies ${user1.trophies} and ${user2.trophies}and delta ${player1TrophyDelta.trophyGain}/${player1TrophyDelta.trophyLoss} and ${player2TrophyDelta.trophyGain}/${player2TrophyDelta.trophyLoss}`);
+    
+            // Wait for client-side animations
+            await sleep(13000);
+    
+            // Temporarily reset the activities of the users before adding them to the multiplayer room
+            this.users.resetUserActivity(user1.userid);
+            this.users.resetUserActivity(user2.userid);
+    
+            // Add the users to the multiplayer room, which will send them to the room
+            const user1ID = {userid: user1.userid, sessionID: user1.sessionID};
+            const user2ID = {userid: user2.userid, sessionID: user2.sessionID};
+    
+            // Check if, while setting up the room, the user has disconnected or left the queue
+            if (match.aborted) throw new RoomAbortError(match.aborteeUserid!, 'Left room');
+    
+            // Create the room
+            let room: Room;
+            if (user1.queueType === QueueType.RANKED) {
+                room = new RankedMultiplayerRoom(startLevel, levelCap, user1ID, user2ID, player1TrophyDelta, player2TrophyDelta);
+            } else { // QueueType.PUZZLE_BATTLE
+                room = new PuzzleRushRoom([user1ID, user2ID], [player1TrophyDelta, player2TrophyDelta]);
+            }
             await EventConsumerManager.getInstance().getConsumer(RoomConsumer).createRoom(room);
+
         } catch (error) {
 
             // If room aborted, send push notification to notify
             if (error instanceof RoomAbortError) {
-                const otherUser = error.userid === user1ID.userid ? user2ID : user1ID;
-                this.users.sendToUserSession(otherUser.sessionID, new SendPushNotificationMessage(
+                const otherSessionID = error.userid === user1.userid ? user2.sessionID : user1.sessionID;
+                this.users.sendToUserSession(otherSessionID, new SendPushNotificationMessage(
                     NotificationType.ERROR, "Match aborted by opponent"
                 ));
             }
 
             // Redirect users back to the home page
-            [user1ID, user2ID].forEach(user => {
-                this.users.sendToUserSession(user.sessionID, new RedirectMessage("/"));
+            [user1.sessionID, user2.sessionID].forEach(sessionID => {
+                this.users.sendToUserSession(sessionID, new RedirectMessage("/"));
             });
         }
         
@@ -468,15 +519,17 @@ export class RankedQueueConsumer extends EventConsumer {
         this.matches = this.matches.filter(m => m !== match);
     }
 
+
     /**
      * Send the number of players in the queue to all users in the queue
      */
     private async sendNumQueuingPlayers() {
-        const numQueuingPlayers = this.playersInQueue();
+        const rankedQueue = this.playersInQueue(QueueType.RANKED);
+        const battleQueue = this.playersInQueue(QueueType.PUZZLE_BATTLE);
 
         this.queue.forEach(user => this.users.sendToUserSession(
             user.sessionID,
-            new NumQueuingPlayersMessage(numQueuingPlayers)
+            new NumQueuingPlayersMessage(rankedQueue, battleQueue)
         ));
     }
 

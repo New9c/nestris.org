@@ -199,17 +199,31 @@ export class ClientRoomEventMessage extends JsonMessage {
 // sent from server to client to update the number of players queuing for multiplayer
 export class NumQueuingPlayersMessage extends JsonMessage {
     constructor(
-        public readonly count: number
+        public readonly rankedCount: number,
+        public readonly battleCount: number,
     ) {
         super(JsonMessageType.NUM_QUEUING_PLAYERS)
     }
 }
 
+export enum QueueType {
+    RANKED = 'ranked',
+    PUZZLE_BATTLE = 'puzzle_battle',
+}
+
 export interface RankedStats {
+    type: QueueType.RANKED,
     highscore: number,
     performance: number,
     aggression: number,
     consistency: number,
+}
+
+export interface PuzzleBattleStats {
+    type: QueueType.PUZZLE_BATTLE,
+    rushBest: number,
+    pps: number,
+    accuracy: number,
 }
 
 // sent from server to client to indicate that a match has been found
@@ -219,11 +233,12 @@ export class FoundOpponentMessage extends JsonMessage {
         public readonly opponentTrophies: number,
         public readonly opponentHighestTrophies: number,
         public readonly opponentLeague: League,
+        public readonly opponentBattleElo: number,
         public readonly trophyDelta: TrophyDelta,
         public readonly startLevel: number,
         public readonly levelCap: number | undefined,
-        public readonly myStats: RankedStats,
-        public readonly opponentStats: RankedStats,
+        public readonly myStats: RankedStats | PuzzleBattleStats,
+        public readonly opponentStats: RankedStats | PuzzleBattleStats,
     ) {
         super(JsonMessageType.FOUND_OPPONENT)
     }

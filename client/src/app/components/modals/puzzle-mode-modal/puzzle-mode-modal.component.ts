@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { MeService } from 'src/app/services/state/me.service';
 import { DBUser } from 'src/app/shared/models/db-user';
 import { Mode } from '../../ui/mode-icon/mode-icon.component';
@@ -7,6 +7,7 @@ import { ModalManagerService } from 'src/app/services/modal-manager.service';
 import { ServerStatsService } from 'src/app/services/server-stats.service';
 import { map } from 'rxjs';
 import { DeploymentEnvironment } from 'src/app/shared/models/server-stats';
+import { RelativeLeaderboards } from 'src/app/shared/models/leaderboard';
 
 enum PuzzleMode {
   NORMAL = 'normal',
@@ -14,6 +15,9 @@ enum PuzzleMode {
   BATTLE = 'battle',
 }
 
+export interface PuzzleModeModalConfig {
+  leaderboards: RelativeLeaderboards;
+}
 
 @Component({
   selector: 'app-puzzle-mode-modal',
@@ -22,6 +26,7 @@ enum PuzzleMode {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PuzzleModeModalComponent {
+  @Input() config?: PuzzleModeModalConfig;
 
   public readonly modes = Object.values(PuzzleMode);
   readonly PuzzleMode = PuzzleMode;
@@ -51,8 +56,24 @@ export class PuzzleModeModalComponent {
     private readonly serverStatsService: ServerStatsService,
   ) {}
 
+  public getLeaderboard(mode: PuzzleMode) {
+    switch (mode) {
+      case PuzzleMode.NORMAL: return this.config?.leaderboards.puzzles;
+      case PuzzleMode.RUSH: return this.config?.leaderboards.rush;
+      default: return this.config?.leaderboards.battle;
+    }
+  }
+
+  nonnegative(num: number) {
+    return Math.min(num, 0);
+  }
+
+  isMe(userid: string) {
+    return this.meService.getUserIDSync() === userid;
+  }
+
   public environmentDisable(mode: PuzzleMode, environment: DeploymentEnvironment) {
-    return mode === PuzzleMode.BATTLE;
+    return false;
   }
 
   public canPlay(me: DBUser, mode: PuzzleMode, environment: DeploymentEnvironment) {
@@ -64,7 +85,7 @@ export class PuzzleModeModalComponent {
       case PuzzleMode.NORMAL: return true;
       case PuzzleMode.RUSH: return me.highest_puzzle_elo >= this.PUZZLE_RUSH_UNLOCK_ELO;
       default: return false;
-      //case PuzzleMode.BATTLE: return me.puzzle_rush_best >= this.PUZZLE_BATTLE_UNLOCK_RUSH;
+      case PuzzleMode.BATTLE: return me.puzzle_rush_best >= this.PUZZLE_BATTLE_UNLOCK_RUSH;
     }
   }
 
@@ -83,7 +104,7 @@ export class PuzzleModeModalComponent {
     switch (mode) {
       case PuzzleMode.NORMAL: return this.playService.playPuzzles();
       case PuzzleMode.RUSH: return this.playService.playPuzzleRush();
-      default: return;
+      default: return this.playService.playPuzzleBattle();
     }
   }
 }

@@ -32,7 +32,7 @@ export class StartPuzzleRushRoute extends PostRoute {
         try {
             const roomConsumer = EventConsumerManager.getInstance().getConsumer(RoomConsumer);
             await roomConsumer.freeSession(userInfo!.userid, sessionID);
-            const puzzleRushRoom = new PuzzleRushRoom([{ userid: userInfo!.userid, sessionID: sessionID }], false);
+            const puzzleRushRoom = new PuzzleRushRoom([{ userid: userInfo!.userid, sessionID: sessionID }], null);
             roomConsumer.createRoom(puzzleRushRoom);
         } catch (error: any) {
             if (error instanceof RoomAbortError) {

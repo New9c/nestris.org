@@ -45,6 +45,14 @@ export interface DBUser {
   puzzle_rush_attempts: number,
   puzzle_rush_pps: number, // placements per second, multiplied by 100, for best puzzle rush score
 
+  puzzle_battle_elo: number,
+  puzzle_battle_highest_elo: number,
+  puzzle_battle_wins: number,
+  puzzle_battle_losses: number,
+  puzzle_battle_correct_placements: number,
+  puzzle_battle_total_placements: number,
+  puzzle_battle_seconds_played: number,
+
   games_played: number,
   highest_score: number,
   highest_level: number,
@@ -108,6 +116,14 @@ export const DBUserAttributes = [
   'puzzle_rush_best',
   'puzzle_rush_attempts',
   'puzzle_rush_pps',
+
+  'puzzle_battle_elo',
+  'puzzle_battle_highest_elo',
+  'puzzle_battle_wins',
+  'puzzle_battle_losses',
+  'puzzle_battle_correct_placements',
+  'puzzle_battle_total_placements',
+  'puzzle_battle_seconds_played',
 
   'games_played',
   'highest_score',

@@ -30,6 +30,14 @@ CREATE TABLE "public"."users" (
     "puzzle_rush_best" int2 NOT NULL,
     "puzzle_rush_pps" int2 NOT NULL,
     "puzzle_rush_attempts" int4 NOT NULL,
+
+    "puzzle_battle_elo" int2 NOT NULL,
+    "puzzle_battle_highest_elo" int2 NOT NULL,
+    "puzzle_battle_wins" int4 NOT NULL,
+    "puzzle_battle_losses" int4 NOT NULL,
+    "puzzle_battle_correct_placements" int4 NOT NULL,
+    "puzzle_battle_total_placements" int4 NOT NULL, 
+    "puzzle_battle_seconds_played" int8 NOT NULL,
     
     "games_played" int4 NOT NULL,
     "highest_score" int4 NOT NULL,

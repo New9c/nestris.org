@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { WebsocketService } from '../websocket.service';
-import { FoundOpponentMessage, JsonMessageType, NumQueuingPlayersMessage } from 'src/app/shared/network/json-message';
+import { FoundOpponentMessage, JsonMessageType, NumQueuingPlayersMessage, QueueType } from 'src/app/shared/network/json-message';
 import { FetchService, HTTPError, Method } from '../fetch.service';
 import { NotificationService } from '../notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
@@ -17,16 +17,16 @@ import { AnalyticsService } from '../analytics.service';
 export class RankedQueueService {
 
   // The number of players currently in the queue
-  private numQueuingPlayers$ = new BehaviorSubject<number>(0);
+  private numQueuingPlayers$ = new BehaviorSubject<NumQueuingPlayersMessage>(new NumQueuingPlayersMessage(0, 0));
   private foundOpponent$ = new Subject<FoundOpponentMessage>();
 
-  private isInQueue = false;
+  private _queueType$ = new BehaviorSubject<QueueType | null>(null);
+  public queueType$ = this._queueType$.asObservable();
 
   constructor(
     private websocketService: WebsocketService,
     private fetchService: FetchService,
     private notifier: NotificationService,
-    private platform: PlatformInterfaceService,
     private videoCapture: VideoCaptureService,
     private roomService: RoomService,
     private analytics: AnalyticsService,
@@ -35,7 +35,7 @@ export class RankedQueueService {
 
     // Listen for the number of players in the queue
     this.websocketService.onEvent<NumQueuingPlayersMessage>(JsonMessageType.NUM_QUEUING_PLAYERS).subscribe(
-      (message) => this.numQueuingPlayers$.next(message.count)
+      (message) => this.numQueuingPlayers$.next(message)
     );
 
     // Listen for when an opponent is found
@@ -51,8 +51,12 @@ export class RankedQueueService {
 
   }
 
+  public get queueType() {
+    return this._queueType$.getValue();
+  }
+
   // Get the number of players currently in the queue
-  public getNumQueuingPlayers$(): Observable<number> {
+  public getNumQueuingPlayers$(): Observable<NumQueuingPlayersMessage> {
     return this.numQueuingPlayers$.asObservable();
   }
 
@@ -65,10 +69,10 @@ export class RankedQueueService {
    * Join the ranked queue. If successful, set isInQueue to true. If not, notify the user.
    * @returns Whether the user successfully joined the queue
    */
-  public async joinQueue(): Promise<boolean> {
+  public async joinQueue(queueType: QueueType = QueueType.RANKED): Promise<boolean> {
 
     // If already in queue, do nothing
-    if (this.isInQueue) return true;
+    if (this.queueType) return true;
 
     // Leave any existing room
     this.roomService.leaveRoom();
@@ -76,17 +80,17 @@ export class RankedQueueService {
     // Send a request to join the queue
     const sessionID = this.websocketService.getSessionID();
     try {
-      await this.fetchService.fetch(Method.POST, `/api/v2/enter-ranked-queue/${sessionID}`);
+      await this.fetchService.fetch(Method.POST, `/api/v2/enter-ranked-queue/${queueType}/${sessionID}`);
 
       // If successful, set isInQueue to true
-      this.isInQueue = true;
+      this._queueType$.next(queueType);
 
       // if not already in the ranked queue, navigate to the ranked queue
       if (this.router.url !== '/online/ranked') {
         this.router.navigate(['/online/ranked']);
       }
 
-      this.analytics.sendEvent("join-queue");
+      this.analytics.sendEvent("join-queue", { type: queueType });
 
       return true;
 
@@ -108,13 +112,13 @@ export class RankedQueueService {
   public async leaveQueue() {
 
     // If not in queue, do nothing
-    if (!this.isInQueue) return;
+    if (!this.queueType) return;
 
     // Send a request to leave the queue
     await this.fetchService.fetch(Method.POST, '/api/v2/leave-ranked-queue');
 
     // If successful, set isInQueue to false
-    this.isInQueue = false;
+    this._queueType$.next(null);
   }
 
 }

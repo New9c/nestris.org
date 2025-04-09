@@ -8,27 +8,44 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    width: 85vw;
+    max-width: 900px;
 }
 
 .option {
-    padding: 30px;
+    padding: 20px;
+    width: 100%;
+    height: 140px;
+
+    box-sizing: border-box;
 
     background-color: rgba(255, 255, 255, 0.03);
     background-color: $dark-color;
     border-radius: 10px;
     border: 2px solid $puzzle-color;
 
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.left {
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 30px;
+}
 
-    transition: all 0.2s;
+.right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
 }
 
 .text {
-    width: 40vw;
-    min-width: 350px;
     display: flex;
     gap: 5px;
     flex-direction: column;
@@ -81,9 +98,14 @@ h1 {
 }
 
 p {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
     color: $puzzle-color;
+}
+
+p.rush {
+    font-size: 13px;
+    font-weight: 700;
 }
 
 app-locked-icon {
@@ -101,27 +123,105 @@ app-locked-icon {
     font-weight: 700;
 }
 
-@media screen and (max-width: 700px) {
+.lock-text {
+    width: 170px;
+}
+
+.lock-text app-puzzle-elo {
+    display: inline-block;
+}
+
+.description {
+    text-wrap: nowrap;
+}
+
+@media screen and (max-width: 970px) {
     .option {
         zoom: 0.9;
-        padding: 25px 20px;
     }
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 880px) {
     .option {
         zoom: 0.7;
     }
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 680px) {
+    .description {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 550px) {
     .option {
         zoom: 0.6;
     }
 }
 
-@media screen and (max-width: 400px) {
-    .option {
-        zoom: 0.55;
+
+.leaderboard {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 300px;
+}
+
+.leaderboard .row {
+    width: 100%;
+    height: 30px;
+    box-sizing: border-box;
+}
+
+.row-content {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border-width: 1.5px;
+    border-style: solid;
+    border-radius: 5px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-inline: 5px;
+
+    opacity: 0.5;
+}
+
+.row-content.me {
+    opacity: 1;
+    filter: brightness(1.2);
+    box-shadow: 0px 0px 4px 0px rgba(255,255,255,0.3);
+}
+
+.row-left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+}
+
+.row-left p {
+    font-family: $main-font;
+    font-weight: 700;
+    font-size: 13px;
+    margin: 0;
+}
+
+.border-color {
+    border-color: $puzzle-color;
+}
+.background-color {
+    background-color: adjust-color($color: $puzzle-color, $alpha: -0.8);
+}
+
+@media screen and (max-width: 470px) {
+    .leaderboard {
+        display: none;
+    }
+    .description {
+        display: flex;
     }
 }

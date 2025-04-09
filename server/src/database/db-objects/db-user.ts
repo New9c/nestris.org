@@ -143,6 +143,14 @@ export class DBUserObject extends DBObject<DBUser, DBUserParams, DBUserEvent>("D
             puzzle_rush_attempts: 0,
             puzzle_rush_pps: 0,
 
+            puzzle_battle_elo: INITIAL_RANKED_TROPHIES,
+            puzzle_battle_highest_elo: INITIAL_RANKED_TROPHIES,
+            puzzle_battle_wins: 0,
+            puzzle_battle_losses: 0,
+            puzzle_battle_correct_placements: 0,
+            puzzle_battle_total_placements: 0,
+            puzzle_battle_seconds_played: 0,
+
             games_played: 0,
             highest_score: 0,
             highest_level: 0,

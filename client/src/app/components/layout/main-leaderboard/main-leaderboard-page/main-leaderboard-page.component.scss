@@ -114,6 +114,7 @@ app-leaderboard-table {
 
 app-solid-selector {
     height: 0;
+    z-index: 10;
 }
 
 @media screen and (max-width: 600px) {

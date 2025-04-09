@@ -21,6 +21,8 @@ export interface RelativeLeaderboards {
     solo: RelativeLeaderboardInfo;
     ranked: RelativeLeaderboardInfo;
     puzzles: RelativeLeaderboardInfo;
+    rush: RelativeLeaderboardInfo;
+    battle: RelativeLeaderboardInfo;
 }
 
 export interface RelativeRanks {
@@ -35,6 +37,7 @@ export enum T200LeaderboardType {
     RANKED = 'ranked',
     PUZZLES = 'puzzles',
     PUZZLE_RUSH = 'blitz',
+    PUZZLE_BATTLE = 'wars',
 }
 
 // what the type of resource ID is

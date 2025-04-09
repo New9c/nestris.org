@@ -1,5 +1,5 @@
 import { BehaviorSubject, filter, map, Observable, Subject } from "rxjs";
-import { ChatMessage, ClientRoomEventMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, RoomStateUpdateMessage } from "../../shared/network/json-message";
+import { ChatMessage, ClientRoomEventMessage, InRoomStatus, InRoomStatusMessage, JsonMessage, JsonMessageType, QueueType, RoomStateUpdateMessage } from "../../shared/network/json-message";
 import { RankedQueueConsumer } from "../online-users/event-consumers/ranked-queue-consumer";
 import { BotUser } from "./bot-user";
 import { sleepWithTimeout, waitUntilCondition, waitUntilValue } from "../scripts/rxjs";
@@ -206,7 +206,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
     private async handleFindMatch(timeoutSeconds: number): Promise<boolean> {
 
         // Join the ranked queue as a bot
-        this.queueConsumer.joinRankedQueue(this.sessionID);
+        this.queueConsumer.joinRankedQueue(QueueType.RANKED, this.sessionID);
         //console.log(`Bot ${this.username} joined the ranked queue, waiting for room...`);
 
         const timeout$ = new Subject<boolean>();

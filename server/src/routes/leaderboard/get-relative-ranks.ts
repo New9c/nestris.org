@@ -1,5 +1,5 @@
 import { RelativeRanks } from "../../../shared/models/leaderboard";
-import { FullHighscoreLeaderboard, FullPuzzlesLeaderboard, FullTrophiesLeaderboard } from "../../leaderboards/full-leaderboard";
+import { FullHighscoreLeaderboard, FullPuzzleBattleLeaderboard, FullPuzzleRushLeaderboard, FullPuzzlesLeaderboard, FullTrophiesLeaderboard } from "../../leaderboards/full-leaderboard";
 import { LeaderboardManager } from "../../leaderboards/leaderboard-manager";
 import { GetRoute, RouteError, UserInfo } from "../route";
 

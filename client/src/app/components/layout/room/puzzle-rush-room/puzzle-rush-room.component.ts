@@ -181,7 +181,7 @@ export class PuzzleRushRoomComponent {
   constructor(
     private readonly roomService: RoomService,
     private readonly soundService: SoundService,
-    private readonly meService: MeService,
+    private readonly playService: PlayService,
     private readonly restartWarningService: ServerRestartWarningService,
     private readonly notificationService: NotificationService,
     public readonly router: Router,
@@ -257,13 +257,13 @@ export class PuzzleRushRoomComponent {
 
   playAgainInfo(state: PuzzleRushRoomState,) {
     if (this.puzzleRushRoom.isSinglePlayer()) return { label: "Play Again", color: ButtonColor.BLUE };
-    if (this.puzzleRushRoom.getState<PuzzleRushRoomState>().rated) return { label: "New match", color: ButtonColor.BLUE };
+    if (this.puzzleRushRoom.getState<PuzzleRushRoomState>().trophyDeltas) return { label: "New match", color: ButtonColor.BLUE };
     if (state.players[this.opponentIndex].status === PuzzleRushPlayerStatus.REMATCH) return { label: "Accept Rematch", color: ButtonColor.GREEN };
     if (state.players[this.myIndex].status === PuzzleRushPlayerStatus.REMATCH) return { label: "Rematch sent", color: ButtonColor.BLUE, disable: true }
     return { label: "Offer Rematch", color: ButtonColor.BLUE };
   }
 
-  playAgain() {
+  async playAgain() {
 
     if (this.restartWarningService.isWarning()) {
       this.notificationService.notify(NotificationType.ERROR, "Server is about to restart! Please wait.");
@@ -271,8 +271,10 @@ export class PuzzleRushRoomComponent {
     }
 
     this.viewMode$.next(ViewMode.SOLUTION);
-    if (this.puzzleRushRoom.getState<PuzzleRushRoomState>().rated) {
+    if (this.puzzleRushRoom.getState<PuzzleRushRoomState>().trophyDeltas) {
       // If rated, go back to queue
+      await this.roomService.leaveRoom();
+      this.playService.playPuzzleBattle();
     } else {
       // Otherwise, send rematch event for same room
       this.puzzleRushRoom.sendRematchEvent();

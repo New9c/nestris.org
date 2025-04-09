@@ -20,7 +20,10 @@
                 <div class="cell attribute" *ngIf="['trophies', 'highest_trophies'].includes(item.key); else puzzle_elo"><app-trophies class="td-content" [size]="14" [trophies]="getRowAttribute(row, item.key)" /></div>
             </ng-template>
             <ng-template #puzzle_elo>
-                <div class="cell attribute" *ngIf="['puzzle_elo', 'highest_puzzle_elo'].includes(item.key); else default"><app-puzzle-elo class="td-content" [size]="14" [puzzleElo]="getRowAttribute(row, item.key)" /></div>
+                <div class="cell attribute" *ngIf="['puzzle_elo', 'highest_puzzle_elo'].includes(item.key); else battle_elo"><app-puzzle-elo class="td-content" [size]="14" [puzzleElo]="getRowAttribute(row, item.key)" /></div>
+            </ng-template>
+            <ng-template #battle_elo>
+                <div class="cell attribute" *ngIf="['puzzle_battle_elo', 'puzzle_battle_highest_elo'].includes(item.key); else default"><app-battle-elo class="td-content" [size]="14" [elo]="getRowAttribute(row, item.key)" /></div>
             </ng-template>
             <ng-template #default>
                 <div class="cell attribute prevent-select" [ngStyle]="{color: getCellColor(row, item.key)}">{{getRowAttribute(row, item.key)}}</div>

@@ -71,12 +71,12 @@
                     <h1>{{data.dbUser.games_played}}</h1>
                 </div>
                 <div class="other-stat">
-                    <p>Puzzles solved</p>
-                    <h1>{{data.dbUser.puzzles_solved}}</h1>
+                    <p>Blitz record</p>
+                    <h1>{{data.dbUser.puzzle_rush_best}}</h1>
                 </div>
                 <div class="other-stat">
-                    <p>Quests completed</p>
-                    <h1>{{completedQuestCount(data.dbUser)}}/{{allQuestCount}}</h1>
+                    <p>Puzzle Wars elo</p>
+                    <h1>{{adjustedBattleElo(data.dbUser.puzzle_battle_elo)}}</h1>
                 </div>
             </div>
         </div>

@@ -4,6 +4,8 @@ import { BehaviorSubject, interval, map, Subscription } from "rxjs";
 import { RankedQueueService } from "src/app/services/room/ranked-queue.service";
 import { SoundEffect, SoundService } from "src/app/services/sound.service";
 import { MeService } from "src/app/services/state/me.service";
+import { NumQueuingPlayersMessage, QueueType } from "src/app/shared/network/json-message";
+import { pluralize } from "src/app/util/misc";
 
 
 @Component({
@@ -24,9 +26,12 @@ export class MatchmakingLoadingPageComponent implements OnInit, OnDestroy {
     readonly foundOpponent$ = this.rankedQueueService.getFoundOpponent$();
     readonly me$ = this.meService.get$();
 
+    readonly QueueType = QueueType;
+    readonly pluralize = pluralize;
+
     constructor(
         private meService: MeService,
-        private rankedQueueService: RankedQueueService,
+        public rankedQueueService: RankedQueueService,
         private sound: SoundService,
         private router: Router,
     ) {
@@ -59,12 +64,17 @@ export class MatchmakingLoadingPageComponent implements OnInit, OnDestroy {
     }
 
     getMessage(periods: number) {
-      return "Searching for opponent" + ('.'.repeat(periods));
+      return `Searching for opponent` + ('.'.repeat(periods));
     }
 
     setScore(score: number) {
         this.score = score;
         if (score > 0) this.scoreVisible = true;
+    }
+
+    queueCount(message: NumQueuingPlayersMessage | null, queueType: QueueType) {
+        if (!message) return 0;
+        return queueType === QueueType.RANKED ? message.rankedCount : message.battleCount;
     }
 
 }

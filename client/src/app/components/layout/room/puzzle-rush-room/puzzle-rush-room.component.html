@@ -121,8 +121,8 @@
                             <div class="player" *ngFor="let p of myPlayersOrder(state)">
                                 <div class="user" *ngIf="state.players.length === 2">
                                     <app-username [userid]="p.player.userid" [username]="p.player.username" [highestTrophies]="p.player.highestTrophies"
-                                        [fontSize]="14" [fontWeight]="600" />
-                                    <app-puzzle-elo [puzzleElo]="p.player.puzzleElo" [size]="14" [purple]="false" />
+                                        [fontSize]="12" [fontWeight]="600" />
+                                    <app-battle-elo [elo]="p.player.battleElo" [size]="12" />
                                 </div>
                                 <div class="attempts-remaining" *ngIf="incorrectCount$ | async as incorrectCount">
                                     <app-correctness-icon-square *ngFor="let i of arrayToNumber(state.strikes)" [width]="state.players.length === 1 ? '40px' : '30px'"

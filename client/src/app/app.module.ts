@@ -125,6 +125,7 @@ import { UsernameComponent } from './components/ui/username/username.component';
 import { PuzzleModeModalComponent } from './components/modals/puzzle-mode-modal/puzzle-mode-modal.component';
 import { PuzzleRushRoomComponent } from './components/layout/room/puzzle-rush-room/puzzle-rush-room.component';
 import { CorrectnessIconSquareComponent } from './components/ui/correctness-icon-square/correctness-icon-square.component';
+import { BattleEloComponent } from './components/ui/battle-elo/battle-elo.component';
 const customNotifierOptions: NotifierOptions = {
   position: {
     horizontal: {
@@ -286,6 +287,7 @@ const customNotifierOptions: NotifierOptions = {
     PuzzleModeModalComponent,
     PuzzleRushRoomComponent,
     CorrectnessIconSquareComponent,
+    BattleEloComponent,
   ],
   imports: [
     BrowserModule,

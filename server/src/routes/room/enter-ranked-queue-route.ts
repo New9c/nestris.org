@@ -1,6 +1,7 @@
 import { Authentication, DBUser } from "../../../shared/models/db-user";
 import { Platform } from "../../../shared/models/platform";
 import { RANKED_UNLOCK_SCORE } from "../../../shared/nestris-org/elo-system";
+import { QueueType } from "../../../shared/network/json-message";
 import { DBObjectNotFoundError } from "../../database/db-object-error";
 import { DBUserObject } from "../../database/db-objects/db-user";
 import { EventConsumerManager } from "../../online-users/event-consumer";
@@ -15,12 +16,18 @@ import { PostRoute, RouteError, UserInfo } from "../route";
  * Route for joining the ranked queue
  */
 export class EnterRankedQueueRoute extends PostRoute {
-    route = "/api/v2/enter-ranked-queue/:sessionid";
+    route = "/api/v2/enter-ranked-queue/:queueType/:sessionid";
     authentication = Authentication.USER;
 
     override async post(userInfo: UserInfo | undefined, pathParams: any) {
         
         const sessionID = pathParams.sessionid as string;
+        const queueType = pathParams.queueType as QueueType;
+
+        // Make sure queueType is valid
+        if (!Object.values(QueueType).includes(queueType)) {
+            throw new RouteError(400, `Invalid queue type: ${queueType}`);
+        }
 
         // Make sure sessionID corresponds to the user
         const users = EventConsumerManager.getInstance().getUsers();
@@ -54,7 +61,7 @@ export class EnterRankedQueueRoute extends PostRoute {
         try {
             // Join the ranked queue
             await roomConsumer.freeSession(userInfo!.userid, sessionID);
-            await EventConsumerManager.getInstance().getConsumer(RankedQueueConsumer).joinRankedQueue(sessionID);
+            await EventConsumerManager.getInstance().getConsumer(RankedQueueConsumer).joinRankedQueue(queueType, sessionID);
 
         } catch (error) {
             if (error instanceof UserUnavailableToJoinQueueError) {

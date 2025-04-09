@@ -202,7 +202,17 @@ export class FullHighscoreLeaderboard extends FullLeaderboard {
     }
 }
 
+export class FullTrophiesLeaderboard extends FullLeaderboard {
 
+    protected override readonly name = "trophies";
+
+    protected async populateLeaderboard(): Promise<LeaderboardUser[]> {
+        return await Database.query(GetAllUsersScoreQuery, 'trophies');
+    }
+    protected getScoreFromUser(user: DBUser): number {
+        return Math.max(user.trophies, 0);
+    }
+}
 
 export class FullPuzzlesLeaderboard extends FullLeaderboard {
 
@@ -216,14 +226,28 @@ export class FullPuzzlesLeaderboard extends FullLeaderboard {
     }
 }
 
-export class FullTrophiesLeaderboard extends FullLeaderboard {
 
-    protected override readonly name = "trophies";
+
+export class FullPuzzleRushLeaderboard extends FullLeaderboard {
+
+    protected override readonly name = "rush";
 
     protected async populateLeaderboard(): Promise<LeaderboardUser[]> {
-        return await Database.query(GetAllUsersScoreQuery, 'trophies');
+        return await Database.query(GetAllUsersScoreQuery, 'puzzle_rush_best');
     }
     protected getScoreFromUser(user: DBUser): number {
-        return Math.max(user.trophies, 0);
+        return user.puzzle_rush_best;
+    }
+}
+
+export class FullPuzzleBattleLeaderboard extends FullLeaderboard {
+
+    protected override readonly name = "battle";
+
+    protected async populateLeaderboard(): Promise<LeaderboardUser[]> {
+        return await Database.query(GetAllUsersScoreQuery, 'puzzle_battle_elo');
+    }
+    protected getScoreFromUser(user: DBUser): number {
+        return user.puzzle_battle_elo;
     }
 }

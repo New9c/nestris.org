@@ -1,7 +1,7 @@
 import { Authentication } from "../../../shared/models/db-user";
 import { RelativeLeaderboards } from "../../../shared/models/leaderboard";
 import { DBUserObject } from "../../database/db-objects/db-user";
-import { FullHighscoreLeaderboard, FullPuzzlesLeaderboard, FullTrophiesLeaderboard } from "../../leaderboards/full-leaderboard";
+import { FullHighscoreLeaderboard, FullPuzzleBattleLeaderboard, FullPuzzleRushLeaderboard, FullPuzzlesLeaderboard, FullTrophiesLeaderboard } from "../../leaderboards/full-leaderboard";
 import { LeaderboardManager } from "../../leaderboards/leaderboard-manager";
 import { EventConsumerManager } from "../../online-users/event-consumer";
 import { RankedQueueConsumer } from "../../online-users/event-consumers/ranked-queue-consumer";
@@ -41,6 +41,10 @@ export class GetRelativeLeaderboardsRoute extends GetRoute<RelativeLeaderboards>
         const rushPlayingNow: number = roomConsumer.getRoomCount(room => room instanceof PuzzleRushRoom);
         const puzzlesLeaderboard = LeaderboardManager.getFullLeaderboard(FullPuzzlesLeaderboard).getLeaderboardForUser(userid);
 
+        const rushLeaderboard = LeaderboardManager.getFullLeaderboard(FullPuzzleRushLeaderboard).getLeaderboardForUser(userid);
+        const battleLeaderboard = LeaderboardManager.getFullLeaderboard(FullPuzzleBattleLeaderboard).getLeaderboardForUser(userid);
+
+
         return {
             solo: {
                 playingNow: soloPlayingNow,
@@ -53,6 +57,14 @@ export class GetRelativeLeaderboardsRoute extends GetRoute<RelativeLeaderboards>
             puzzles: {
                 playingNow: puzzlesPlayingNow + rushPlayingNow,
                 leaderboard: puzzlesLeaderboard
+            },
+            rush: {
+                playingNow: 0, // not used
+                leaderboard: rushLeaderboard
+            },
+            battle: {
+                playingNow: 0, // not used
+                leaderboard: battleLeaderboard
             }
         }
       }

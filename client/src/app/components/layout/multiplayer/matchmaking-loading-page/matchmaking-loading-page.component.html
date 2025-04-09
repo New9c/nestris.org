@@ -1,4 +1,4 @@
-<div class="root">
+<div class="root" *ngIf="rankedQueueService.queueType$ | async as queueType">
 
     <app-fullscreen-exit-button *ngIf="!(foundOpponent$ | async)" />
 
@@ -12,7 +12,7 @@
 
         <div class="center-container center-div">
             <h1>{{getMessage((numPeriods$ | async) ?? 0)}}</h1>
-            <p>{{playersInQueue$ | async}} {{(playersInQueue$ | async) === 1 ? 'player' : 'players'}} in queue</p>
+            <p>{{pluralize('player', queueCount(playersInQueue$ | async, queueType))}} in {{queueType === QueueType.RANKED ? 'ranked' : 'Puzzle Wars'}} queue</p>
         </div>
 
     </div>
@@ -25,31 +25,48 @@
             <div class="player left" *ngIf="(me$ | async) as me">
                 <app-league-icon [league]="me.league" [height]="220" />
                 <app-username [username]="me.username" [highestTrophies]="me.highest_trophies" [fontSize]="25" [fontWeight]="700" />
-                <app-trophies [trophies]="me.trophies" [size]="25" />
+                <app-trophies *ngIf="queueType === QueueType.RANKED" [trophies]="me.trophies" [size]="25" />
+                <app-battle-elo *ngIf="queueType === QueueType.PUZZLE_BATTLE" [elo]="me.puzzle_battle_elo" [size]="25" />
             </div>
             <div class="versus">
                 <img src="./assets/img/misc-icons/vs.svg" />
                 <div class="versus-trophies">
-                    <app-trophies [trophies]="'+' + foundOpponent.trophyDelta.trophyGain" [size]="30" [reverse]="true" color="#58D774" />
-                    <app-trophies [trophies]="foundOpponent.trophyDelta.trophyLoss" [nonnegative]="false" [size]="30" [reverse]="true" color="#F15757" />
+                    <ng-container *ngIf="queueType === QueueType.RANKED">
+                        <app-trophies [trophies]="'+' + foundOpponent.trophyDelta.trophyGain" [size]="30" [reverse]="true" color="#58D774" />
+                        <app-trophies [trophies]="foundOpponent.trophyDelta.trophyLoss" [nonnegative]="false" [size]="30" [reverse]="true" color="#F15757" />    
+                    </ng-container>
+                    <ng-container *ngIf="queueType === QueueType.PUZZLE_BATTLE">
+                        <app-battle-elo [elo]="foundOpponent.trophyDelta.trophyGain" [size]="30" [diff]="true" color="#58D774" />
+                        <app-battle-elo [elo]="foundOpponent.trophyDelta.trophyLoss" [size]="30" [diff]="true" color="#F15757" />    
+                    </ng-container>
                 </div>
 
-                <p *ngIf="!foundOpponent.levelCap && foundOpponent.startLevel < 18">Level {{foundOpponent.startLevel}} start</p>
-                <p *ngIf="!foundOpponent.levelCap && foundOpponent.startLevel >= 18">Level {{foundOpponent.startLevel}} start, uncapped</p>
-                <p *ngIf="foundOpponent.levelCap">Level {{foundOpponent.startLevel}} start, capped at {{foundOpponent.levelCap}}</p>
+                <ng-container *ngIf="queueType === QueueType.RANKED">
+                    <p *ngIf="!foundOpponent.levelCap && foundOpponent.startLevel < 18">Level {{foundOpponent.startLevel}} start</p>
+                    <p *ngIf="!foundOpponent.levelCap && foundOpponent.startLevel >= 18">Level {{foundOpponent.startLevel}} start, uncapped</p>
+                    <p *ngIf="foundOpponent.levelCap">Level {{foundOpponent.startLevel}} start, capped at {{foundOpponent.levelCap}}</p>
+                </ng-container>
+                <p *ngIf="queueType === QueueType.PUZZLE_BATTLE">Puzzle Wars</p>
+
             </div>
             <div class="player right">
                 <app-league-icon [league]="foundOpponent.opponentLeague" [height]="220" [flipped]="true" />
                 <app-username [username]="foundOpponent.opponentName" [highestTrophies]="foundOpponent.opponentHighestTrophies" [fontSize]="25" [fontWeight]="700" />
-                <app-trophies [trophies]="foundOpponent.opponentTrophies" [size]="25" />
+                <app-trophies *ngIf="queueType === QueueType.RANKED" [trophies]="foundOpponent.opponentTrophies" [size]="25" />
+                <app-battle-elo *ngIf="queueType === QueueType.PUZZLE_BATTLE" [elo]="foundOpponent.opponentBattleElo" [size]="25" />
             </div>
         </div>
 
-        <div class="ranked-stats bounded">
+        <div class="stats bounded ranked" *ngIf="foundOpponent.myStats.type === QueueType.RANKED && foundOpponent.opponentStats.type === QueueType.RANKED">
             <app-ranked-stat label="Highscore" [isPercent]="false" [myValue]="foundOpponent.myStats.highscore" [opponentValue]="foundOpponent.opponentStats.highscore" />
             <app-ranked-stat label="Performance" [isPercent]="false" [myValue]="foundOpponent.myStats.performance" [opponentValue]="foundOpponent.opponentStats.performance" />
             <app-ranked-stat label="Survival" [isPercent]="true" [myValue]="foundOpponent.myStats.consistency" [opponentValue]="foundOpponent.opponentStats.consistency" />
             <app-ranked-stat label="Efficiency" [isPercent]="true" [myValue]="foundOpponent.myStats.aggression" [opponentValue]="foundOpponent.opponentStats.aggression" />
+        </div>
+        <div class="stats bounded puzzle-battle" *ngIf="foundOpponent.myStats.type === QueueType.PUZZLE_BATTLE && foundOpponent.opponentStats.type === QueueType.PUZZLE_BATTLE">
+            <app-ranked-stat label="Blitz record" [isPercent]="false" [myValue]="foundOpponent.myStats.rushBest" [opponentValue]="foundOpponent.opponentStats.rushBest" />
+            <app-ranked-stat label="Pieces per second (PPS)" [isPercent]="false" [myValue]="foundOpponent.myStats.pps" [opponentValue]="foundOpponent.opponentStats.pps" />
+            <app-ranked-stat label="Accuracy" [isPercent]="true" [myValue]="foundOpponent.myStats.accuracy" [opponentValue]="foundOpponent.opponentStats.accuracy" />
         </div>
 
         <div class="lower-container">

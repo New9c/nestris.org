@@ -1,4 +1,4 @@
-import { RankedStats } from "../../../shared/network/json-message";
+import { QueueType, RankedStats } from "../../../shared/network/json-message";
 import { RankedStatsQuery } from "../../database/db-queries/ranked-stats-query";
 import { Database } from "../../database/db-query";
 import { GetRoute, UserInfo } from "../route";
@@ -12,6 +12,6 @@ export class GetRankedStatsRoute extends GetRoute<RankedStats> {
     override async get(userInfo: UserInfo | undefined, pathParams: any): Promise<RankedStats> {
         const userid = pathParams.userid as string;
 
-        return Object.assign({}, await Database.query(RankedStatsQuery, userid), { highscore: -1 } );
+        return Object.assign({}, { type: QueueType.RANKED }, await Database.query(RankedStatsQuery, userid), { highscore: -1 } ) as RankedStats;
     }
 }

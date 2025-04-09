@@ -7,6 +7,6 @@
         <app-profile-modal *ngIf="modal === ModalType.PROFILE" [config]="modalManager.getModalConfig()" />
         <app-select-starting-trophies-modal *ngIf="modal === ModalType.SELECT_STARTING_TROPHIES" />
         <app-generate-puzzles-modal *ngIf="modal === ModalType.GENERATE_PUZZLES" />
-        <app-puzzle-mode-modal *ngIf="modal === ModalType.PUZZLE_MODE" />
+        <app-puzzle-mode-modal *ngIf="modal === ModalType.PUZZLE_MODE" [config]="modalManager.getModalConfig()" />
     </app-modal>
 </div>

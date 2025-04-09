@@ -18,6 +18,7 @@ import { Router } from '@angular/router';
 import { RankedStats } from 'src/app/shared/network/json-message';
 import { NotificationService } from 'src/app/services/notification.service';
 import { NotificationType } from 'src/app/shared/models/notifications';
+import { INITIAL_BATTLES_ELO } from 'src/app/shared/nestris-org/elo-system';
 
 export interface ModalData {
   dbUser: DBUser;
@@ -245,6 +246,11 @@ export class ProfileModalComponent implements OnInit, OnDestroy {
   editProfile() {
     this.modalManagerService.hideModal();
     this.router.navigate(["/settings"]);
+  }
+
+  adjustedBattleElo(elo: number) {
+    if (elo === -1) return `${INITIAL_BATTLES_ELO}?`;
+    return elo;
   }
 
 }

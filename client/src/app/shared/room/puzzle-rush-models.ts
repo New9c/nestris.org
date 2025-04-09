@@ -1,5 +1,6 @@
 import { ClientRoomEvent, RoomState, RoomType } from "./room-models";
 import { RushPuzzle } from "../puzzles/db-puzzle";
+import { TrophyDelta } from "./multiplayer-room-models";
 
 // Client-to-server: send ready, send submit, send game end (with pps)
 
@@ -14,7 +15,7 @@ export interface PuzzleRushPlayer {
     userid: string;
     username: string;
     highestTrophies: number;
-    puzzleElo: number;
+    battleElo: number;
     progress: boolean[]; // for each puzzle attempted, add true/false based on whether it was solved
     currentPuzzleID: string; // current ongoing puzzle for the player
     status: PuzzleRushPlayerStatus;
@@ -37,7 +38,7 @@ export interface PuzzleRushRoomState extends RoomState {
 
     status: PuzzleRushStatus;
     players: PuzzleRushPlayer[];
-    rated: boolean,
+    trophyDeltas: TrophyDelta[] | null, // null if not rated
 
     duration: number; // in seconds
     strikes: number; // how many incorrect puzzles = death

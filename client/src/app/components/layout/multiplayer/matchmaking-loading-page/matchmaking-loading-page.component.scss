@@ -224,15 +224,20 @@ app-username {
     }
 }
 
-.ranked-stats {
+.stats {
     display: grid;
-    grid-template-rows: repeat(4, 1fr);
     row-gap: 1.2vh;
-    
     padding-top: 30px;
-
     height: 0;
     animation: zoomToSize 1s ease-in-out forwards 4s;
+}
+
+.stats.ranked {
+    grid-template-rows: repeat(4, 1fr);
+}
+
+.stats.puzzle-battle {
+    grid-template-rows: repeat(3, 1fr);
 }
 
 app-ranked-stat {

@@ -2,39 +2,59 @@
     <div class="options" (click)="$event.stopPropagation()" *ngIf="environment$ | async as environment">
         
         <button class="option" *ngFor="let mode of modes" [ngClass]="mode" [ngClass]="{'locked': !canPlay(me, mode, environment)}" (click)="onClick(me, mode, environment, $event)">
-            <img  class="prevent-select" [src]="imagePath(mode)" width="70px" *ngIf="canPlay(me, mode, environment)" />
-            <app-locked-icon *ngIf="!canPlay(me, mode, environment)" [mode]="Mode.PUZZLES" [locked]="true" />
-            <div class="text">
-                <h1 class="prevent-select">{{modeLabels[mode]}}</h1>
-                <div class="description" *ngIf="canPlay(me, mode, environment)">
-                    <ng-container *ngIf="mode === PuzzleMode.NORMAL">
-                        <p class="prevent-select">Solve rated puzzles. Your puzzle elo:</p>
-                        <app-puzzle-elo [puzzleElo]="me.puzzle_elo" [size]="12" />
-                    </ng-container>
-                    <p *ngIf="mode === PuzzleMode.RUSH" class="prevent-select">Solve as many puzzles as you can in 3 minutes!</p>
-                    <p *ngIf="mode === PuzzleMode.BATTLE" class="prevent-select">Battle other players in Puzzle Blitz!</p>
-                </div>
 
-                <div class="lock-text" *ngIf="!canPlay(me, mode, environment) && !environmentDisable(mode, environment)">
-                    <ng-container *ngIf="mode === PuzzleMode.RUSH">
-                        <p class="prevent-select">Reach a puzzle elo of</p>
-                        <app-puzzle-elo [puzzleElo]="PUZZLE_RUSH_UNLOCK_ELO" [size]="12" />
-                        <p class="prevent-select">to unlock</p>
-                    </ng-container>
-                    <!-- <ng-container *ngIf="mode === PuzzleMode.BATTLE">
-                        <p class="prevent-select">
-                            Score
-                            <strong>{{me.puzzle_rush_best}}/{{PUZZLE_BATTLE_UNLOCK_RUSH}}</strong>
-                            in Puzzle Blitz to unlock
-                        </p>
-                    </ng-container> -->
-                </div>
+            <div class="left">
+                <img  class="prevent-select" [src]="imagePath(mode)" width="70px" />
+                <div class="text">
+                    <h1 class="prevent-select">{{modeLabels[mode]}}</h1>
+                    <div class="description">
+                        <ng-container *ngIf="mode === PuzzleMode.NORMAL">
+                            <p class="prevent-select">Solve rated puzzles. Your puzzle elo:</p>
+                            <app-puzzle-elo [puzzleElo]="me.puzzle_elo" [size]="14" />
+                        </ng-container>
+                        <p *ngIf="mode === PuzzleMode.RUSH" class="prevent-select">Solve as many puzzles as you can in 3 minutes</p>
+                        <p *ngIf="mode === PuzzleMode.BATTLE" class="prevent-select">Test your stacking and speed against other players</p>
+                    </div>
 
-                <div class="lock-text" *ngIf="!canPlay(me, mode, environment) && environmentDisable(mode, environment)">
-                    <p class="prevent-select">This feature is coming soon!</p>
                 </div>
             </div>
-            
+
+            <div class="right">
+                <div class="leaderboard" *ngIf="canPlay(me, mode, environment); else locked">
+                    <ng-container *ngIf="getLeaderboard(mode) as leaderboard">
+                        <div class="row" *ngFor="let i of [0,1,2]">
+                            <div class="row-content border-color background-color"
+                                *ngIf="leaderboard.leaderboard[i] as player" [ngClass]="[mode, isMe(player.userid) ? 'me' : '']">
+                                <div class="row-left">
+                                    <p class="rank color" [ngClass]="mode">#{{player.rank}}</p>
+                                    <p class="username color" [ngClass]="mode">{{player.username}}</p>
+                                </div>
+                                <app-puzzle-elo *ngIf="mode === PuzzleMode.NORMAL" [puzzleElo]="player.score" [size]="13" />
+                                <p class="rush" *ngIf="mode === PuzzleMode.RUSH">{{player.score}}</p>
+                                <app-battle-elo *ngIf="mode === PuzzleMode.BATTLE" [elo]="nonnegative(player.score)" [size]="13" />
+                            </div>
+                        </div>
+                    </ng-container>
+
+                </div>
+                <ng-template #locked>
+                    <div class="lock-text" *ngIf="!canPlay(me, mode, environment)">
+                        <ng-container *ngIf="mode === PuzzleMode.RUSH">
+                            <p class="prevent-select">Reach a puzzle elo of
+                            <app-puzzle-elo [puzzleElo]="PUZZLE_RUSH_UNLOCK_ELO" [size]="14" />
+                            to unlock</p>
+                        </ng-container>
+                        <ng-container *ngIf="mode === PuzzleMode.BATTLE">
+                            <p class="prevent-select">
+                                Score
+                                <strong>{{me.puzzle_rush_best}}/{{PUZZLE_BATTLE_UNLOCK_RUSH}}</strong>
+                                in Puzzle Blitz to unlock
+                            </p>
+                        </ng-container>
+                    </div>
+                    <app-locked-icon [mode]="Mode.PUZZLES" [locked]="true" />
+                </ng-template>
+            </div>
         </button>
 
     </div>

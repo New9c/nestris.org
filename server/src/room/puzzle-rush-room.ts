@@ -4,6 +4,7 @@ import { OnlineUserActivityType } from "../../shared/models/online-activity";
 import { xpOnPuzzleRush } from "../../shared/nestris-org/xp-system";
 import { RedirectMessage, SendPushNotificationMessage } from "../../shared/network/json-message";
 import { RushPuzzle } from "../../shared/puzzles/db-puzzle";
+import { TrophyDelta } from "../../shared/room/multiplayer-room-models";
 import { PuzzleRushAttempt, PuzzleRushAttemptEvent, PuzzleRushEventType, puzzleRushIncorrect, PuzzleRushPlayerStatus, PuzzleRushRoomState, puzzleRushScore, PuzzleRushStatus } from "../../shared/room/puzzle-rush-models";
 import { ClientRoomEvent, RoomType } from "../../shared/room/room-models";
 import { DBPuzzleRushEvent, DBUserObject } from "../database/db-objects/db-user";
@@ -35,11 +36,11 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
 
     constructor(
         private readonly playerIDs: UserSessionID[],
-        private readonly rated: boolean,
+        private readonly trophyDeltas: TrophyDelta[] | null, // null if not rated
         private readonly duration: number = 180, // in seconds
         private readonly strikes: number = 3 // how many incorrect puzzles = death
     ) {
-        if (playerIDs.length === 1 && rated) throw new RoomError("Single player puzzle rush cannot be rated");
+        if (playerIDs.length === 1 && trophyDeltas) throw new RoomError("Single player puzzle rush cannot be rated");
 
         super(
             playerIDs.length > 1 ? OnlineUserActivityType.PUZZLE_BATTLES : OnlineUserActivityType.PUZZLE_RUSH,
@@ -75,14 +76,14 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
         return {
             type: playerUsers.length === 1 ? RoomType.PUZZLE_RUSH : RoomType.PUZZLE_BATTLES,
             status: PuzzleRushStatus.BEFORE_GAME,
-            rated: this.rated,
+            trophyDeltas: this.trophyDeltas,
             duration: this.duration,
             strikes: this.strikes,
             players: playerUsers.map(user => ({
                 userid: user.userid,
                 username: user.username,
                 highestTrophies: user.highest_trophies,
-                puzzleElo: user.puzzle_elo,
+                battleElo: user.puzzle_battle_elo,
                 progress: [],
                 currentPuzzleID: this.puzzleSet[0].id,
                 status: PuzzleRushPlayerStatus.NOT_READY,
@@ -271,7 +272,7 @@ export class PuzzleRushRoom extends Room<PuzzleRushRoomState> {
         });
 
         // Update puzzle elo if rated match
-        if (this.rated) {
+        if (this.trophyDeltas) {
             // TODO
         }
     }

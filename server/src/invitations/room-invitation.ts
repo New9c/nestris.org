@@ -141,6 +141,6 @@ export class PuzzleBattleInvitationManager extends RoomInvitationManager<PuzzleB
     protected override name = "Puzzle Wars";
 
     protected override createRoom(invitation: PuzzleBattleInvitation, senderID: UserSessionID, receiverID: UserSessionID) {
-        return new PuzzleRushRoom([senderID, receiverID], false, invitation.duration, invitation.strikes);
+        return new PuzzleRushRoom([senderID, receiverID], null, invitation.duration, invitation.strikes);
     }
 }

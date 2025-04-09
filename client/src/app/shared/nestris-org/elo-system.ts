@@ -1,5 +1,7 @@
 // https://www.desmos.com/calculator/k7qte28zau
 
+import { QueueType } from "../network/json-message";
+
 /**
  * The expected value for the score (W=1, D=0.5, L=0) of a player against their opponent based on their Elo ratings.
  * @param playerElo The starting Elo rating of the player
@@ -16,7 +18,11 @@ function expectedScore(playerElo: number, opponentElo: number) {
  * @param numMatches The number of matches the player has played
  * @returns The K-factor for the player
  */
-function getKFactor(numMatches: number) {
+function getRankedKFactor(numMatches: number) {
+    return 300 / Math.pow(numMatches + 2, 0.5) + 35;
+}
+
+function getBattleKFactor(numMatches: number) {
     return 300 / Math.pow(numMatches + 2, 0.5) + 35;
 }
 
@@ -28,8 +34,8 @@ function getKFactor(numMatches: number) {
  * @param numMatches The number of matches the player has played
  * @returns The change in Elo rating for the player
  */
-export function getEloChange(playerElo: number, opponentElo: number, playerScore: number, numMatches: number) {
-    const K = getKFactor(numMatches);
+export function getEloChange(queueType: QueueType, playerElo: number, opponentElo: number, playerScore: number, numMatches: number) {
+    const K = queueType === QueueType.RANKED ? getRankedKFactor(numMatches) : getBattleKFactor(numMatches);
     return Math.round(K * (playerScore - expectedScore(playerElo, opponentElo)));
 }
 
@@ -58,3 +64,5 @@ export const START_TROPHIES_OPTIONS: StartTrophiesOption[] = [
     { label: 'Advanced', trophies: 2000, unlockScore: 600000 },
 ];
 export const RANKED_UNLOCK_SCORE = START_TROPHIES_OPTIONS[0].unlockScore;
+
+export const INITIAL_BATTLES_ELO = 1200;

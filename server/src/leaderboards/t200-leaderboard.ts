@@ -339,3 +339,62 @@ export class T200PuzzleRushLeaderboard extends T200Leaderboard {
         return await Database.query(T200PuzzleRushLeaderboardQuery);
     }
 }
+
+export class T200PuzzleBattleLeaderboard extends T200Leaderboard {
+
+    public override readonly type = T200LeaderboardType.PUZZLE_BATTLE;
+    public override readonly resourceIDType = null;
+    public override readonly attributes = {
+        puzzle_battle_elo: 'Elo',
+        puzzle_battle_highest_elo: 'Best',
+        win_loss: 'Win-Loss',
+        lifetime_pps: 'Total PPS',
+        lifetime_accuracy: 'Total Accuracy',
+    };
+
+    protected async populateLeaderboard(): Promise<T200LeaderboardRow[]> {
+
+        class T200PuzzleBattleLeaderboardQuery extends DBQuery<T200LeaderboardRow[]> {
+            public override query = `
+                SELECT
+                    userid, username, league, highest_trophies, puzzle_battle_elo, puzzle_battle_highest_elo,
+                    CONCAT(puzzle_battle_wins, '-', puzzle_battle_losses) as win_loss,
+                    puzzle_battle_total_placements, puzzle_battle_correct_placements, puzzle_battle_seconds_played
+                FROM
+                    users
+                WHERE
+                    users.login_method != 'bot' AND puzzle_battle_highest_elo > 0
+                ORDER BY
+                    puzzle_battle_elo DESC
+                LIMIT 200
+            `;
+
+            public override warningMs = null;
+
+            public override parseResult(resultRows: any[]): T200LeaderboardRow[] {
+                return resultRows.map((row) => ({
+                    rank: -1,
+                    isOnline: false,
+                    inActivity: false,
+
+                    userid: row.userid,
+                    username: row.username,
+                    league: row.league,
+                    highestTrophies: row.highest_trophies,
+
+                    puzzle_battle_elo: row.puzzle_battle_elo,
+                    puzzle_battle_highest_elo: row.puzzle_battle_highest_elo,
+                    win_loss: row.win_loss,
+                    lifetime_pps: row.puzzle_battle_total_placements === 0 ? 0 : (row.puzzle_battle_total_placements * 2 / row.puzzle_battle_seconds_played),
+                    lifetime_accuracy: row.puzzle_battle_total_placements === 0 ? 0 : (row.puzzle_battle_correct_placements / row.puzzle_battle_total_placements),
+
+                    resourceID: null,
+
+                    score: row.puzzle_battle_elo,
+                })); 
+            }
+        }
+        
+        return await Database.query(T200PuzzleBattleLeaderboardQuery);
+    }
+}
