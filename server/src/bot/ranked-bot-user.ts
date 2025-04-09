@@ -226,7 +226,7 @@ export class RankedBotUser extends BotUser<RankedBotConfig> {
             [PuzzleRating.FIVE_STAR]: 2500,
         }
 
-        const blunderChance: number = -1 / (Math.log(this.config.aiConfig.misdrop) * 10);
+        const blunderChance: number = -1 / (Math.log(this.config.aiConfig.misdrop) * 5);
         const stuckChance = this.config.aiConfig.inaccuracy;
         console.log("blunder chance", blunderChance);
         console.log("stuck chance", stuckChance);

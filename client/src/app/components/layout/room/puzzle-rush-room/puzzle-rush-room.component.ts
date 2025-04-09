@@ -82,8 +82,7 @@ export class PuzzleRushRoomComponent {
   );
 
   // Briefly set to true on incorrect submission, then returns back to false. Useful for CSS animation
-  public incorrectShake$ = this.isCorrect$.pipe(
-    filter(isCorrect => isCorrect === PuzzleCorrect.INCORRECT),
+  public incorrectShake$ = this.puzzleRushRoom.onIncorrect$.pipe(
     switchMap(() =>
       merge(
         of(true),             // emit true immediately

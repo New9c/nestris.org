@@ -7,7 +7,7 @@ import { StartableTimer, Timer } from "src/app/util/timer";
 import { SoundEffect, SoundService } from "../sound.service";
 import { PuzzleSubmission } from "src/app/models/puzzles/puzzle";
 import { RoomType } from "src/app/shared/room/room-models";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 import { numberAttribute } from "@angular/core";
 import { pluralize } from "src/app/util/misc";
 
@@ -33,6 +33,7 @@ export class PuzzleRushClientRoom extends ClientRoom {
     private endByTimeout: boolean = false;
 
     public selectedIndex$ = new BehaviorSubject<SelectedIndex | null>(null);
+    public onIncorrect$ = new Subject<void>();
 
     public override async init(event: InRoomStatusMessage): Promise<void> {
         const state = event.roomState as PuzzleRushRoomState;
@@ -94,7 +95,8 @@ export class PuzzleRushClientRoom extends ClientRoom {
         const oldProgress = oldState.players[this.getMyIndex()].progress;
         const newProgress = newState.players[this.getMyIndex()].progress;
         if (newProgress.length > oldProgress.length) {
-            this.sound.play(newProgress[newProgress.length - 1] ? SoundEffect.NOTES_UP_HIGH : SoundEffect.INCORRECT)
+            this.sound.play(newProgress[newProgress.length - 1] ? SoundEffect.NOTES_UP_HIGH : SoundEffect.INCORRECT);
+            if (!newProgress[newProgress.length - 1]) this.onIncorrect$.next();
         }
 
     }
